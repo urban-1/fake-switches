@@ -18,6 +18,14 @@ import re
 class CommandProcessor(object):
 
     def get_command_func(self, line):
+        """
+        Look into the Processor to find a method matching the given
+        command/line:
+
+        - sw mode access => do_sw
+        - no vlan 100 => do_vlan_no
+        - config-whatever => do_config_whatever
+        """
         if line.startswith("!"):
             return (lambda: None), []
         else:
