@@ -83,4 +83,3 @@ class SshTerminalController(TerminalController):
 
     def remove_any_key_handler(self):
         self.shell.awaiting_keystroke = None
-

@@ -18,7 +18,18 @@ from netaddr import IPNetwork, IPAddress
 
 
 class SwitchConfiguration(object):
-    def __init__(self, ip, name="", auto_enabled=False, privileged_passwords=None, ports=None, vlans=None, objects_overrides=None, commit_delay=0):
+    def __init__(
+        self,
+        ip,
+        name="",
+        auto_enabled=False,
+        privileged_passwords=None,
+        ports=None,
+        vlans=None,
+        objects_overrides=None,
+        commit_delay=0,
+        **kwargs,
+    ):
         self.ip = ip
         self.name = name
         self.privileged_passwords = privileged_passwords or []

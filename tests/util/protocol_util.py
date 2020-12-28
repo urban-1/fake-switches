@@ -7,10 +7,13 @@ import pexpect
 from flexmock import flexmock_teardown
 from hamcrest import assert_that, equal_to
 
-from tests.util.global_reactor import TEST_SWITCHES
+from tests.util.global_reactor import TEST_SWITCHES, SwitchBooter
 
 
 def with_protocol(test):
+    """
+    Provides a pexpect client (post-auth) to the test!
+    """
     @wraps(test)
     def wrapper(self):
         try:
@@ -38,13 +41,12 @@ class LoggingFileInterface(object):
 
 
 class ProtocolTester(object):
-    def __init__(self, name, host, port, username, password, conf=None):
-        self.name = name
+    def __init__(self, host, port, username, password):
+        self.name = self.CONF_KEY
         self.host = host
         self.port = port
         self.username = username
         self.password = password
-        self.conf = conf
 
         self.child = None
 
@@ -53,8 +55,10 @@ class ProtocolTester(object):
         self.child.delaybeforesend = 0.0005
         self.child.logfile = None
         self.child.logfile_read = LoggingFileInterface(prefix="[%s] " % self.name)
-        self.child.timeout = 1
-        self.login()
+        self.child.timeout = 3
+
+        if self.username:
+            self.login()
 
     def disconnect(self):
         self.child.close()
@@ -64,6 +68,9 @@ class ProtocolTester(object):
 
     def login(self):
         pass
+
+    def rread(self, expected):
+        self.read(expected, True)
 
     def read(self, expected, regex=False):
         self.wait_for(expected, regex)
@@ -104,8 +111,12 @@ class SshTester(ProtocolTester):
     CONF_KEY = "ssh"
 
     def get_ssh_connect_command(self):
-        return 'ssh %s@%s -p %s -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null' \
-               % (self.username, self.host, self.port)
+        return (
+            'ssh %s@%s -p %s -o StrictHostKeyChecking=no '
+            '-o UserKnownHostsFile=/dev/null '
+            '-o KexAlgorithms=+diffie-hellman-group1-sha1 '
+            '-o LogLevel=ERROR '
+        ) % (self.username, self.host, self.port)
 
     def login(self):
         self.wait_for('[pP]assword: ', regex=True)
@@ -129,17 +140,28 @@ class TelnetTester(ProtocolTester):
 
 
 class ProtocolTest(unittest.TestCase):
-    tester_class = SshTester
+    _tester = SshTester
     test_switch = None
 
     def setUp(self):
-        conf = TEST_SWITCHES[self.test_switch]
-        self.protocol = self.tester_class(self.tester_class.CONF_KEY,
-                                          "127.0.0.1",
-                                          conf[self.tester_class.CONF_KEY],
-                                          u'root',
-                                          u'root',
-                                          conf)
+        if not self.test_switch:
+            return
+
+        self.booter = SwitchBooter(device_filter={self.test_switch}).boot()
+
+        core_switch = self.booter.get_switch(self.test_switch)
+        creds = core_switch._test_creds[self._tester.CONF_KEY]
+        username = password = None
+        if creds:
+            username = password = next(iter(creds))
+
+        self.protocol = self._tester(
+            "127.0.0.1",
+            core_switch._test_ports[self._tester.CONF_KEY],
+            username,
+            password,
+        )
 
     def tearDown(self):
+        self.booter.stop()
         flexmock_teardown()

@@ -40,6 +40,7 @@ class SSHDemoAvatar(avatar.ConchUser):
             self.subsystemLookup.update({b'netconf': netconf_protocol})
 
     def openShell(self, protocol):
+        print("openShell")
         server_protocol = insults.ServerProtocol(SwitchSSHShell, self, switch_core=self.switch_core)
         server_protocol.makeConnection(protocol)
         protocol.makeConnection(session.wrapProtocol(server_protocol))

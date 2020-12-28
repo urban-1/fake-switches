@@ -18,18 +18,22 @@ from twisted.conch import avatar, interfaces as conchinterfaces
 from twisted.conch.insults import insults
 from twisted.conch.ssh import factory, keys, session
 from twisted.cred import portal, checkers
+from twisted.cred.credentials import IUsernamePassword, ISSHPrivateKey
 from zope.interface import implementer
+from twisted.internet import defer
 
 from fake_switches.terminal.ssh import SwitchSSHShell
 from fake_switches.transports.base_transport import BaseTransport
+# from fake_switches.ciena.c6500.ciena_6500_core import CienaTL1Shell
 
 
 @implementer(conchinterfaces.ISession)
 class SSHDemoAvatar(avatar.ConchUser):
-    def __init__(self, username, switch_core):
+    def __init__(self, username, switch_core, variant="cli"):
         avatar.ConchUser.__init__(self)
         self.username = username
         self.switch_core = switch_core
+        self.variant = variant
         self.channelLookup.update({b'session': session.SSHSession})
 
         netconf_protocol = switch_core.get_netconf_protocol()
@@ -37,7 +41,8 @@ class SSHDemoAvatar(avatar.ConchUser):
             self.subsystemLookup.update({b'netconf': netconf_protocol})
 
     def openShell(self, protocol):
-        server_protocol = insults.ServerProtocol(SwitchSSHShell, self, switch_core=self.switch_core)
+        shell_klass = self.switch_core.get_protocol_shell(self.variant)
+        server_protocol = insults.ServerProtocol(shell_klass, self, switch_core=self.switch_core)
         server_protocol.makeConnection(protocol)
         protocol.makeConnection(session.wrapProtocol(server_protocol))
 
@@ -59,12 +64,20 @@ class SSHDemoAvatar(avatar.ConchUser):
 
 @implementer(portal.IRealm)
 class SSHDemoRealm:
-    def __init__(self, switch_core):
+    def __init__(self, switch_core, variant="cli"):
         self.switch_core = switch_core
+        self.variant = variant
 
     def requestAvatar(self, avatarId, mind, *interfaces):
+        print("requestAvatar {}".format(interfaces))
         if conchinterfaces.IConchUser in interfaces:
-            return interfaces[0], SSHDemoAvatar(avatarId, switch_core=self.switch_core), lambda: None
+            return (
+                interfaces[0],
+                SSHDemoAvatar(
+                    avatarId, switch_core=self.switch_core, variant=self.variant
+                ),
+                lambda: None
+            )
         else:
             raise Exception("No supported interfaces found.")
 
@@ -103,16 +116,23 @@ Jk9Gg4yPCL/ZKyIEQzqtkBUyK2P5x1OP32tcC9CxHZlXJLJdhtuQTw==
 
 
 class SwitchSshService(BaseTransport):
-    def __init__(self, ip=None, port=22, switch_core=None, users=None):
+    def __init__(self, ip=None, port=22, switch_core=None, users=None, variant="cli"):
         super(SwitchSshService, self).__init__(ip, port, switch_core, users)
+        self.variant = variant
 
     def hook_to_reactor(self, reactor):
+        # FIXME(urban): Any exception in this block is shadowed (by twisted
+        # I assume...), ensure your SwitchCore fully implements base
         ssh_factory = factory.SSHFactory()
-        ssh_factory.portal = portal.Portal(SSHDemoRealm(self.switch_core))
-        if not self.users:
-            self.users = {'root': b'root'}
-        ssh_factory.portal.registerChecker(
-            checkers.InMemoryUsernamePasswordDatabaseDontUse(**self.users))
+        ssh_factory.portal = portal.Portal(
+            SSHDemoRealm(self.switch_core, variant=self.variant)
+        )
+        if self.users:
+            ssh_factory.portal.registerChecker(
+                checkers.InMemoryUsernamePasswordDatabaseDontUse(**self.users)
+            )
+        else:
+            ssh_factory.portal.registerChecker(Free4AllChecker())
 
         host_public_key, host_private_key = getRSAKeys()
         ssh_factory.publicKeys = {
@@ -125,3 +145,15 @@ class SwitchSshService(BaseTransport):
         logging.info(
             "%s (SSH): Registered on %s tcp/%s" % (self.switch_core.switch_configuration.name, self.ip, self.port))
         return lport
+
+
+
+class Free4AllChecker(object):
+    """
+    Pretend to check pubkey... but actually allow all to enter! This is the
+    default mode in some vendors where auth happens later (custom radius auth)
+    """
+    credentialInterfaces = (ISSHPrivateKey,)
+
+    def requestAvatarId(self, credentials):
+        return defer.succeed(None)
