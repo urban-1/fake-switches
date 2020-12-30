@@ -4,3 +4,4 @@ pyhamcrest>=1.6
 pexpect>=4.2.1
 ncclient>=0.5.2
 pyeapi
+usort
