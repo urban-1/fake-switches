@@ -21,7 +21,7 @@ from tests.util.protocol_util import SshTester, with_protocol, ProtocolTest
 
 
 class TestBrocadeSwitchProtocolWithCommitDelay(ProtocolTest):
-    tester_class = SshTester
+    _tester =  SshTester
     test_switch = "commit-delayed-brocade"
 
     @with_protocol

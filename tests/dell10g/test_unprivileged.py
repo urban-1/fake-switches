@@ -18,7 +18,7 @@ from tests.util.protocol_util import with_protocol, ProtocolTest, SshTester, Tel
 class Dell10GUnprivilegedTest(ProtocolTest):
     __test__ = False
 
-    tester_class = SshTester
+    _tester =  SshTester
     test_switch = "dell10g"
 
     @with_protocol
@@ -58,9 +58,9 @@ class Dell10GUnprivilegedTest(ProtocolTest):
 
 class Dell10GUnprivilegedSshTest(Dell10GUnprivilegedTest):
     __test__ = True
-    tester_class = SshTester
+    _tester =  SshTester
 
 
 class Dell10GUnprivilegedTelnetTest(Dell10GUnprivilegedTest):
     __test__ = True
-    tester_class = TelnetTester
+    _tester =  TelnetTester

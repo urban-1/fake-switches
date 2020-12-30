@@ -145,4 +145,4 @@ class TestAristaSwitchProtocol(ProtocolTest):
 
 class TestAristaSwitchProtocolSSH(TestAristaSwitchProtocol):
     __test__ = True
-    tester_class = SshTester
+    _tester =  SshTester

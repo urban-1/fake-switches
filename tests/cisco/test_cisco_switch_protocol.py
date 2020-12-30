@@ -1526,9 +1526,9 @@ class TestCiscoSwitchProtocol(ProtocolTest):
 
 class TestCiscoSwitchProtocolSSH(TestCiscoSwitchProtocol):
     __test__ = True
-    tester_class = SshTester
+    _tester =  SshTester
 
 
 class TestCiscoSwitchProtocolTelnet(TestCiscoSwitchProtocol):
     __test__ = True
-    tester_class = TelnetTester
+    _tester =  TelnetTester

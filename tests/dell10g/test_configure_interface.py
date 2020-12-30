@@ -21,7 +21,7 @@ from tests.util.protocol_util import with_protocol, ProtocolTest, SshTester, Tel
 
 
 class Dell10GConfigureInterfaceSshTest(ProtocolTest):
-    tester_class = SshTester
+    _tester =  SshTester
     test_switch = "dell10g"
 
     @with_protocol
@@ -169,7 +169,7 @@ class Dell10GConfigureInterfaceSshTest(ProtocolTest):
         t.write("configure")
         t.readln("")
         t.read("my_switch(config)#")
-        
+
         t.write("interface tengigabitethernet 0/0/1")
         t.readln("")
         t.read("my_switch(config-if-Te0/0/1)#")
@@ -685,4 +685,4 @@ class Dell10GConfigureInterfaceSshTest(ProtocolTest):
 
 
 class Dell10GConfigureInterfaceTelnetTest(Dell10GConfigureInterfaceSshTest):
-    tester_class = TelnetTester
+    _tester =  TelnetTester

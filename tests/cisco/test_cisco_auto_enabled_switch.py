@@ -22,9 +22,9 @@ class TestCiscoAutoEnabledSwitchProtocol(ProtocolTest):
 
 class TestCiscoSwitchProtocolSSH(TestCiscoAutoEnabledSwitchProtocol):
     __test__ = True
-    tester_class = SshTester
+    _tester =  SshTester
 
 
 class TestCiscoSwitchProtocolTelnet(TestCiscoAutoEnabledSwitchProtocol):
     __test__ = True
-    tester_class = TelnetTester
+    _tester =  TelnetTester

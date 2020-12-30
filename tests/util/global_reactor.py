@@ -15,8 +15,6 @@
 import threading
 import logging
 
-logging.getLogger().setLevel(logging.DEBUG)
-
 from fake_switches.switch_factory import SwitchFactory
 from fake_switches.transports.http_service import SwitchHttpService
 from fake_switches.transports.ssh_service import SwitchSshService
@@ -186,11 +184,6 @@ class ThreadedReactor(threading.Thread):
         reactor.callFromThread(reactor.stop)
         logging.info("Stoped reactor")
 
-    # def remove(self, what):
-    #     logging.info("Removing all from reactor")
-    #     reactor.callFromThread(reactor.removeAll)
-
-
 
 class SwitchBooter:
     """
@@ -208,15 +201,16 @@ class SwitchBooter:
     def __init__(self, device_filter):
         self.reactor = reactor
         self._switches = {}
+        self._configs = {}
         self._device_filter = device_filter or {}
         self._booted_ports  = []
 
     def boot(self):
         switch_factory = SwitchFactory()
 
-        def _get_creds(conf):
+        def _get_creds(conf, service="ssh"):
             # Disable auth
-            if conf["ssh"].get("user") is None:
+            if conf[service].get("user", "default") is None:
                 return {}
 
             return {'root': b'root'}
@@ -231,6 +225,8 @@ class SwitchBooter:
         for name, conf in TEST_SWITCHES.items():
             if self._device_filter and name not in self._device_filter:
                 continue
+
+            logging.info("Booting config {}: {}".format(name, conf))
 
             switch_core = switch_factory.get(
                 conf["model"],
@@ -248,13 +244,16 @@ class SwitchBooter:
 
                 # Setup this service
                 switch_core._test_ports[svc] = _get_port(conf, svc)
-                switch_core._test_creds[svc] = _get_creds(conf)
+                switch_core._test_creds[svc] = _get_creds(conf, svc)
                 other_settings = {}
                 if svc == "ssh":
                     other_settings = {
                         "variant": conf["ssh"].get("variant", "cli")
                     }
 
+                logging.info("Booter [{}]: starting service '{}'' on port {}".format(
+                    name, svc, switch_core._test_ports[svc]
+                ))
                 svc_instance = svc_klass(
                     "127.0.0.1",
                     port=switch_core._test_ports[svc],
@@ -266,13 +265,17 @@ class SwitchBooter:
                     svc_instance.hook_to_reactor(reactor)
                 )
 
-            # Register this core to make it accessible to tests
+            # Register this core and its config to make it accessible to tests
             self._switches[name] = switch_core
+            self._configs[name] = conf
 
         return self
 
     def get_switch(self, name):
         return self._switches[name]
+
+    def get_config(self, name):
+        return self._configs[name]
 
     def stop(self):
         """ Defer and wait for all ports to stop """
@@ -280,6 +283,7 @@ class SwitchBooter:
         defered = [
             defer.maybeDeferred(port.stopListening)
             for port in self._booted_ports
+            if port
         ]
 
         result = defer.gatherResults(defered)
@@ -287,4 +291,6 @@ class SwitchBooter:
 
 if __name__ == '__main__':
     print('Starting reactor...')
-    ThreadedReactor().start_reactor()
+    ThreadedReactor().start()
+    SwitchBooter(sys.argv[1]).boot()
+    ThreadedReactor().stop()

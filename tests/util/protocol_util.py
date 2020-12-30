@@ -2,9 +2,9 @@ import logging
 import re
 import unittest
 from functools import wraps
+import sys
 
 import pexpect
-from flexmock import flexmock_teardown
 from hamcrest import assert_that, equal_to
 
 from tests.util.global_reactor import TEST_SWITCHES, SwitchBooter
@@ -41,12 +41,13 @@ class LoggingFileInterface(object):
 
 
 class ProtocolTester(object):
-    def __init__(self, host, port, username, password):
-        self.name = self.CONF_KEY
+    def __init__(self,host, port, username, password, config, name=None):
+        self.name = name or self.CONF_KEY
         self.host = host
         self.port = port
         self.username = username
         self.password = password
+        self.conf = config
 
         self.child = None
 
@@ -54,10 +55,12 @@ class ProtocolTester(object):
         self.child = pexpect.spawn(self.get_ssh_connect_command())
         self.child.delaybeforesend = 0.0005
         self.child.logfile = None
-        self.child.logfile_read = LoggingFileInterface(prefix="[%s] " % self.name)
+        self.child.logfile_read = LoggingFileInterface(prefix="[%s] < " % self.name)
+        self.child.logfile_send = LoggingFileInterface(prefix="[%s] > " % self.name)
         self.child.timeout = 3
 
         if self.username:
+            logging.info(">>>> LOGIN [{}] with {}".format(self.name, self.username))
             self.login()
 
     def disconnect(self):
@@ -74,6 +77,8 @@ class ProtocolTester(object):
 
     def read(self, expected, regex=False):
         self.wait_for(expected, regex)
+        logging.debug("   read: matched: {!r}".format(expected))
+        logging.debug("   read: before: {!r}".format(self.child.before))
         assert_that(self.child.before, equal_to(b""))
 
     def readln(self, expected, regex=False):
@@ -119,9 +124,11 @@ class SshTester(ProtocolTester):
         ) % (self.username, self.host, self.port)
 
     def login(self):
+        # self.rread(r'[pP]assword: ')
         self.wait_for('[pP]assword: ', regex=True)
         self.write_invisible(self.password)
         self.wait_for('[>#]$', regex=True)
+        # self.rread(r'^.*[>#]$')
 
 
 class TelnetTester(ProtocolTester):
@@ -150,6 +157,9 @@ class ProtocolTest(unittest.TestCase):
         self.booter = SwitchBooter(device_filter={self.test_switch}).boot()
 
         core_switch = self.booter.get_switch(self.test_switch)
+
+        if not self._tester:
+            return
         creds = core_switch._test_creds[self._tester.CONF_KEY]
         username = password = None
         if creds:
@@ -160,8 +170,8 @@ class ProtocolTest(unittest.TestCase):
             core_switch._test_ports[self._tester.CONF_KEY],
             username,
             password,
+            config=self.booter.get_config(self.test_switch)
         )
 
     def tearDown(self):
         self.booter.stop()
-        flexmock_teardown()

@@ -52,7 +52,6 @@ class SwitchFactory(object):
             core.__class__.__name__,
             config.__class__.__name__,
         ))
-        print(kwargs)
 
         return core(
             config(

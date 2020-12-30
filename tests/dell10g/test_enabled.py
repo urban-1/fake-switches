@@ -20,7 +20,7 @@ from tests.util.protocol_util import with_protocol, SshTester, ProtocolTest, Tel
 class Dell10GEnabledTest(ProtocolTest):
     __test__ = False
 
-    tester_class = SshTester
+    _tester =  SshTester
     test_switch = "dell10g"
 
     @with_protocol
@@ -263,9 +263,9 @@ class Dell10GEnabledTest(ProtocolTest):
 
 class Dell10GEnabledSshTest(Dell10GEnabledTest):
     __test__ = True
-    tester_class = SshTester
+    _tester =  SshTester
 
 
 class Dell10GEnabledTelnetTest(Dell10GEnabledTest):
     __test__ = True
-    tester_class = TelnetTester
+    _tester =  TelnetTester

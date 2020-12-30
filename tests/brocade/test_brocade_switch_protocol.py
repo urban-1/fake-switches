@@ -3,7 +3,7 @@ from tests.util.protocol_util import SshTester, with_protocol, ProtocolTest
 
 
 class TestBrocadeSwitchProtocol(ProtocolTest):
-    tester_class = SshTester
+    _tester =  SshTester
     test_switch = "brocade"
 
     @with_protocol
@@ -718,7 +718,7 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
         configuring_interface(t, "1/1", do="no port-name")
         configuring_interface(t, "1/3", do="no port-name")
         configuring_interface(t, "1/3", do="disable")
-        
+
         configuring(t, do="no interface ethernet 1/4")
 
         t.write("show running-config interface")

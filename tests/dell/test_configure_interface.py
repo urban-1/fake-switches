@@ -25,7 +25,7 @@ from tests.util.protocol_util import with_protocol, ProtocolTest, SshTester, Tel
 class DellConfigureInterfaceTest(ProtocolTest):
     __test__ = False
 
-    tester_class = SshTester
+    _tester =  SshTester
     test_switch = "dell"
 
     @with_protocol
@@ -999,9 +999,9 @@ class DellConfigureInterfaceTest(ProtocolTest):
 
 class DellConfigureInterfaceSshTest(DellConfigureInterfaceTest):
     __test__ = True
-    tester_class = SshTester
+    _tester =  SshTester
 
 
 class DellConfigureInterfaceTelnetTest(DellConfigureInterfaceTest):
     __test__ = True
-    tester_class = TelnetTester
+    _tester =  TelnetTester

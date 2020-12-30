@@ -20,7 +20,7 @@ from tests.util.protocol_util import ProtocolTest, SshTester, with_protocol
 
 
 class TestAristaInterfaceVlans(ProtocolTest):
-    tester_class = SshTester
+    _tester =  SshTester
     test_switch = "arista"
 
     @with_protocol

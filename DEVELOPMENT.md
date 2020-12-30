@@ -34,15 +34,12 @@ ssh -oKexAlgorithms=+diffie-hellman-group1-sha1 root@localhost -p 2222
 
 ## Test
 
-WARNING: Tests are still in py2 :( - NOPE
 ```
-curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
-python2 ./get-pip.py 
-rm ./get-pip.py
-pip2 install --user -r ./test-requirements.txt
-pip2 install --user -r ./requirements.txt
+python3 ./run-tests.py --help
+```
 
-```
+NOTES:
+- Some tests require the python module to be installed!
 
 ## My changes
 

@@ -20,7 +20,7 @@ from tests.util.protocol_util import ProtocolTest, SshTester, with_protocol
 
 
 class TestAristaLoadInterval(ProtocolTest):
-    tester_class = SshTester
+    _tester =  SshTester
     test_switch = "arista"
 
     def setUp(self):

@@ -51,7 +51,13 @@ class FakeSwitchesTest(unittest.TestCase):
 
 
 def get_base_args():
+    """
+    Construct base executable and script paths. If fake-switches command
+    is not installed in the systen, skip the test
+    """
     entry_point_path = os.path.join(os.path.dirname(sys.executable), 'fake-switches')
+    if not os.path.exists(entry_point_path):
+        raise unittest.SkipTest("Main script not installed".format(entry_point_path))
     return [sys.executable, entry_point_path]
 
 

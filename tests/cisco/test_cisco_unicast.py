@@ -70,9 +70,9 @@ class CiscoUnicastTest(ProtocolTest):
 
 class CiscoUnicastProtocolSSHTest(CiscoUnicastTest):
     __test__ = True
-    tester_class = SshTester
+    _tester =  SshTester
 
 
 class CiscoUnicastProtocolTelnetTest(CiscoUnicastTest):
     __test__ = True
-    tester_class = TelnetTester
+    _tester =  TelnetTester

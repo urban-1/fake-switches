@@ -27,8 +27,8 @@ def parse_args():
         "-v",
         "--verbosity",
         type=int,
-        default=1,
-        help="VErbosity [1-5], 5 is DEBUG",
+        default=2,
+        help="VErbosity [1-5], 5=DEBUG, 4=INFO, 3=WARNING, 2=headers, 1=dots",
     )
 
     return parser.parse_args()
@@ -48,6 +48,13 @@ def run_with_reactor(suite):
 def main():
     global args
     args = parse_args()
+
+    if args.verbosity == 3:
+        lg.getLogger().setLevel(lg.WARNING)
+    elif args.verbosity == 4:
+        lg.getLogger().setLevel(lg.INFO)
+    elif args.verbosity == 5:
+        lg.getLogger().setLevel(lg.DEBUG)
 
 
     if not args.tests:

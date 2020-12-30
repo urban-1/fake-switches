@@ -19,7 +19,7 @@ from tests.util.protocol_util import with_protocol, ProtocolTest, SshTester
 
 
 class TestAristaRunningConfig(ProtocolTest):
-    tester_class = SshTester
+    _tester =  SshTester
     test_switch = "arista"
 
     @with_protocol

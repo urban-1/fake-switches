@@ -22,7 +22,7 @@ class SwitchFactoryTest(unittest.TestCase):
             switch_conf_class = mock.Mock()
             switch_conf_class.return_value = switch_conf_instance
             switch_conf_module.SwitchConfiguration = switch_conf_class
-            factory = switch_factory.SwitchFactory(mapping={'a': core_mock})
+            factory = switch_factory.SwitchFactory(mapping={'a': (core_mock, None)})
             switch = factory.get('a', 'my_hostname')
 
         assert_that(switch, is_(instance_of(switch_core.SwitchCore)))

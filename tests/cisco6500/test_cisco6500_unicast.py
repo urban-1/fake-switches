@@ -20,7 +20,7 @@ from tests.util.protocol_util import SshTester, TelnetTester, with_protocol, Pro
 class Cisco6500UnicastTest(ProtocolTest):
     __test__ = False
 
-    tester_class = SshTester
+    _tester =  SshTester
     test_switch = "cisco6500"
 
     @with_protocol
@@ -48,9 +48,9 @@ class Cisco6500UnicastTest(ProtocolTest):
 
 class Cisco6500UnicastProtocolSSHTest(Cisco6500UnicastTest):
     __test__ = True
-    tester_class = SshTester
+    _tester =  SshTester
 
 
 class Cisco6500UnicastProtocolTelnetTest(Cisco6500UnicastTest):
     __test__ = True
-    tester_class = TelnetTester
+    _tester =  TelnetTester

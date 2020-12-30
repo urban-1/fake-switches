@@ -69,7 +69,6 @@ class SSHDemoRealm:
         self.variant = variant
 
     def requestAvatar(self, avatarId, mind, *interfaces):
-        print("requestAvatar {}".format(interfaces))
         if conchinterfaces.IConchUser in interfaces:
             return (
                 interfaces[0],

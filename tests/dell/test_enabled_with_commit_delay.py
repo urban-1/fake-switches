@@ -22,7 +22,7 @@ from tests.util.protocol_util import with_protocol, SshTester, ProtocolTest
 
 class DellEnabledWithCommitDelayTest(ProtocolTest):
 
-    tester_class = SshTester
+    _tester =  SshTester
     test_switch = "commit-delayed-dell"
 
     @with_protocol
