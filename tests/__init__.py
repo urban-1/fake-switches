@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""
+WARNING(urban): Used by tox -> python setup.py nosetests
+"""
+
 import re
 
 from hamcrest.library.text.substringmatcher import SubstringMatcher
@@ -20,11 +24,11 @@ from tests.util.global_reactor import ThreadedReactor
 
 
 def setup():
-    ThreadedReactor.start_reactor()
+    ThreadedReactor().start()
 
 
 def tearDown():
-    ThreadedReactor.stop_reactor()
+    ThreadedReactor().stop()
 
 
 class RegexStringContains(SubstringMatcher):

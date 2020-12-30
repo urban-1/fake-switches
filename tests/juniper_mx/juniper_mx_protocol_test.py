@@ -1945,7 +1945,7 @@ class JuniperMXProtocolTest(BaseJuniper):
         )
         self.nc.commit()
 
-        switch = ThreadedReactor.get_switch("juniper_mx")
+        switch = self.booter.get_switch("juniper_mx")
 
         assert_that(switch.switch_configuration.get_port("irb.300").vlan_id, is_(200))
 
@@ -1988,7 +1988,7 @@ class JuniperMXProtocolTest(BaseJuniper):
         )
         self.nc.commit()
 
-        switch = ThreadedReactor.get_switch("juniper_mx")
+        switch = self.booter.get_switch("juniper_mx")
 
         assert_that(switch.switch_configuration.get_port("irb.300").vlan_id, is_(200))
 

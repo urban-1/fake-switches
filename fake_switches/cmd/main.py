@@ -51,22 +51,26 @@ def main():
     args = parser.parse_args()
     args.password = args.password.encode()
 
-    factory = switch_factory.SwitchFactory()
-    switch_core = factory.get(
-        args.model, args.hostname, args.password, config_file=args.config_file
-    )
+    try:
+        factory = switch_factory.SwitchFactory()
+        switch_core = factory.get(
+            args.model, args.hostname, args.password, config_file=args.config_file
+        )
 
-    ssh_service = SwitchSshService(
-        ip=args.listen_host,
-        port=args.listen_port,
-        switch_core=switch_core,
-        users={args.username: args.password} if args.username != "None" else {},
-        variant=args.shell_variant,
-    )
-    ssh_service.hook_to_reactor(reactor)
+        ssh_service = SwitchSshService(
+            ip=args.listen_host,
+            port=args.listen_port,
+            switch_core=switch_core,
+            users={args.username: args.password} if args.username != "None" else {},
+            variant=args.shell_variant,
+        )
+        ssh_service.hook_to_reactor(reactor)
 
-    logger.info("Starting reactor")
-    reactor.run()
+        logger.info("Starting reactor")
+        reactor.run()
+    except:
+        logging.exception("Failed to start switch")
+        return -1
 
 
 if __name__ == "__main__":

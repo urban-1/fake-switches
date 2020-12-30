@@ -13,6 +13,7 @@ help:
 	@echo "Internal/advanced:"
 	@echo ""
 	@echo " - fmt_test: Ensure no files need formatting"
+	@echo " - clean: Remove all .pyc filesnd tox envs"
 	@echo ""
 
 
@@ -30,7 +31,7 @@ usort:
 
 
 reqs:
-	echo " * Installing requirements (pip install --user)"
+	@echo " * Installing requirements (pip install --user)"
 	@pip install --user -r ./test-requirements.txt
 	@pip install --user -r ./requirements.txt
 
@@ -43,4 +44,18 @@ fmt_test:
 
 tests: fmt_test
 	@echo " * Starting tests"
-	@python3 ./run-tests.py -v 1
+	# @python3 ./run-tests.py -v 1
+	tox
+
+
+clean:
+	@find . -name "*.pyc" -exec rm -f {} \;
+	@find . -name '__pycache__' -type d | xargs rm -fr
+
+
+distclean: clean
+	rm -fr *.egg *.egg-info/ .eggs/ dist/ build/
+
+
+maintclean: distclean
+	rm -fr .venv/ .tox/

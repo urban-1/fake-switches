@@ -28,7 +28,7 @@ class SwitchConfiguration(object):
         vlans=None,
         objects_overrides=None,
         commit_delay=0,
-        **kwargs,
+        **kwargs
     ):
         self.ip = ip
         self.name = name

@@ -18,7 +18,7 @@ import pyeapi
 
 def with_eapi(test):
     @wraps(test)
-    def wrapper(self: "ProtocolTest", protocol=None):
+    def wrapper(self, protocol=None):
         # Get the booter that started this switch
         core_switch = self.booter.get_switch(self.test_switch)
         # Get the http port out of the core_switch
