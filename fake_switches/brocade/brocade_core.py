@@ -16,11 +16,18 @@ import logging
 
 from fake_switches import switch_core
 from fake_switches.brocade.command_processor.config import ConfigCommandProcessor
-from fake_switches.brocade.command_processor.config_interface import ConfigInterfaceCommandProcessor
-from fake_switches.brocade.command_processor.config_virtual_interface import ConfigVirtualInterfaceCommandProcessor
-from fake_switches.brocade.command_processor.config_virtual_interface_vrrp import \
-    ConfigVirtualInterfaceVrrpCommandProcessor
-from fake_switches.brocade.command_processor.config_vlan import ConfigVlanCommandProcessor
+from fake_switches.brocade.command_processor.config_interface import (
+    ConfigInterfaceCommandProcessor,
+)
+from fake_switches.brocade.command_processor.config_virtual_interface import (
+    ConfigVirtualInterfaceCommandProcessor,
+)
+from fake_switches.brocade.command_processor.config_virtual_interface_vrrp import (
+    ConfigVirtualInterfaceVrrpCommandProcessor,
+)
+from fake_switches.brocade.command_processor.config_vlan import (
+    ConfigVlanCommandProcessor,
+)
 from fake_switches.brocade.command_processor.config_vrf import ConfigVrfCommandProcessor
 from fake_switches.brocade.command_processor.default import DefaultCommandProcessor
 from fake_switches.brocade.command_processor.enabled import EnabledCommandProcessor
@@ -41,7 +48,9 @@ class BrocadeSwitchCore(switch_core.SwitchCore):
         self.last_connection_id += 1
 
         self.logger = logging.getLogger(
-            "fake_switches.brocade.%s.%s.%s" % (self.switch_configuration.name, self.last_connection_id, protocol))
+            "fake_switches.brocade.%s.%s.%s"
+            % (self.switch_configuration.name, self.last_connection_id, protocol)
+        )
 
         command_processor = DefaultCommandProcessor(
             enabled=EnabledCommandProcessor(
@@ -51,13 +60,18 @@ class BrocadeSwitchCore(switch_core.SwitchCore):
                     config_interface=ConfigInterfaceCommandProcessor(),
                     config_virtual_interface=ConfigVirtualInterfaceCommandProcessor(
                         config_virtual_interface_vrrp=ConfigVirtualInterfaceVrrpCommandProcessor()
-                    )
+                    ),
                 )
-            ))
-        command_processor.init(switch_configuration=self.switch_configuration,
-                               terminal_controller=LoggingTerminalController(self.logger, terminal_controller),
-                               piping_processor=PipingProcessor(self.logger),
-                               logger=self.logger)
+            )
+        )
+        command_processor.init(
+            switch_configuration=self.switch_configuration,
+            terminal_controller=LoggingTerminalController(
+                self.logger, terminal_controller
+            ),
+            piping_processor=PipingProcessor(self.logger),
+            logger=self.logger,
+        )
 
         return BrocadeShellSession(command_processor)
 
@@ -70,10 +84,12 @@ class BrocadeSwitchCore(switch_core.SwitchCore):
             Port("ethernet 1/1"),
             Port("ethernet 1/2"),
             Port("ethernet 1/3"),
-            Port("ethernet 1/4")
+            Port("ethernet 1/4"),
         ]
 
 
 class BrocadeShellSession(ShellSession):
     def handle_unknown_command(self, line):
-        self.command_processor.terminal_controller.write("Invalid input -> %s\nType ? for a list\n" % line)
+        self.command_processor.terminal_controller.write(
+            "Invalid input -> %s\nType ? for a list\n" % line
+        )

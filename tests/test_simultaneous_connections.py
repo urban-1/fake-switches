@@ -1,20 +1,19 @@
 import unittest
 
+from tests.util.global_reactor import SwitchBooter
 from tests.util.global_reactor import TEST_SWITCHES
 from tests.util.protocol_util import SshTester, TelnetTester
-from tests.util.global_reactor import SwitchBooter
 
 
 class RoutingEngineTest(unittest.TestCase):
-
     def test_2_ssh(self):
         test_switch = "brocade"
         self.booter = SwitchBooter([test_switch]).boot()
         port = self.booter.get_switch(test_switch)._test_ports["ssh"]
         conf = self.booter.get_config(test_switch)
 
-        tester1 = SshTester("127.0.0.1", port, u'root', u'root', conf, name="ssh-1")
-        tester2 = SshTester("127.0.0.1", port, u'root', u'root', conf, name="ssh-2")
+        tester1 = SshTester("127.0.0.1", port, u"root", u"root", conf, name="ssh-1")
+        tester2 = SshTester("127.0.0.1", port, u"root", u"root", conf, name="ssh-2")
 
         tester1.connect()
         tester1.write("enable")
@@ -55,8 +54,8 @@ class RoutingEngineTest(unittest.TestCase):
         self.booter = SwitchBooter([test_switch]).boot()
         port = self.booter.get_switch(test_switch)._test_ports["telnet"]
         conf = self.booter.get_config(test_switch)
-        tester1 = TelnetTester("127.0.0.1", port, 'root', 'root', conf, name="telnet-1")
-        tester2 = TelnetTester("127.0.0.1", port, 'root', 'root', conf, name="telnet-2")
+        tester1 = TelnetTester("127.0.0.1", port, "root", "root", conf, name="telnet-1")
+        tester2 = TelnetTester("127.0.0.1", port, "root", "root", conf, name="telnet-2")
 
         tester1.connect()
         tester1.write("enable")

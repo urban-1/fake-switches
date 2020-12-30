@@ -11,12 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from fake_switches.cisco.command_processor.config import \
-    ConfigCommandProcessor
+from fake_switches.cisco.command_processor.config import ConfigCommandProcessor
 
 
 class DellConfigCommandProcessor(ConfigCommandProcessor):
-    interface_separator = ' '
+    interface_separator = " "
 
     def get_prompt(self):
         return "\n" + self.switch_configuration.name + "(config)#"
@@ -26,7 +25,7 @@ class DellConfigCommandProcessor(ConfigCommandProcessor):
             self.move_to(self.config_vlan_processor)
 
     def do_interface(self, *args):
-        if 'vlan'.startswith(args[0]):
+        if "vlan".startswith(args[0]):
             vlan_id = int(args[1])
             vlan = self.switch_configuration.get_vlan(vlan_id)
             if vlan is None:
@@ -36,9 +35,10 @@ class DellConfigCommandProcessor(ConfigCommandProcessor):
         super(DellConfigCommandProcessor, self).do_interface(*args)
 
     def do_backdoor(self, *args):
-        if 'remove'.startswith(args[0]) and 'port-channel'.startswith(args[1]):
+        if "remove".startswith(args[0]) and "port-channel".startswith(args[1]):
             self.switch_configuration.remove_port(
-                self.switch_configuration.get_port_by_partial_name(" ".join(args[1:3])))
+                self.switch_configuration.get_port_by_partial_name(" ".join(args[1:3]))
+            )
 
     def do_exit(self):
         self.write_line("")

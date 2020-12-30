@@ -37,7 +37,7 @@ class SwitchConfiguration(object):
         self.vlans = []
         self.ports = []
         self.static_routes = []
-        self.vrfs = [VRF('DEFAULT-LAN')]
+        self.vrfs = [VRF("DEFAULT-LAN")]
         self.locked = False
         self.objects_factory = {
             "Route": Route,
@@ -96,7 +96,15 @@ class SwitchConfiguration(object):
     def get_port_by_partial_name(self, name):
         partial_name, number = split_port_name(name.lower())
 
-        return next((port for port in self.ports if port.name.lower().startswith(partial_name.strip()) and port.name.lower().endswith(number.strip())), None)
+        return next(
+            (
+                port
+                for port in self.ports
+                if port.name.lower().startswith(partial_name.strip())
+                and port.name.lower().endswith(number.strip())
+            ),
+            None,
+        )
 
     def get_port_and_ip_by_ip(self, ip_string):
         for port in [e for e in self.ports if isinstance(e, VlanPort)]:
@@ -121,7 +129,11 @@ class SwitchConfiguration(object):
                     port.vrf = None
 
     def get_physical_ports(self):
-        return [p for p in self.ports if not (isinstance(p, VlanPort) or isinstance(p, AggregatedPort))]
+        return [
+            p
+            for p in self.ports
+            if not (isinstance(p, VlanPort) or isinstance(p, AggregatedPort))
+        ]
 
     def get_vlan_ports(self):
         return [p for p in self.ports if isinstance(p, VlanPort)]
@@ -150,7 +162,9 @@ class Route(object):
 
 
 class Vlan(object):
-    def __init__(self, number=None, name=None, description=None, switch_configuration=None):
+    def __init__(
+        self, number=None, name=None, description=None, switch_configuration=None
+    ):
         self.number = number
         self.name = name
         self.description = description
@@ -263,9 +277,13 @@ class AggregatedPort(Port):
         super(AggregatedPort, self).reset()
 
     def get_child_ports_linked_to_a_machine(self):
-        return [p for p in self.switch_configuration.ports if p.aggregation_membership == self.name and p.link_name is not None]
+        return [
+            p
+            for p in self.switch_configuration.ports
+            if p.aggregation_membership == self.name and p.link_name is not None
+        ]
 
 
 def split_port_name(name):
-    number_start, number_len = re.compile('\d').search(name).span()
+    number_start, number_len = re.compile("\d").search(name).span()
     return name[0:number_start], name[number_start:]

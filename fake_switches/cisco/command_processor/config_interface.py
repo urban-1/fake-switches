@@ -20,9 +20,13 @@ from fake_switches.switch_configuration import VlanPort
 
 
 class ConfigInterfaceCommandProcessor(BaseCommandProcessor):
-    def init(self, switch_configuration, terminal_controller, logger, piping_processor, *args):
-        super(ConfigInterfaceCommandProcessor, self).init(switch_configuration, terminal_controller, logger, piping_processor)
-        self.description_strip_chars = "\""
+    def init(
+        self, switch_configuration, terminal_controller, logger, piping_processor, *args
+    ):
+        super(ConfigInterfaceCommandProcessor, self).init(
+            switch_configuration, terminal_controller, logger, piping_processor
+        )
+        self.description_strip_chars = '"'
         self.port = args[0]
 
     def get_prompt(self):
@@ -36,7 +40,7 @@ class ConfigInterfaceCommandProcessor(BaseCommandProcessor):
         elif args[0:2] == ("trunk", "encapsulation"):
             self.port.trunk_encapsulation_mode = args[2]
         elif args[0:4] == ("trunk", "allowed", "vlan", "add"):
-            if self.port.trunk_vlans is not None: #for cisco, no list = all vlans
+            if self.port.trunk_vlans is not None:  # for cisco, no list = all vlans
                 self.port.trunk_vlans += parse_vlan_list(args[4])
         elif args[0:4] == ("trunk", "allowed", "vlan", "remove"):
             if self.port.trunk_vlans is None:
@@ -68,7 +72,9 @@ class ConfigInterfaceCommandProcessor(BaseCommandProcessor):
         port_channel_name = "Port-channel%s" % port_channel_id
 
         if not self.port_channel_exists(port_channel_name):
-            self.write_line("Creating a port-channel interface Port-channel %s" % port_channel_id)
+            self.write_line(
+                "Creating a port-channel interface Port-channel %s" % port_channel_id
+            )
             self.create_port_channel(port_channel_name)
         self.port.aggregation_membership = port_channel_name
 
@@ -91,7 +97,9 @@ class ConfigInterfaceCommandProcessor(BaseCommandProcessor):
 
         if "address".startswith(args[0]):
             new_ip = IPNetwork("%s/%s" % (args[1], args[2]))
-            ip_owner, existing_ip = self.switch_configuration.get_port_and_ip_by_ip(new_ip.ip)
+            ip_owner, existing_ip = self.switch_configuration.get_port_and_ip_by_ip(
+                new_ip.ip
+            )
             if not ip_owner or ip_owner == self.port:
                 if len(args) == 4 and "secondary".startswith(args[3]):
                     self.port.add_ip(new_ip)
@@ -104,9 +112,15 @@ class ConfigInterfaceCommandProcessor(BaseCommandProcessor):
                         self.port.ips[0] = new_ip
             else:
                 if ip_owner.ips.index(existing_ip) == 0:
-                    self.write_line("%% %s overlaps with secondary address on %s" % (existing_ip.network, ip_owner.name))
+                    self.write_line(
+                        "%% %s overlaps with secondary address on %s"
+                        % (existing_ip.network, ip_owner.name)
+                    )
                 else:
-                    self.write_line("%% %s is assigned as a secondary address on %s" % (existing_ip.network, ip_owner.name))
+                    self.write_line(
+                        "%% %s is assigned as a secondary address on %s"
+                        % (existing_ip.network, ip_owner.name)
+                    )
 
         if "access-group".startswith(args[0]):
             if "in".startswith(args[2]):
@@ -128,7 +142,11 @@ class ConfigInterfaceCommandProcessor(BaseCommandProcessor):
             self.port.ip_redirect = True
         if "proxy-arp".startswith(args[0]):
             self.port.ip_proxy_arp = True
-        if "verify".startswith(args[0]) and "unicast".startswith(args[1]) and isinstance(self.port, VlanPort):
+        if (
+            "verify".startswith(args[0])
+            and "unicast".startswith(args[1])
+            and isinstance(self.port, VlanPort)
+        ):
             self._handle_ip_verify_unicast()
         if "helper-address".startswith(args[0]):
             if len(args) == 1:
@@ -149,7 +167,9 @@ class ConfigInterfaceCommandProcessor(BaseCommandProcessor):
                 self.port.ips = []
             else:
                 ip = IPNetwork("%s/%s" % (args[1], args[2]))
-                is_secondary = "secondary".startswith(args[3]) if len(args) == 4 else False
+                is_secondary = (
+                    "secondary".startswith(args[3]) if len(args) == 4 else False
+                )
                 if is_secondary:
                     self.port.remove_ip(ip)
                 else:
@@ -168,7 +188,11 @@ class ConfigInterfaceCommandProcessor(BaseCommandProcessor):
                 self.port.vrf = None
         if "redirects".startswith(args[0]):
             self.port.ip_redirect = False
-        if "verify".startswith(args[0]) and "unicast".startswith(args[1]) and isinstance(self.port, VlanPort):
+        if (
+            "verify".startswith(args[0])
+            and "unicast".startswith(args[1])
+            and isinstance(self.port, VlanPort)
+        ):
             self.port.unicast_reverse_path_forwarding = False
         if "helper-address".startswith(args[0]):
             if len(args) > 2:
@@ -226,12 +250,23 @@ class ConfigInterfaceCommandProcessor(BaseCommandProcessor):
         self.port.switch_configuration.add_port(port)
 
     def _handle_ip_verify_unicast(self):
-        self.write_line("% ip verify configuration not supported on interface Vl{}".format(self.port.vlan_id))
-        self.write_line(" - verification not supported by hardware")
-        self.write_line("% ip verify configuration not supported on interface Vl{}".format(self.port.vlan_id))
+        self.write_line(
+            "% ip verify configuration not supported on interface Vl{}".format(
+                self.port.vlan_id
+            )
+        )
         self.write_line(" - verification not supported by hardware")
         self.write_line(
-            "%Restoring the original configuration failed on {} - Interface Support Failure".format(self.port.name))
+            "% ip verify configuration not supported on interface Vl{}".format(
+                self.port.vlan_id
+            )
+        )
+        self.write_line(" - verification not supported by hardware")
+        self.write_line(
+            "%Restoring the original configuration failed on {} - Interface Support Failure".format(
+                self.port.name
+            )
+        )
 
     def _handle_standby_group(self, group, command, *args):
         vrrp = self.port.get_vrrp_group(group)
@@ -253,7 +288,9 @@ class ConfigInterfaceCommandProcessor(BaseCommandProcessor):
                         else:
                             vrrp.ip_addresses = [ip] + vrrp.ip_addresses[1:]
                     else:
-                        self.write_line("% Warning: address is not within a subnet on this interface")
+                        self.write_line(
+                            "% Warning: address is not within a subnet on this interface"
+                        )
 
                 else:
                     self.write_line(" ^")

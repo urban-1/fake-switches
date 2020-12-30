@@ -1,9 +1,8 @@
 import time
-from random import randint
 from datetime import datetime
+from random import randint
 
 from fake_switches.command_processing.base_command_processor import BaseCommandProcessor
-
 
 
 class TL1Entry:
@@ -16,8 +15,8 @@ class TL1Entry:
     def _fields_str(self):
         fields_str = []
         for k, v in self.fields.items():
-            if "\"" in v:
-                v = '{}'.format(v.replace("\"", "\\\""))
+            if '"' in v:
+                v = "{}".format(v.replace('"', '\\"'))
             fields_str.append("{}={}".format(k, v))
         return ",".join(fields_str)
 
@@ -53,12 +52,13 @@ class TL1Response:
 
     @classmethod
     def header(cls, node_name, ctag="0", type_="M", verb="COMPLD"):
-        return (
-            "\r\n{}\"{}\" {}\r\n"
-            "{}  {} {}"
-        ).format(
-            cls.TAB, node_name, datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            type_, ctag, verb,
+        return ('\r\n{}"{}" {}\r\n' "{}  {} {}").format(
+            cls.TAB,
+            node_name,
+            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            type_,
+            ctag,
+            verb,
         )
 
     @classmethod
@@ -89,7 +89,7 @@ class TL1Response:
         for idx, page in enumerate(pages):
             ret += TL1Response.header(tid, ctag) + "\r\n"
             for entry in page:
-                ret += "{}\"{}\"\r\n".format(cls.TAB, str(entry))
+                ret += '{}"{}"\r\n'.format(cls.TAB, str(entry))
 
             # Page termination
             if idx == len(pages) - 1:
@@ -145,12 +145,14 @@ class TL1CommandProcessor(BaseCommandProcessor):
 
         func, args = self.get_command_func(line)
         if not func:
-            self.logger.debug("%s can't process : %s, falling back to parent" % (self.__class__.__name__, line))
+            self.logger.debug(
+                "%s can't process : %s, falling back to parent"
+                % (self.__class__.__name__, line)
+            )
             return False
         else:
             func(*args)
         return True
-
 
     def get_command_func(self, line):
         """
@@ -186,7 +188,6 @@ class TL1CommandProcessor(BaseCommandProcessor):
         if not self._authed and command not in self.LOGGED_OUT_COMMANDS:
             return self.error, ["PLNA", ctag]
 
-
         args = []
         if len(line_split) > 4:
             # Strip quotes from these args
@@ -207,13 +208,11 @@ class TL1CommandProcessor(BaseCommandProcessor):
     def get_prompt(self):
         if not self._motd_shown:
             self._motd_shown = True
-            return  self._MOTD + "\r\n< "
+            return self._MOTD + "\r\n< "
         return "< "
 
     def error(self, err, ctag="0", type_="M", verb="DENY"):
-        self.write(str(
-            TL1Response.error(self.node_name, err, ctag, type_, verb)
-        ))
+        self.write(str(TL1Response.error(self.node_name, err, ctag, type_, verb)))
 
     def do_rtrv_eqpt(self, tid, aid, ctag, args, kwargs):
         entries = []
@@ -271,8 +270,6 @@ class TL1CommandProcessor(BaseCommandProcessor):
         """
         self._authed = None
         self.write(TL1Response.header(tid, ctag, verb="COMPLD") + "\r\n;\r\n")
-
-
 
     _MOTD = """
 

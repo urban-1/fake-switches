@@ -12,13 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import threading
 import logging
+import threading
 
 from fake_switches.switch_factory import SwitchFactory
 from fake_switches.transports.http_service import SwitchHttpService
 from fake_switches.transports.ssh_service import SwitchSshService
 from fake_switches.transports.telnet_service import SwitchTelnetService
+
 from tests.util import _juniper_ports_with_less_ae, unique_port
 
 COMMIT_DELAY = 1
@@ -35,27 +36,21 @@ TEST_SWITCHES = {
         "model": "brocade_generic",
         "hostname": "my_switch",
         "ssh": {"port": "allocate"},
-        "extra": {
-            "password": "Br0cad3"
-        },
+        "extra": {"password": "Br0cad3"},
     },
     "cisco": {
         "model": "cisco_generic",
         "hostname": "my_switch",
         "telnet": {"port": "allocate"},
         "ssh": {"port": "allocate"},
-        "extra": {
-            "password": "CiSc000"
-        },
+        "extra": {"password": "CiSc000"},
     },
     "cisco-auto-enabled": {
         "model": "cisco_generic",
         "hostname": "my_switch",
         "telnet": {"port": "allocate"},
         "ssh": {"port": "allocate"},
-        "extra": {
-            "auto_enabled": True
-        },
+        "extra": {"auto_enabled": True},
     },
     "cisco6500": {
         "model": "cisco_6500",
@@ -72,43 +67,33 @@ TEST_SWITCHES = {
             "user": None,
             "variant": "tl1",
         },
-        "extra": {
-            "config_file": "tests/config/c6500.json"
-        },
+        "extra": {"config_file": "tests/config/c6500.json"},
     },
     "dell": {
         "model": "dell_generic",
         "hostname": "my_switch",
         "telnet": {"port": "allocate"},
         "ssh": {"port": "allocate"},
-        "extra": {
-            "password": "DeLL10G"
-        },
+        "extra": {"password": "DeLL10G"},
     },
     "dell10g": {
         "model": "dell10g_generic",
         "hostname": "my_switch",
         "telnet": {"port": "allocate"},
         "ssh": {"port": "allocate"},
-        "extra": {
-            "password": "DeLL"
-        },
+        "extra": {"password": "DeLL"},
     },
     "juniper": {
         "model": "juniper_generic",
         "hostname": "ju_ju_ju_juniper",
         "ssh": {"port": "allocate"},
-        "extra": {
-            "ports": _juniper_ports_with_less_ae()
-        },
+        "extra": {"ports": _juniper_ports_with_less_ae()},
     },
     "juniper_qfx": {
         "model": "juniper_qfx_copper_generic",
         "hostname": "ju_ju_ju_juniper_qfx_copper",
         "ssh": {"port": "allocate"},
-        "extra": {
-            "ports": _juniper_ports_with_less_ae()
-        },
+        "extra": {"ports": _juniper_ports_with_less_ae()},
     },
     "juniper_mx": {
         "model": "juniper_mx_generic",
@@ -120,50 +105,38 @@ TEST_SWITCHES = {
         "model": "arista_generic",
         "hostname": "my_arista",
         "ssh": {"port": "allocate"},
-        "extra": {
-            "commit_delay": COMMIT_DELAY
-        },
+        "extra": {"commit_delay": COMMIT_DELAY},
     },
     "commit-delayed-brocade": {
         "model": "brocade_generic",
         "hostname": "my_switch",
         "ssh": {"port": "allocate"},
-        "extra": {
-            "commit_delay": COMMIT_DELAY
-        },
+        "extra": {"commit_delay": COMMIT_DELAY},
     },
     "commit-delayed-cisco": {
         "model": "cisco_generic",
         "hostname": "my_switch",
         "ssh": {"port": "allocate"},
-        "extra": {
-            "commit_delay": COMMIT_DELAY
-        },
+        "extra": {"commit_delay": COMMIT_DELAY},
     },
     "commit-delayed-dell": {
         "model": "dell_generic",
         "hostname": "my_switch",
         "ssh": {"port": "allocate"},
-        "extra": {
-            "commit_delay": COMMIT_DELAY
-        },
+        "extra": {"commit_delay": COMMIT_DELAY},
     },
     "commit-delayed-dell10g": {
         "model": "dell10g_generic",
         "hostname": "my_switch",
         "ssh": {"port": "allocate"},
-        "extra": {
-            "commit_delay": COMMIT_DELAY
-        },
+        "extra": {"commit_delay": COMMIT_DELAY},
     },
     "commit-delayed-juniper": {
         "model": "juniper_generic",
         "hostname": "ju_ju_ju_juniper",
         "ssh": {"port": "allocate"},
-        "extra": {
-            "commit_delay": COMMIT_DELAY
-        },
-    }
+        "extra": {"commit_delay": COMMIT_DELAY},
+    },
 }
 
 
@@ -203,7 +176,7 @@ class SwitchBooter:
         self._switches = {}
         self._configs = {}
         self._device_filter = device_filter or {}
-        self._booted_ports  = []
+        self._booted_ports = []
 
     def boot(self):
         switch_factory = SwitchFactory()
@@ -213,14 +186,13 @@ class SwitchBooter:
             if conf[service].get("user", "default") is None:
                 return {}
 
-            return {'root': b'root'}
+            return {"root": b"root"}
 
         def _get_port(conf, service="ssh"):
             port = conf[service].get("port")
             if port != "allocate":
                 return port
             return unique_port()
-
 
         for name, conf in TEST_SWITCHES.items():
             if self._device_filter and name not in self._device_filter:
@@ -229,9 +201,7 @@ class SwitchBooter:
             logging.info("Booting config {}: {}".format(name, conf))
 
             switch_core = switch_factory.get(
-                conf["model"],
-                hostname=conf["hostname"],
-                **conf["extra"] or {}
+                conf["model"], hostname=conf["hostname"], **conf["extra"] or {}
             )
 
             # Some test meta
@@ -247,13 +217,13 @@ class SwitchBooter:
                 switch_core._test_creds[svc] = _get_creds(conf, svc)
                 other_settings = {}
                 if svc == "ssh":
-                    other_settings = {
-                        "variant": conf["ssh"].get("variant", "cli")
-                    }
+                    other_settings = {"variant": conf["ssh"].get("variant", "cli")}
 
-                logging.info("Booter [{}]: starting service '{}'' on port {}".format(
-                    name, svc, switch_core._test_ports[svc]
-                ))
+                logging.info(
+                    "Booter [{}]: starting service '{}'' on port {}".format(
+                        name, svc, switch_core._test_ports[svc]
+                    )
+                )
                 svc_instance = svc_klass(
                     "127.0.0.1",
                     port=switch_core._test_ports[svc],
@@ -261,9 +231,7 @@ class SwitchBooter:
                     users=switch_core._test_creds[svc],
                     **other_settings
                 )
-                self._booted_ports.append(
-                    svc_instance.hook_to_reactor(reactor)
-                )
+                self._booted_ports.append(svc_instance.hook_to_reactor(reactor))
 
             # Register this core and its config to make it accessible to tests
             self._switches[name] = switch_core
@@ -289,8 +257,8 @@ class SwitchBooter:
         result = defer.gatherResults(defered)
 
 
-if __name__ == '__main__':
-    print('Starting reactor...')
+if __name__ == "__main__":
+    print("Starting reactor...")
     ThreadedReactor().start()
     SwitchBooter(sys.argv[1]).boot()
     ThreadedReactor().stop()

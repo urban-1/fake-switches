@@ -16,6 +16,7 @@ from time import time
 
 from fake_switches.netconf import dict_2_etree, XML_ATTRIBUTES
 from hamcrest import assert_that, has_length, greater_than
+
 from tests.juniper import BaseJuniper
 from tests.util.global_reactor import COMMIT_DELAY
 
@@ -24,17 +25,23 @@ class JuniperBaseProtocolWithCommitDelayTest(BaseJuniper):
     test_switch = "commit-delayed-juniper"
 
     def test_lock_edit_candidate_add_vlan_and_commit_with_commit_delay(self):
-        with self.nc.locked(target='candidate'):
-            result = self.nc.edit_config(target='candidate', config=dict_2_etree({
-                "config": {
-                    "configuration": {
-                        "vlans": {
-                            "vlan": {
-                                "name": "VLAN2999",
+        with self.nc.locked(target="candidate"):
+            result = self.nc.edit_config(
+                target="candidate",
+                config=dict_2_etree(
+                    {
+                        "config": {
+                            "configuration": {
+                                "vlans": {
+                                    "vlan": {
+                                        "name": "VLAN2999",
+                                    }
                                 }
+                            }
                         }
                     }
-                }}))
+                ),
+            )
             assert_that(result.xpath("//rpc-reply/ok"), has_length(1))
 
             result = self.nc.commit()
@@ -44,14 +51,16 @@ class JuniperBaseProtocolWithCommitDelayTest(BaseJuniper):
 
         assert_that(result.xpath("data/configuration/vlans/vlan"), has_length(1))
 
-        self.edit({
-            "vlans": {
-                "vlan": {
-                    XML_ATTRIBUTES: {"operation": "delete"},
-                    "name": "VLAN2999"
+        self.edit(
+            {
+                "vlans": {
+                    "vlan": {
+                        XML_ATTRIBUTES: {"operation": "delete"},
+                        "name": "VLAN2999",
+                    }
                 }
             }
-        })
+        )
 
         start_time = time()
         self.nc.commit()
@@ -63,10 +72,9 @@ class JuniperBaseProtocolWithCommitDelayTest(BaseJuniper):
         assert_that((end_time - start_time), greater_than(COMMIT_DELAY))
 
     def edit(self, config):
-        result = self.nc.edit_config(target="candidate", config=dict_2_etree({
-            "config": {
-                "configuration": config
-            }
-        }))
+        result = self.nc.edit_config(
+            target="candidate",
+            config=dict_2_etree({"config": {"configuration": config}}),
+        )
 
         assert_that(result.xpath("//rpc-reply/ok"), has_length(1))

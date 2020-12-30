@@ -12,15 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from tests.cisco import enable, create_interface_vlan, configuring, configuring_interface_vlan, \
-    assert_interface_configuration
-from tests.util.protocol_util import SshTester, TelnetTester, with_protocol, ProtocolTest
+from tests.cisco import (
+    enable,
+    create_interface_vlan,
+    configuring,
+    configuring_interface_vlan,
+    assert_interface_configuration,
+)
+from tests.util.protocol_util import (
+    SshTester,
+    TelnetTester,
+    with_protocol,
+    ProtocolTest,
+)
 
 
 class Cisco6500UnicastTest(ProtocolTest):
     __test__ = False
 
-    _tester =  SshTester
+    _tester = SshTester
     test_switch = "cisco6500"
 
     @with_protocol
@@ -28,29 +38,35 @@ class Cisco6500UnicastTest(ProtocolTest):
         enable(t)
 
         create_interface_vlan(t, "2999")
-        configuring_interface_vlan(t, "2999", do="ip verify unicast source reachable-via rx")
+        configuring_interface_vlan(
+            t, "2999", do="ip verify unicast source reachable-via rx"
+        )
 
-        assert_interface_configuration(t, "Vlan2999", [
-            "interface Vlan2999",
-            " no ip address",
-            " ip verify unicast source reachable-via rx",
-            "end"])
+        assert_interface_configuration(
+            t,
+            "Vlan2999",
+            [
+                "interface Vlan2999",
+                " no ip address",
+                " ip verify unicast source reachable-via rx",
+                "end",
+            ],
+        )
 
         configuring_interface_vlan(t, "2999", do="no ip verify unicast")
 
-        assert_interface_configuration(t, "Vlan2999", [
-            "interface Vlan2999",
-            " no ip address",
-            "end"])
+        assert_interface_configuration(
+            t, "Vlan2999", ["interface Vlan2999", " no ip address", "end"]
+        )
 
         configuring(t, do="no interface vlan 2999")
 
 
 class Cisco6500UnicastProtocolSSHTest(Cisco6500UnicastTest):
     __test__ = True
-    _tester =  SshTester
+    _tester = SshTester
 
 
 class Cisco6500UnicastProtocolTelnetTest(Cisco6500UnicastTest):
     __test__ = True
-    _tester =  TelnetTester
+    _tester = TelnetTester

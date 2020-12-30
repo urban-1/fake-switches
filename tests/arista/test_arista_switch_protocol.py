@@ -67,7 +67,9 @@ class TestAristaSwitchProtocol(ProtocolTest):
         t.read("my_arista#")
         t.write("show vlan 123")
         t.readln("VLAN  Name                             Status    Ports")
-        t.readln("----- -------------------------------- --------- -------------------------------")
+        t.readln(
+            "----- -------------------------------- --------- -------------------------------"
+        )
         t.readln("123   shizzle                          active")
         t.readln("")
         t.read("my_arista#")
@@ -109,11 +111,15 @@ class TestAristaSwitchProtocol(ProtocolTest):
         enable(t)
         create_vlan(t, "123")
         create_vlan(t, "3333", "some-name")
-        create_vlan(t, "2222", "your-name-is-way-too-long-for-this-pretty-printed-interface-man")
+        create_vlan(
+            t, "2222", "your-name-is-way-too-long-for-this-pretty-printed-interface-man"
+        )
 
         t.write("show vlan")
         t.readln("VLAN  Name                             Status    Ports")
-        t.readln("----- -------------------------------- --------- -------------------------------")
+        t.readln(
+            "----- -------------------------------- --------- -------------------------------"
+        )
         t.readln("1     default                          active")
         t.readln("123   VLAN0123                         active")
         t.readln("2222  your-name-is-way-too-long-for-th active")
@@ -129,7 +135,9 @@ class TestAristaSwitchProtocol(ProtocolTest):
     def test_show_vlan_without_enable(self, t):
         t.write("show vlan")
         t.readln("VLAN  Name                             Status    Ports")
-        t.readln("----- -------------------------------- --------- -------------------------------")
+        t.readln(
+            "----- -------------------------------- --------- -------------------------------"
+        )
         t.readln("1     default                          active")
         t.readln("")
         t.read("my_arista>")
@@ -145,4 +153,4 @@ class TestAristaSwitchProtocol(ProtocolTest):
 
 class TestAristaSwitchProtocolSSH(TestAristaSwitchProtocol):
     __test__ = True
-    _tester =  SshTester
+    _tester = SshTester

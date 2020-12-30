@@ -16,7 +16,9 @@ from fake_switches.command_processing.command_processor import CommandProcessor
 
 
 class BaseCommandProcessor(CommandProcessor):
-    def init(self, switch_configuration, terminal_controller, logger, piping_processor, *args):
+    def init(
+        self, switch_configuration, terminal_controller, logger, piping_processor, *args
+    ):
         """
         :type switch_configuration: fake_switches.switch_configuration.SwitchConfiguration
         :type terminal_controller: fake_switches.terminal.TerminalController
@@ -61,7 +63,13 @@ class BaseCommandProcessor(CommandProcessor):
             else:
                 processed = self.parse_and_execute_command(line)
 
-            if not self.continuing_to and not self.awaiting_keystroke and not self.is_done and processed and not self.sub_processor:
+            if (
+                not self.continuing_to
+                and not self.awaiting_keystroke
+                and not self.is_done
+                and processed
+                and not self.sub_processor
+            ):
                 self.finish_piping()
                 self.show_prompt()
 
@@ -75,7 +83,10 @@ class BaseCommandProcessor(CommandProcessor):
         if line.strip():
             func, args = self.get_command_func(line)
             if not func:
-                self.logger.debug("%s can't process : %s, falling back to parent" % (self.__class__.__name__, line))
+                self.logger.debug(
+                    "%s can't process : %s, falling back to parent"
+                    % (self.__class__.__name__, line)
+                )
                 return False
             else:
                 func(*args)
@@ -104,13 +115,17 @@ class BaseCommandProcessor(CommandProcessor):
         processor. All commands will be delegated there until the subprocessor
         sets .is_done = True.
         """
-        new_processor.init(self.switch_configuration,
-                           self.terminal_controller,
-                           self.logger,
-                           self.piping_processor,
-                           *args)
+        new_processor.init(
+            self.switch_configuration,
+            self.terminal_controller,
+            self.logger,
+            self.piping_processor,
+            *args
+        )
         self.sub_processor = new_processor
-        self.logger.info("new subprocessor = {}".format(self.sub_processor.__class__.__name__))
+        self.logger.info(
+            "new subprocessor = {}".format(self.sub_processor.__class__.__name__)
+        )
         self.sub_processor.show_prompt()
 
     def continue_to(self, continuing_action):
@@ -122,7 +137,7 @@ class BaseCommandProcessor(CommandProcessor):
 
     def get_continue_command_func(self, cmd):
         """ FIXME: deprecated/unused """
-        return getattr(self, 'continue_' + cmd, None)
+        return getattr(self, "continue_" + cmd, None)
 
     def write(self, data):
         """
@@ -174,6 +189,7 @@ class BaseCommandProcessor(CommandProcessor):
         Register keystroke callback to the terminal controller. This will
         be invoked at any keypress without the user hitting Enter
         """
+
         def on_keystroke_handler(key):
             self.awaiting_keystroke = False
             self.terminal_controller.remove_any_key_handler()

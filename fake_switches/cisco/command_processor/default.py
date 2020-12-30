@@ -31,7 +31,7 @@ class DefaultCommandProcessor(BaseCommandProcessor):
 
     def do_enable(self):
         self.write("Password: ")
-        self.replace_input = ''
+        self.replace_input = ""
         self.continue_to(self.continue_enabling)
 
     def continue_enabling(self, line):
@@ -41,4 +41,3 @@ class DefaultCommandProcessor(BaseCommandProcessor):
         else:
             self.write_line("% Access denied")
             self.write_line("")
-

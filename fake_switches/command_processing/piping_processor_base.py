@@ -16,7 +16,6 @@ from fake_switches.command_processing.command_processor import CommandProcessor
 
 
 class PipingProcessorBase(CommandProcessor):
-
     def __init__(self, logger):
         self.logger = logger
         self.active_command = None
@@ -25,7 +24,9 @@ class PipingProcessorBase(CommandProcessor):
         func, args = self.get_command_func(command)
 
         if not func:
-            self.logger.debug("%s can't process piping : %s" % (self.__class__.__name__, command))
+            self.logger.debug(
+                "%s can't process piping : %s" % (self.__class__.__name__, command)
+            )
             return False
 
         self.active_command = func(*args)

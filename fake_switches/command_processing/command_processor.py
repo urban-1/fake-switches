@@ -16,7 +16,6 @@ import re
 
 
 class CommandProcessor(object):
-
     def get_command_func(self, line):
         """
         Look into the Processor to find a method matching the given
@@ -36,9 +35,9 @@ class CommandProcessor(object):
             if command == "no":
                 command += "_" + args.pop(0)
 
-            command = re.sub('[-]', "_", command)
+            command = re.sub("[-]", "_", command)
 
-            matching = sorted([c for c in dir(self) if c.startswith('do_' + command)])
+            matching = sorted([c for c in dir(self) if c.startswith("do_" + command)])
             if len(matching) >= 1:
                 return getattr(self, matching[0], None), args
 

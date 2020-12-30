@@ -1,9 +1,8 @@
-
-import re
 import json
 import logging
-from time import sleep
+import re
 from collections import namedtuple
+from time import sleep
 
 from netaddr import IPNetwork, IPAddress
 
@@ -15,7 +14,8 @@ class SwitchConfiguration(object):
     """
     Ciena 6500 Node Setup
     """
-    def __init__(self, ip, name, loadout = None, config_file = None, **kwargs):
+
+    def __init__(self, ip, name, loadout=None, config_file=None, **kwargs):
         logger.info("Configuring node {}, config={}".format(name, config_file))
         self.ip = ip
         # Config name for compatibility - use node_name where possible for
@@ -117,7 +117,7 @@ class Card(object):
         fields = {}
         for f in loadout_card["fields"]:
             eqidx = f.index("=")
-            fields[f[:eqidx]] = f[eqidx+1:]
+            fields[f[:eqidx]] = f[eqidx + 1 :]
 
         return Card(
             loadout_card["model"],
@@ -132,10 +132,12 @@ class Card(object):
 # Bootstrapping
 #
 
+
 class CardBootstrapper(object):
     """
     Pupolate items in switch config based on the given card type
     """
+
     def __init__(self, config):
         self.config = config
 
@@ -153,11 +155,11 @@ class CardBootstrapper(object):
             raise ValueError(
                 "Bad config, slot {} is already populated in chassis {}".format(
                     loadout_card["slot"], loadout_card["chassis"]
-                ))
+                )
+            )
 
         card = chassis.add_card(Card.from_loadout(loadout_card))
         card.add_port(MgmtIntf, name="LAN", speed=1000)
-
 
 
 #

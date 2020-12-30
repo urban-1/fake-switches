@@ -14,13 +14,21 @@
 
 from hamcrest import assert_that, is_
 
-from tests.arista import enable, create_vlan, create_interface_vlan, configuring_interface_vlan, \
-    assert_interface_configuration, with_eapi, remove_interface_vlan, remove_vlan
+from tests.arista import (
+    enable,
+    create_vlan,
+    create_interface_vlan,
+    configuring_interface_vlan,
+    assert_interface_configuration,
+    with_eapi,
+    remove_interface_vlan,
+    remove_vlan,
+)
 from tests.util.protocol_util import ProtocolTest, SshTester, with_protocol
 
 
 class TestAristaLoadInterval(ProtocolTest):
-    _tester =  SshTester
+    _tester = SshTester
     test_switch = "arista"
 
     def setUp(self):
@@ -49,10 +57,9 @@ class TestAristaLoadInterval(ProtocolTest):
         enable(t)
         configuring_interface_vlan(t, "299", do="load-interval 30")
 
-        assert_interface_configuration(t, "Vlan299", [
-            "interface Vlan299",
-            "   load-interval 30"
-        ])
+        assert_interface_configuration(
+            t, "Vlan299", ["interface Vlan299", "   load-interval 30"]
+        )
 
     @with_protocol
     @with_eapi
@@ -60,20 +67,27 @@ class TestAristaLoadInterval(ProtocolTest):
         enable(t)
         configuring_interface_vlan(t, "299", do="load-interval 30")
 
-        result = api.enable("show running-config interfaces Vlan299", strict=True, encoding="text")
+        result = api.enable(
+            "show running-config interfaces Vlan299", strict=True, encoding="text"
+        )
 
-        assert_that(result, is_([
-            {
-                "command": "show running-config interfaces Vlan299",
-                "encoding": "text",
-                "response": {
-                    "output": "interface Vlan299\n   load-interval 30\n"
-                },
-                "result": {
-                    "output": "interface Vlan299\n   load-interval 30\n"
-                }
-            }
-        ]))
+        assert_that(
+            result,
+            is_(
+                [
+                    {
+                        "command": "show running-config interfaces Vlan299",
+                        "encoding": "text",
+                        "response": {
+                            "output": "interface Vlan299\n   load-interval 30\n"
+                        },
+                        "result": {
+                            "output": "interface Vlan299\n   load-interval 30\n"
+                        },
+                    }
+                ]
+            ),
+        )
 
     @with_protocol
     def test_no_load_interval(self, t):
@@ -81,9 +95,7 @@ class TestAristaLoadInterval(ProtocolTest):
         configuring_interface_vlan(t, "299", do="load-interval 30")
         configuring_interface_vlan(t, "299", do="no load-interval")
 
-        assert_interface_configuration(t, "Vlan299", [
-            "interface Vlan299"
-        ])
+        assert_interface_configuration(t, "Vlan299", ["interface Vlan299"])
 
     @with_protocol
     def test_interface_with_incomplete_command(self, t):

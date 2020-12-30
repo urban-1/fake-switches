@@ -10,18 +10,23 @@ help:
 	@echo " - usort: Run import formatter"
 	@echo " - tests: Run all tests in lowest verbosity"
 	@echo ""
+	@echo "Internal/advanced:"
+	@echo ""
+	@echo " - fmt_test: Ensure no files need formatting"
+	@echo ""
 
 
 fmt: black usort
 
+
 black:
 	@echo " * Running black"
-	@black --diff --safe fake_switches tests
+	@black --safe fake_switches/ tests/
 
 
 usort:
 	@echo " * Running usort"
-	@usort diff ./fake_switches/ ./tests/
+	@usort format fake_switches/ tests/
 
 
 reqs:
@@ -30,5 +35,12 @@ reqs:
 	@pip install --user -r ./requirements.txt
 
 
-tests:
+fmt_test:
+	@echo " * Checking code format - this will fail if any file needs formatting"
+	@black --check fake_switches/ tests/
+	@usort check fake_switches/ tests/
+
+
+tests: fmt_test
+	@echo " * Starting tests"
 	@python3 ./run-tests.py -v 1

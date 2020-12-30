@@ -14,13 +14,21 @@
 
 from hamcrest import assert_that, is_
 
-from tests.arista import enable, create_vlan, create_interface_vlan, configuring_interface_vlan, \
-    assert_interface_configuration, with_eapi, remove_interface_vlan, remove_vlan
+from tests.arista import (
+    enable,
+    create_vlan,
+    create_interface_vlan,
+    configuring_interface_vlan,
+    assert_interface_configuration,
+    with_eapi,
+    remove_interface_vlan,
+    remove_vlan,
+)
 from tests.util.protocol_util import ProtocolTest, SshTester, with_protocol
 
 
 class TestAristaMplsIp(ProtocolTest):
-    _tester =  SshTester
+    _tester = SshTester
     test_switch = "arista"
 
     def setUp(self):
@@ -50,10 +58,9 @@ class TestAristaMplsIp(ProtocolTest):
 
         configuring_interface_vlan(t, "299", do="no mpls ip")
 
-        assert_interface_configuration(t, "Vlan299", [
-            "interface Vlan299",
-            "   no mpls ip"
-        ])
+        assert_interface_configuration(
+            t, "Vlan299", ["interface Vlan299", "   no mpls ip"]
+        )
 
     @with_protocol
     @with_eapi
@@ -62,20 +69,23 @@ class TestAristaMplsIp(ProtocolTest):
 
         configuring_interface_vlan(t, "299", do="no mpls ip")
 
-        result = api.enable("show running-config interfaces Vlan299", strict=True, encoding="text")
+        result = api.enable(
+            "show running-config interfaces Vlan299", strict=True, encoding="text"
+        )
 
-        assert_that(result, is_([
-            {
-                "command": "show running-config interfaces Vlan299",
-                "encoding": "text",
-                "response": {
-                    "output": "interface Vlan299\n   no mpls ip\n"
-                },
-                "result": {
-                    "output": "interface Vlan299\n   no mpls ip\n"
-                }
-            }
-        ]))
+        assert_that(
+            result,
+            is_(
+                [
+                    {
+                        "command": "show running-config interfaces Vlan299",
+                        "encoding": "text",
+                        "response": {"output": "interface Vlan299\n   no mpls ip\n"},
+                        "result": {"output": "interface Vlan299\n   no mpls ip\n"},
+                    }
+                ]
+            ),
+        )
 
     @with_protocol
     def test_mpls_ip(self, t):
@@ -83,9 +93,7 @@ class TestAristaMplsIp(ProtocolTest):
 
         configuring_interface_vlan(t, "299", do="mpls ip")
 
-        assert_interface_configuration(t, "Vlan299", [
-            "interface Vlan299"
-        ])
+        assert_interface_configuration(t, "Vlan299", ["interface Vlan299"])
 
     @with_protocol
     def test_no_mpls_raise_error_with_unsupported_command(self, t):

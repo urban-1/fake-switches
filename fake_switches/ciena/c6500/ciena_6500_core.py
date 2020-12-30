@@ -2,17 +2,17 @@ import logging
 import string
 
 from twisted.conch.insults import insults
-from fake_switches.command_processing.shell_session import ShellSession
-from fake_switches.command_processing.piping_processor_base import PipingProcessorBase
-from fake_switches.switch_core import SwitchCore
-from fake_switches.terminal import LoggingTerminalController
-from fake_switches.terminal.ssh import SwitchSSHShell
-from fake_switches.terminal.ssh import SshTerminalController
 
 from fake_switches.ciena.c6500.command_processor.tl1 import (
     TL1CommandProcessor,
     TL1Response,
 )
+from fake_switches.command_processing.piping_processor_base import PipingProcessorBase
+from fake_switches.command_processing.shell_session import ShellSession
+from fake_switches.switch_core import SwitchCore
+from fake_switches.terminal import LoggingTerminalController
+from fake_switches.terminal.ssh import SshTerminalController
+from fake_switches.terminal.ssh import SwitchSSHShell
 
 
 class CienaTL1Shell(insults.TerminalProtocol):
@@ -30,7 +30,6 @@ class CienaTL1Shell(insults.TerminalProtocol):
 
     _printableChars = string.printable.encode("ascii")
     _log = logging.Logger("CienaTL1TerminalController")
-
 
     def __init__(self, user, switch_core):
         self.user = user
@@ -74,9 +73,9 @@ class CienaTL1Shell(insults.TerminalProtocol):
             b"\n": self._blackhole,
         }
 
-        self.session = self.switch_core.launch("ssh+tl1", SshTerminalController(
-            shell=self
-        ))
+        self.session = self.switch_core.launch(
+            "ssh+tl1", SshTerminalController(shell=self)
+        )
 
     def _blackhole(self):
         pass
@@ -100,11 +99,10 @@ class CienaTL1Shell(insults.TerminalProtocol):
 
     def handle_SEMI(self):
         self.terminal.write(b";")
-        line = b''.join(self.lineBuffer)
+        line = b"".join(self.lineBuffer)
         self.lineBuffer = []
         self.terminal.nextLine()
         self.lineReceived(line)
-
 
     def keystrokeReceived(self, keyID, modifier):
         m = self.keyHandlers.get(keyID)
@@ -121,12 +119,8 @@ class CienaTL1Shell(insults.TerminalProtocol):
 
             ACT-USER::"urban":1::<pwd>
         """
-        sline = b''.join(self.lineBuffer).strip(b' ')
-        return (
-            len(sline) > 7
-            and sline[0:8] == b"ACT-USER"
-            and sline.count(b":") == 5
-        )
+        sline = b"".join(self.lineBuffer).strip(b" ")
+        return len(sline) > 7 and sline[0:8] == b"ACT-USER" and sline.count(b":") == 5
 
     def characterReceived(self, ch, moreCharactersComing):
         if ch == b'"':
@@ -135,12 +129,8 @@ class CienaTL1Shell(insults.TerminalProtocol):
         if not self._quoted:
             ch = ch.upper()
 
-        sline = b''.join(self.lineBuffer).strip(b' ')
-        if (
-            ch == b":"
-            and self.lineBuffer.count(b":") == 1
-            and not sline.split(b":")[1]
-        ):
+        sline = b"".join(self.lineBuffer).strip(b" ")
+        if ch == b":" and self.lineBuffer.count(b":") == 1 and not sline.split(b":")[1]:
             self.terminal.write(self.tid)
             self.lineBuffer.extend(self.tid.split())
 
@@ -160,7 +150,6 @@ class CienaTL1Shell(insults.TerminalProtocol):
 
 
 class BaseCiena6500Core(SwitchCore):
-
     def __init__(self, switch_configuration):
         super(BaseCiena6500Core, self).__init__(switch_configuration)
         self.last_connection_id = 0
@@ -171,11 +160,8 @@ class BaseCiena6500Core(SwitchCore):
     def launch(self, protocol, terminal_controller):
         self.last_connection_id += 1
         self.logger = logging.getLogger(
-            "fake_switches.ciena.%s.%s.%s" % (
-                self.switch_configuration.node_name,
-                self.last_connection_id,
-                protocol
-            )
+            "fake_switches.ciena.%s.%s.%s"
+            % (self.switch_configuration.node_name, self.last_connection_id, protocol)
         )
 
         self.logger.debug("Starting new '{}' session".format(protocol))

@@ -31,7 +31,7 @@ class DefaultCommandProcessor(BaseCommandProcessor):
 
     def do_enable(self):
         self.write("Password:")
-        self.replace_input = ''
+        self.replace_input = ""
         self.continue_to(self.continue_enabling)
 
     def continue_enabling(self, line):
@@ -40,4 +40,3 @@ class DefaultCommandProcessor(BaseCommandProcessor):
             self.move_to(self.enabled_processor)
         else:
             self.write_line("Error - Incorrect username or password.")
-

@@ -12,9 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from tests.cisco import enable, create_interface_vlan, configuring, configuring_interface_vlan, \
-    assert_interface_configuration
-from tests.util.protocol_util import SshTester, TelnetTester, with_protocol, ProtocolTest
+from tests.cisco import (
+    enable,
+    create_interface_vlan,
+    configuring,
+    configuring_interface_vlan,
+    assert_interface_configuration,
+)
+from tests.util.protocol_util import (
+    SshTester,
+    TelnetTester,
+    with_protocol,
+    ProtocolTest,
+)
 
 
 class CiscoUnicastTest(ProtocolTest):
@@ -38,7 +48,9 @@ class CiscoUnicastTest(ProtocolTest):
         t.readln(" - verification not supported by hardware")
         t.readln("% ip verify configuration not supported on interface Vl2999")
         t.readln(" - verification not supported by hardware")
-        t.readln("%Restoring the original configuration failed on Vlan2999 - Interface Support Failure")
+        t.readln(
+            "%Restoring the original configuration failed on Vlan2999 - Interface Support Failure"
+        )
 
         t.read("my_switch(config-if)#")
         t.write("exit")
@@ -46,10 +58,9 @@ class CiscoUnicastTest(ProtocolTest):
         t.write("exit")
         t.read("my_switch#")
 
-        assert_interface_configuration(t, "Vlan2999", [
-            "interface Vlan2999",
-            " no ip address",
-            "end"])
+        assert_interface_configuration(
+            t, "Vlan2999", ["interface Vlan2999", " no ip address", "end"]
+        )
 
         configuring(t, do="no interface vlan 2999")
 
@@ -58,21 +69,22 @@ class CiscoUnicastTest(ProtocolTest):
         enable(t)
 
         create_interface_vlan(t, "2999")
-        configuring_interface_vlan(t, "2999", "no ip verify unicast source reachable-via rx")
+        configuring_interface_vlan(
+            t, "2999", "no ip verify unicast source reachable-via rx"
+        )
 
-        assert_interface_configuration(t, "Vlan2999", [
-            "interface Vlan2999",
-            " no ip address",
-            "end"])
+        assert_interface_configuration(
+            t, "Vlan2999", ["interface Vlan2999", " no ip address", "end"]
+        )
 
         configuring(t, do="no interface vlan 2999")
 
 
 class CiscoUnicastProtocolSSHTest(CiscoUnicastTest):
     __test__ = True
-    _tester =  SshTester
+    _tester = SshTester
 
 
 class CiscoUnicastProtocolTelnetTest(CiscoUnicastTest):
     __test__ = True
-    _tester =  TelnetTester
+    _tester = TelnetTester

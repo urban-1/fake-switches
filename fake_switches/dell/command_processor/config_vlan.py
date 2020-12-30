@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from fake_switches.command_processing.base_command_processor import \
-    BaseCommandProcessor
+from fake_switches.command_processing.base_command_processor import BaseCommandProcessor
 
 
 class DellConfigureVlanCommandProcessor(BaseCommandProcessor):
@@ -24,7 +23,9 @@ class DellConfigureVlanCommandProcessor(BaseCommandProcessor):
         vlan_id = int(args[0])
         self.print_vlan_significant_delays_warning()
         self.write_line("")
-        self.switch_configuration.add_vlan(self.switch_configuration.new("Vlan", vlan_id))
+        self.switch_configuration.add_vlan(
+            self.switch_configuration.new("Vlan", vlan_id)
+        )
 
     def do_no_vlan(self, *args):
         vlan_id = int(args[0])
@@ -33,7 +34,9 @@ class DellConfigureVlanCommandProcessor(BaseCommandProcessor):
 
         vlan = self.switch_configuration.get_vlan(vlan_id)
         if vlan is not None:
-            self.write_line("If any of the VLANs being deleted are for access ports, the ports will be")
+            self.write_line(
+                "If any of the VLANs being deleted are for access ports, the ports will be"
+            )
             self.write_line("unusable until it is assigned a VLAN that exists.")
             self.switch_configuration.remove_vlan(vlan)
         else:
@@ -41,7 +44,9 @@ class DellConfigureVlanCommandProcessor(BaseCommandProcessor):
             self.write_line("These VLANs do not exist:  {}.".format(vlan_id))
 
     def print_vlan_significant_delays_warning(self):
-        self.write_line("Warning: The use of large numbers of VLANs or interfaces may cause significant")
+        self.write_line(
+            "Warning: The use of large numbers of VLANs or interfaces may cause significant"
+        )
         self.write_line("delays in applying the configuration.")
 
     def do_exit(self):

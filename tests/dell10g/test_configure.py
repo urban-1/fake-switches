@@ -13,13 +13,18 @@
 # limitations under the License.
 
 from tests.dell10g import enable
-from tests.util.protocol_util import with_protocol, ProtocolTest, SshTester, TelnetTester
+from tests.util.protocol_util import (
+    with_protocol,
+    ProtocolTest,
+    SshTester,
+    TelnetTester,
+)
 
 
 class Dell10GConfigureTest(ProtocolTest):
     __test__ = False
 
-    _tester =  SshTester
+    _tester = SshTester
     test_switch = "dell10g"
 
     @with_protocol
@@ -83,9 +88,9 @@ class Dell10GConfigureTest(ProtocolTest):
 
 class Dell10GConfigureSshTest(Dell10GConfigureTest):
     __test__ = True
-    _tester =  SshTester
+    _tester = SshTester
 
 
 class Dell10GConfigureTelnetTest(Dell10GConfigureTest):
     __test__ = True
-    _tester =  TelnetTester
+    _tester = TelnetTester

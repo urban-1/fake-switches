@@ -17,7 +17,9 @@ from fake_switches.switch_configuration import Port, VlanPort
 
 
 class ConfigCommandProcessor(BaseCommandProcessor):
-    def __init__(self, config_vlan, config_vrf, config_interface, config_virtual_interface):
+    def __init__(
+        self, config_vlan, config_vrf, config_interface, config_virtual_interface
+    ):
         super(ConfigCommandProcessor, self).__init__()
         self.config_vlan_processor = config_vlan
         self.config_vrf_processor = config_vrf
@@ -35,7 +37,9 @@ class ConfigCommandProcessor(BaseCommandProcessor):
         elif number == 0:
             self.write_line("Error: vlan ID value 0 not allowed.")
         elif number > 4090:
-            self.write_line("Error: vlan id %s is outside of allowed max of 4090" % raw_number)
+            self.write_line(
+                "Error: vlan id %s is outside of allowed max of 4090" % raw_number
+            )
         else:
             vlan = self.switch_configuration.get_vlan(number)
             if not vlan:
@@ -51,8 +55,13 @@ class ConfigCommandProcessor(BaseCommandProcessor):
         if vlan:
             self.switch_configuration.remove_vlan(vlan)
             bound_ve = next(
-                (p for p in self.switch_configuration.ports if isinstance(p, VlanPort) and p.vlan_id == vlan.number),
-                None)
+                (
+                    p
+                    for p in self.switch_configuration.ports
+                    if isinstance(p, VlanPort) and p.vlan_id == vlan.number
+                ),
+                None,
+            )
             if bound_ve:
                 self.switch_configuration.remove_port(bound_ve)
 
@@ -86,7 +95,9 @@ class ConfigCommandProcessor(BaseCommandProcessor):
         if port:
             if isinstance(port, VlanPort):
                 self.switch_configuration.remove_port(port)
-                self.switch_configuration.add_port(self.switch_configuration.new("VlanPort", port.vlan_id, port.name))
+                self.switch_configuration.add_port(
+                    self.switch_configuration.new("VlanPort", port.vlan_id, port.name)
+                )
             elif isinstance(port, Port):
                 trunk_vlans = port.trunk_vlans
                 access_vlan = port.access_vlan

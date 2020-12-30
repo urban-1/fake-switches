@@ -12,23 +12,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from fake_switches.dell.command_processor.config_interface import DellConfigInterfaceCommandProcessor, parse_vlan_list
+from fake_switches.dell.command_processor.config_interface import (
+    DellConfigInterfaceCommandProcessor,
+    parse_vlan_list,
+)
 from fake_switches.switch_configuration import AggregatedPort
 
 
 class Dell10GConfigInterfaceCommandProcessor(DellConfigInterfaceCommandProcessor):
-    def init(self, switch_configuration, terminal_controller, logger,
-                 piping_processor, *args):
-        super(Dell10GConfigInterfaceCommandProcessor, self).init(switch_configuration, terminal_controller, logger, piping_processor,
-            args[0])
+    def init(
+        self, switch_configuration, terminal_controller, logger, piping_processor, *args
+    ):
+        super(Dell10GConfigInterfaceCommandProcessor, self).init(
+            switch_configuration, terminal_controller, logger, piping_processor, args[0]
+        )
         self.description_strip_chars = "\"'"
 
     def get_prompt(self):
-        short_name = self.port.name.split(' ')[1]
+        short_name = self.port.name.split(" ")[1]
         return "{}(config-if-{}{})#".format(
             self.switch_configuration.name,
             "Po" if isinstance(self.port, AggregatedPort) else "Te",
-            short_name)
+            short_name,
+        )
 
     def configure_lldp_port(self, args, target_value):
         if "transmit".startswith(args[0]):
@@ -44,16 +50,19 @@ class Dell10GConfigInterfaceCommandProcessor(DellConfigInterfaceCommandProcessor
                 elif "network-policy".startswith(args[2]):
                     self.port.lldp_med_transmit_network_policy = target_value
 
-
     def do_switchport(self, *args):
         if "access".startswith(args[0]) and "vlan".startswith(args[1]):
             self.set_access_vlan(int(args[2]))
         elif "mode".startswith(args[0]):
             self.set_switchport_mode(args[1])
-        elif ("general".startswith(args[0]) or "trunk".startswith(args[0])) and "allowed".startswith(args[1]):
+        elif (
+            "general".startswith(args[0]) or "trunk".startswith(args[0])
+        ) and "allowed".startswith(args[1]):
             if "vlan".startswith(args[2]) and args[0] == "general":
                 if len(args) > 5:
-                    self.write_line("                                                                 ^")
+                    self.write_line(
+                        "                                                                 ^"
+                    )
                     self.write_line("% Invalid input detected at '^' marker.")
                 else:
                     operation = args[3]
@@ -62,12 +71,20 @@ class Dell10GConfigInterfaceCommandProcessor(DellConfigInterfaceCommandProcessor
                     return
             elif "vlan".startswith(args[2]) and args[0] == "trunk":
                 if len(args) > 5:
-                    self.write_line("                                                                 ^")
+                    self.write_line(
+                        "                                                                 ^"
+                    )
                     self.write_line("% Invalid input detected at '^' marker.")
                 else:
                     if args[0:4] == ("trunk", "allowed", "vlan", "add"):
                         if self.port.trunk_vlans is not None:
-                            self.port.trunk_vlans = sorted(list(set(self.port.trunk_vlans + parse_vlan_list(args[4]))))
+                            self.port.trunk_vlans = sorted(
+                                list(
+                                    set(
+                                        self.port.trunk_vlans + parse_vlan_list(args[4])
+                                    )
+                                )
+                            )
                     elif args[0:4] == ("trunk", "allowed", "vlan", "remove"):
                         if self.port.trunk_vlans is None:
                             self.port.trunk_vlans = list(range(1, 4097))

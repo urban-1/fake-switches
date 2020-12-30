@@ -16,13 +16,20 @@ from fake_switches.command_processing.base_command_processor import BaseCommandP
 
 
 class ConfigVirtualInterfaceVrrpCommandProcessor(BaseCommandProcessor):
-    def init(self, switch_configuration, terminal_controller, logger, piping_processor, *args):
-        super(ConfigVirtualInterfaceVrrpCommandProcessor, self).init(switch_configuration, terminal_controller, logger, piping_processor)
+    def init(
+        self, switch_configuration, terminal_controller, logger, piping_processor, *args
+    ):
+        super(ConfigVirtualInterfaceVrrpCommandProcessor, self).init(
+            switch_configuration, terminal_controller, logger, piping_processor
+        )
         self.port, self.vrrp = args
 
     def get_prompt(self):
         return "SSH@%s(config-vif-%s-vrid-%s)#" % (
-            self.switch_configuration.name, self.port.vlan_id, self.vrrp.group_id)
+            self.switch_configuration.name,
+            self.port.vlan_id,
+            self.vrrp.group_id,
+        )
 
     def do_backup(self, *args):
         if "priority".startswith(args[0]) and "track-priority".startswith(args[2]):
@@ -75,7 +82,7 @@ class ConfigVirtualInterfaceVrrpCommandProcessor(BaseCommandProcessor):
         if len(self.vrrp.track) > 0:
             old_value = list(self.vrrp.track.values())[0]
 
-        self.vrrp.track = {' '.join(args[0:2]): old_value}
+        self.vrrp.track = {" ".join(args[0:2]): old_value}
 
     def do_no_track_port(self, *_):
         old_value = None

@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from fake_switches.command_processing.base_command_processor import \
-    BaseCommandProcessor
+from fake_switches.command_processing.base_command_processor import BaseCommandProcessor
 
 
 class DellDefaultCommandProcessor(BaseCommandProcessor):
@@ -26,7 +25,7 @@ class DellDefaultCommandProcessor(BaseCommandProcessor):
 
     def do_enable(self):
         self.write("Password:")
-        self.replace_input = '*'
+        self.replace_input = "*"
         self.continue_to(self.continue_enabling)
 
     def continue_enabling(self, line):

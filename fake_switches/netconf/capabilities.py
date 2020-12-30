@@ -66,7 +66,7 @@ class Base1_0(Capability):
 
     def commit(self, *args, **kwargs):
         self.datastore.commit_candidate()
-        self.datastore.configurations.get('candidate').commit()
+        self.datastore.configurations.get("candidate").commit()
         return Response(etree.Element("ok"))
 
 
@@ -85,8 +85,11 @@ def filter_content(content, filtering):
 
 
 def crawl_for_leaves(root, parent):
-    element_identifiers = ["{}[text()=\"{}\"]/..".format(e.tag, e.text)
-                      for e in root if len(e) == 0 and e.text]
+    element_identifiers = [
+        '{}[text()="{}"]/..'.format(e.tag, e.text)
+        for e in root
+        if len(e) == 0 and e.text
+    ]
 
     has_children = False
 
@@ -114,7 +117,6 @@ def filter_by_valid_nodes(content, valid_endpoints, valid_endpoints_parents):
             content.remove(e)
 
 
-
 class Candidate1_0(Capability):
     def get_url(self):
         return "urn:ietf:params:xml:ns:netconf:capability:candidate:1.0"
@@ -132,7 +134,9 @@ class Validate1_0(Capability):
 
 class Url1_0(Capability):
     def get_url(self):
-        return "urn:ietf:params:xml:ns:netconf:capability:url:1.0?protocol=http,ftp,file"
+        return (
+            "urn:ietf:params:xml:ns:netconf:capability:url:1.0?protocol=http,ftp,file"
+        )
 
 
 class NSLessCandidate1_0(Candidate1_0):

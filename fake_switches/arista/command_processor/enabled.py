@@ -48,15 +48,30 @@ class EnabledCommandProcessor(DefaultCommandProcessor):
         if "interfaces".startswith(args[0]):
             names = self.read_multiple_interfaces_name(args[1:])
             if names is not None:
-                self._show_run_interfaces(sorted(filter(lambda e: e, (self.switch_configuration.get_port_by_partial_name(p) for p in names)), key=lambda e: e.name))
+                self._show_run_interfaces(
+                    sorted(
+                        filter(
+                            lambda e: e,
+                            (
+                                self.switch_configuration.get_port_by_partial_name(p)
+                                for p in names
+                            ),
+                        ),
+                        key=lambda e: e.name,
+                    )
+                )
         else:
             self._show_header()
-            self._show_run_vlans(sorted(self.switch_configuration.vlans, key=lambda v: v.number))
+            self._show_run_vlans(
+                sorted(self.switch_configuration.vlans, key=lambda v: v.number)
+            )
             self.write_line("end")
 
     def _show_header(self):
         self.write_line("! Command: show running-config all")
-        self.write_line("! device: {} (vEOS, EOS-4.20.8M)".format(self.switch_configuration.name))
+        self.write_line(
+            "! device: {} (vEOS, EOS-4.20.8M)".format(self.switch_configuration.name)
+        )
         self.write_line("!")
         self.write_line("! boot system flash:/vEOS-lab.swi")
         self.write_line("!")
@@ -73,7 +88,11 @@ class EnabledCommandProcessor(DefaultCommandProcessor):
         for port in ports:
             self.write_line("interface {}".format(port.name))
             if port.trunk_vlans is not None:
-                self.write_line("   switchport trunk allowed vlan {}".format(to_vlan_ranges(port.trunk_vlans)))
+                self.write_line(
+                    "   switchport trunk allowed vlan {}".format(
+                        to_vlan_ranges(port.trunk_vlans)
+                    )
+                )
             if port.mode is not None:
                 self.write_line("   switchport mode {}".format(port.mode))
             if isinstance(port, VlanPort):
@@ -88,5 +107,10 @@ class EnabledCommandProcessor(DefaultCommandProcessor):
                 for ip_helper in port.ip_helpers:
                     self.write_line("   ip helper-address {}".format(ip_helper))
                 for varp_address in sorted(port.varp_addresses):
-                    self.write_line("   ip virtual-router address {}"
-                                    .format(varp_address if varp_address.prefixlen < 32 else varp_address.ip))
+                    self.write_line(
+                        "   ip virtual-router address {}".format(
+                            varp_address
+                            if varp_address.prefixlen < 32
+                            else varp_address.ip
+                        )
+                    )

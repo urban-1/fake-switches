@@ -18,13 +18,26 @@ import re
 from lxml import etree
 from twisted.internet.protocol import Protocol
 
-from fake_switches.netconf import dict_2_etree, NS_BASE_1_0, normalize_operation_name, SimpleDatastore, \
-    Response, OperationNotSupported, NetconfError
+from fake_switches.netconf import (
+    dict_2_etree,
+    NS_BASE_1_0,
+    normalize_operation_name,
+    SimpleDatastore,
+    Response,
+    OperationNotSupported,
+    NetconfError,
+)
 from fake_switches.netconf.capabilities import Base1_0
 
 
 class NetconfProtocol(Protocol):
-    def __init__(self, datastore=None, capabilities=None, additionnal_namespaces=None, logger=None):
+    def __init__(
+        self,
+        datastore=None,
+        capabilities=None,
+        additionnal_namespaces=None,
+        logger=None,
+    ):
         self.logger = logger or logging.getLogger("fake_switches.netconf")
 
         self.input_buffer = ""
@@ -45,12 +58,21 @@ class NetconfProtocol(Protocol):
 
         self.session_count += 1
 
-        self.say(dict_2_etree({
-            "hello": [
-                {"session-id": str(self.session_count)},
-                {"capabilities": [{"capability": cap.get_url()} for cap in self.capabilities]}
-            ]
-        }))
+        self.say(
+            dict_2_etree(
+                {
+                    "hello": [
+                        {"session-id": str(self.session_count)},
+                        {
+                            "capabilities": [
+                                {"capability": cap.get_url()}
+                                for cap in self.capabilities
+                            ]
+                        },
+                    ]
+                }
+            )
+        )
 
     def dataReceived(self, data):
         data = data.decode()
@@ -76,17 +98,23 @@ class NetconfProtocol(Protocol):
         for capability in self.capabilities:
             if hasattr(capability, operation_name):
                 try:
-                    self.reply(message_id, getattr(capability, operation_name)(operation))
+                    self.reply(
+                        message_id, getattr(capability, operation_name)(operation)
+                    )
                 except NetconfError as e:
                     self.reply(message_id, Response(e.to_etree()))
 
                 handled = True
 
         if not handled:
-            self.reply(message_id, Response(OperationNotSupported(operation_name).to_etree()))
+            self.reply(
+                message_id, Response(OperationNotSupported(operation_name).to_etree())
+            )
 
     def reply(self, message_id, response):
-        reply = etree.Element("rpc-reply", xmlns=NS_BASE_1_0, nsmap=self.additionnal_namespaces)
+        reply = etree.Element(
+            "rpc-reply", xmlns=NS_BASE_1_0, nsmap=self.additionnal_namespaces
+        )
         reply.attrib["message-id"] = message_id
         for ele in response.elements:
             reply.append(ele)
@@ -99,7 +127,9 @@ class NetconfProtocol(Protocol):
 
     def say(self, etree_root):
         self.logger.info("Saying : %s" % repr(etree.tostring(etree_root)))
-        self.transport.write(etree.tostring(etree_root, pretty_print=True) + b"]]>]]>\n")
+        self.transport.write(
+            etree.tostring(etree_root, pretty_print=True) + b"]]>]]>\n"
+        )
 
 
 def remove_namespaces(xml_root):
@@ -107,6 +137,7 @@ def remove_namespaces(xml_root):
     for child in xml_root:
         remove_namespaces(child)
     return xml_root
+
 
 def unqualify(tag):
     return re.sub("\{[^\}]*\}", "", tag)

@@ -1,8 +1,8 @@
 import logging
 import re
+import sys
 import unittest
 from functools import wraps
-import sys
 
 import pexpect
 from hamcrest import assert_that, equal_to
@@ -14,6 +14,7 @@ def with_protocol(test):
     """
     Provides a pexpect client (post-auth) to the test!
     """
+
     @wraps(test)
     def wrapper(self):
         try:
@@ -33,7 +34,7 @@ class LoggingFileInterface(object):
         self.prefix = prefix
 
     def write(self, data):
-        for line in data.rstrip(b'\r\n').split(b'\r\n'):
+        for line in data.rstrip(b"\r\n").split(b"\r\n"):
             logging.info(self.prefix + repr(line))
 
     def flush(self):
@@ -41,7 +42,7 @@ class LoggingFileInterface(object):
 
 
 class ProtocolTester(object):
-    def __init__(self,host, port, username, password, config, name=None):
+    def __init__(self, host, port, username, password, config, name=None):
         self.name = name or self.CONF_KEY
         self.host = host
         self.port = port
@@ -86,7 +87,7 @@ class ProtocolTester(object):
 
     def read_lines_until(self, expected):
         self.wait_for(expected)
-        lines = self.child.before.decode().split('\r\n')
+        lines = self.child.before.decode().split("\r\n")
         return lines
 
     def read_eof(self):
@@ -117,17 +118,17 @@ class SshTester(ProtocolTester):
 
     def get_ssh_connect_command(self):
         return (
-            'ssh %s@%s -p %s -o StrictHostKeyChecking=no '
-            '-o UserKnownHostsFile=/dev/null '
-            '-o KexAlgorithms=+diffie-hellman-group1-sha1 '
-            '-o LogLevel=ERROR '
+            "ssh %s@%s -p %s -o StrictHostKeyChecking=no "
+            "-o UserKnownHostsFile=/dev/null "
+            "-o KexAlgorithms=+diffie-hellman-group1-sha1 "
+            "-o LogLevel=ERROR "
         ) % (self.username, self.host, self.port)
 
     def login(self):
         # self.rread(r'[pP]assword: ')
-        self.wait_for('[pP]assword: ', regex=True)
+        self.wait_for("[pP]assword: ", regex=True)
         self.write_invisible(self.password)
-        self.wait_for('[>#]$', regex=True)
+        self.wait_for("[>#]$", regex=True)
         # self.rread(r'^.*[>#]$')
 
 
@@ -135,15 +136,14 @@ class TelnetTester(ProtocolTester):
     CONF_KEY = "telnet"
 
     def get_ssh_connect_command(self):
-        return 'telnet %s %s' \
-               % (self.host, self.port)
+        return "telnet %s %s" % (self.host, self.port)
 
     def login(self):
         self.wait_for("Username: ")
         self.write(self.username)
         self.wait_for("[pP]assword: ", True)
         self.write_invisible(self.password)
-        self.wait_for('[>#]$', regex=True)
+        self.wait_for("[>#]$", regex=True)
 
 
 class ProtocolTest(unittest.TestCase):
@@ -170,7 +170,7 @@ class ProtocolTest(unittest.TestCase):
             core_switch._test_ports[self._tester.CONF_KEY],
             username,
             password,
-            config=self.booter.get_config(self.test_switch)
+            config=self.booter.get_config(self.test_switch),
         )
 
     def tearDown(self):

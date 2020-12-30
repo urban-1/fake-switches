@@ -13,7 +13,9 @@
 # limitations under the License.
 
 import re
+
 from hamcrest.library.text.substringmatcher import SubstringMatcher
+
 from tests.util.global_reactor import ThreadedReactor
 
 
@@ -26,7 +28,6 @@ def tearDown():
 
 
 class RegexStringContains(SubstringMatcher):
-
     def __init__(self, regex_substring):
         super(RegexStringContains, self).__init__(regex_substring)
 
@@ -34,7 +35,7 @@ class RegexStringContains(SubstringMatcher):
         return re.search(self.substring, item) is not None
 
     def relationship(self):
-        return 'containing regex'
+        return "containing regex"
 
 
 def contains_regex(substring):

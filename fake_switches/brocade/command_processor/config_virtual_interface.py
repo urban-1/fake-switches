@@ -15,7 +15,9 @@
 from netaddr import IPNetwork
 from netaddr.ip import IPAddress
 
-from fake_switches.brocade.command_processor.config_interface import ConfigInterfaceCommandProcessor
+from fake_switches.brocade.command_processor.config_interface import (
+    ConfigInterfaceCommandProcessor,
+)
 
 
 class ConfigVirtualInterfaceCommandProcessor(ConfigInterfaceCommandProcessor):
@@ -24,12 +26,17 @@ class ConfigVirtualInterfaceCommandProcessor(ConfigInterfaceCommandProcessor):
         self.config_virtual_interface_vrrp = config_virtual_interface_vrrp
 
     def get_prompt(self):
-        return "SSH@%s(config-vif-%s)#" % (self.switch_configuration.name, self.port.vlan_id)
+        return "SSH@%s(config-vif-%s)#" % (
+            self.switch_configuration.name,
+            self.port.vlan_id,
+        )
 
     def do_ip(self, *args):
         if "address".startswith(args[0]):
             new_ip = IPNetwork(args[1])
-            ip_owner, existing_ip = self.switch_configuration.get_port_and_ip_by_ip(new_ip.ip)
+            ip_owner, existing_ip = self.switch_configuration.get_port_and_ip_by_ip(
+                new_ip.ip
+            )
             if not ip_owner:
                 self.port.add_ip(new_ip)
             else:
@@ -41,26 +48,41 @@ class ConfigVirtualInterfaceCommandProcessor(ConfigInterfaceCommandProcessor):
                         else:
                             if new_ip.ip in ip:
                                 if len(args) > 2 and "secondary".startswith(args[2]):
-                                    if not next((ip for ip in self.port.secondary_ips if ip.ip == new_ip.ip), False):
+                                    if not next(
+                                        (
+                                            ip
+                                            for ip in self.port.secondary_ips
+                                            if ip.ip == new_ip.ip
+                                        ),
+                                        False,
+                                    ):
                                         self.port.add_secondary_ip(new_ip)
                                     else:
-                                        self.write_line("IP/Port: Errno(6) Duplicate ip address")
+                                        self.write_line(
+                                            "IP/Port: Errno(6) Duplicate ip address"
+                                        )
                                         break
                                 else:
                                     self.write_line(
-                                        "IP/Port: Errno(15) Can only assign one primary ip address per subnet")
+                                        "IP/Port: Errno(15) Can only assign one primary ip address per subnet"
+                                    )
                                     break
                 else:
-                    self.write_line("IP/Port: Errno(11) ip subnet overlap with another interface")
+                    self.write_line(
+                        "IP/Port: Errno(11) ip subnet overlap with another interface"
+                    )
 
         if "access-group".startswith(args[0]):
             if "in".startswith(args[2]):
                 self.port.access_group_in = args[1]
             elif "out".startswith(args[2]):
                 self.port.access_group_out = args[1]
-            self.write_line("Warning: An undefined or zero length ACL has been applied. "
-                            "Filtering will not occur for the specified interface VE {} (outbound)."
-                            .format(self.port.vlan_id))
+            self.write_line(
+                "Warning: An undefined or zero length ACL has been applied. "
+                "Filtering will not occur for the specified interface VE {} (outbound).".format(
+                    self.port.vlan_id
+                )
+            )
 
         if "vrrp-extended".startswith(args[0]):
             if "vrid".startswith(args[1]):
@@ -96,13 +118,19 @@ class ConfigVirtualInterfaceCommandProcessor(ConfigInterfaceCommandProcessor):
     def do_no_ip(self, *args):
         if "address".startswith(args[0]):
             deleting_ip = IPNetwork(args[1])
-            if next((ip for ip in self.port.secondary_ips if ip.ip == deleting_ip.ip), False):
+            if next(
+                (ip for ip in self.port.secondary_ips if ip.ip == deleting_ip.ip), False
+            ):
                 self.port.remove_secondary_ip(deleting_ip)
             else:
-                if not next((ip for ip in self.port.secondary_ips if ip in deleting_ip), False):
+                if not next(
+                    (ip for ip in self.port.secondary_ips if ip in deleting_ip), False
+                ):
                     self.port.remove_ip(deleting_ip)
                 else:
-                    self.write_line("IP/Port: Errno(18) Delete secondary address before deleting primary address")
+                    self.write_line(
+                        "IP/Port: Errno(18) Delete secondary address before deleting primary address"
+                    )
         if "access-group".startswith(args[0]):
             if len(args) < 3:
                 self.write_line("Error: Wrong Access List Name %s" % args[1])

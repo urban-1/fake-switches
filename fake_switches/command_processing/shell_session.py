@@ -21,6 +21,7 @@ class ShellSession(object):
     - Handling the TerminalExitSignal
     - Handling "unknown commands" which by default does nothing
     """
+
     def __init__(self, command_processor):
         self.command_processor = command_processor
 

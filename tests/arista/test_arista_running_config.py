@@ -13,13 +13,21 @@
 # limitations under the License.
 from hamcrest import assert_that, is_
 
-from tests.arista import enable, create_vlan, create_interface_vlan, configuring_interface, configuring_interface_vlan, \
-    with_eapi, remove_vlan, remove_interface_vlan
+from tests.arista import (
+    enable,
+    create_vlan,
+    create_interface_vlan,
+    configuring_interface,
+    configuring_interface_vlan,
+    with_eapi,
+    remove_vlan,
+    remove_interface_vlan,
+)
 from tests.util.protocol_util import with_protocol, ProtocolTest, SshTester
 
 
 class TestAristaRunningConfig(ProtocolTest):
-    _tester =  SshTester
+    _tester = SshTester
     test_switch = "arista"
 
     @with_protocol
@@ -74,19 +82,26 @@ class TestAristaRunningConfig(ProtocolTest):
         t.readln("   ip address 2.2.2.2/27")
         t.read("my_arista#")
 
-        result = api.get_config(params="interfaces Vlan1000 Ethernet2 Ethernet1 Vlan2000")
+        result = api.get_config(
+            params="interfaces Vlan1000 Ethernet2 Ethernet1 Vlan2000"
+        )
 
-        assert_that(result, is_([
-            "interface Ethernet1",
-            "   switchport trunk allowed vlan 123-124,127",
-            "interface Ethernet2",
-            "   switchport mode trunk",
-            "interface Vlan1000",
-            "   ip address 1.1.1.1/27",
-            "interface Vlan2000",
-            "   ip address 2.2.2.2/27",
-            ""
-        ]))
+        assert_that(
+            result,
+            is_(
+                [
+                    "interface Ethernet1",
+                    "   switchport trunk allowed vlan 123-124,127",
+                    "interface Ethernet2",
+                    "   switchport mode trunk",
+                    "interface Vlan1000",
+                    "   ip address 1.1.1.1/27",
+                    "interface Vlan2000",
+                    "   ip address 2.2.2.2/27",
+                    "",
+                ]
+            ),
+        )
 
         configuring_interface(t, "Et1", do="no switchport trunk allowed vlan")
         configuring_interface(t, "Et2", do="no switchport mode")

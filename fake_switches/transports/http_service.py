@@ -28,5 +28,8 @@ class SwitchHttpService(BaseTransport):
 
         lport = reactor.listenTCP(port=self.port, factory=site, interface=self.ip)
         logging.info(lport)
-        logging.info("{} (HTTP): Registered on {} tcp/{}"
-                     .format(self.switch_core.switch_configuration.name, self.ip, self.port))
+        logging.info(
+            "{} (HTTP): Registered on {} tcp/{}".format(
+                self.switch_core.switch_configuration.name, self.ip, self.port
+            )
+        )

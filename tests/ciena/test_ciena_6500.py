@@ -16,12 +16,14 @@ import mock
 
 from tests.util.protocol_util import with_protocol, ProtocolTest
 
+
 def login(t):
     """
     Utility to login
     """
-    t.write("ACT-USER::\"urban\":1::TEST;")
+    t.write('ACT-USER::"urban":1::TEST;')
     t.rread(r".* COMPLD\r")
+
 
 def close(t):
     t.write_raw("\x04")
@@ -43,7 +45,7 @@ class TestCiena6500(ProtocolTest):
         # - write, reads back what it wrote
         # - Ciena adds the TID in the command on the fly! What we write
         #   and what we read are not different!
-        t.write_raw("CANC-USER::\"urban\":1;")
+        t.write_raw('CANC-USER::"urban":1;')
         t.rread(r".*COMPLD")
 
     @with_protocol
@@ -60,7 +62,7 @@ class TestCiena6500(ProtocolTest):
     def test_terminal_adds_tid(self, t):
         t.read_lines_until("< ")
         t.write_raw("RTRV-EQPT:::1;")
-        t.read("RTRV-EQPT:\"eu-uk-not1-1\"::1;")
+        t.read('RTRV-EQPT:"eu-uk-not1-1"::1;')
 
     @with_protocol
     def test_no_tid_logged_in(self, t):

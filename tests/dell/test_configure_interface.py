@@ -14,40 +14,53 @@
 
 from hamcrest import assert_that, is_not, has_item
 
-from tests.dell import enable, configuring_interface, \
-    assert_interface_configuration, assert_running_config_contains_in_order, \
-    get_running_config, configure, configuring_vlan, unconfigure_vlan, \
-    configuring_a_vlan_on_interface, create_bond, remove_bond, \
-    configuring_bond
-from tests.util.protocol_util import with_protocol, ProtocolTest, SshTester, TelnetTester
+from tests.dell import (
+    enable,
+    configuring_interface,
+    assert_interface_configuration,
+    assert_running_config_contains_in_order,
+    get_running_config,
+    configure,
+    configuring_vlan,
+    unconfigure_vlan,
+    configuring_a_vlan_on_interface,
+    create_bond,
+    remove_bond,
+    configuring_bond,
+)
+from tests.util.protocol_util import (
+    with_protocol,
+    ProtocolTest,
+    SshTester,
+    TelnetTester,
+)
 
 
 class DellConfigureInterfaceTest(ProtocolTest):
     __test__ = False
 
-    _tester =  SshTester
+    _tester = SshTester
     test_switch = "dell"
 
     @with_protocol
     def test_show_run_vs_show_run_interface_same_output(self, t):
         enable(t)
         configuring_interface(t, "ethernet 1/g1", do="shutdown")
-        assert_interface_configuration(t, "ethernet 1/g1", [
-            "shutdown"
-        ])
+        assert_interface_configuration(t, "ethernet 1/g1", ["shutdown"])
 
-        assert_running_config_contains_in_order(t, [
-            "interface ethernet 1/g1",
-            "shutdown",
-            "exit",
-            "!",
-        ])
+        assert_running_config_contains_in_order(
+            t,
+            [
+                "interface ethernet 1/g1",
+                "shutdown",
+                "exit",
+                "!",
+            ],
+        )
 
         configuring_interface(t, "ethernet 1/g1", do="no shutdown")
 
-        assert_interface_configuration(t, "ethernet 1/g1", [
-            ""
-        ])
+        assert_interface_configuration(t, "ethernet 1/g1", [""])
 
         config = get_running_config(t)
         assert_that(config, is_not(has_item("interface ethernet 1/g1")))
@@ -57,85 +70,95 @@ class DellConfigureInterfaceTest(ProtocolTest):
         enable(t)
         configuring_interface(t, "ethernet 1/g1", do="shutdown")
 
-        assert_interface_configuration(t, "ethernet 1/g1", [
-            "shutdown"
-        ])
+        assert_interface_configuration(t, "ethernet 1/g1", ["shutdown"])
 
         configuring_interface(t, "ethernet 1/g1", do="no shutdown")
 
-        assert_interface_configuration(t, "ethernet 1/g1", [
-            ""
-        ])
+        assert_interface_configuration(t, "ethernet 1/g1", [""])
 
     @with_protocol
     def test_description(self, t):
         enable(t)
         configuring_interface(t, "ethernet 1/g1", do='description "hello WORLD"')
-        assert_interface_configuration(t, "ethernet 1/g1", [
-            "description 'hello WORLD'"
-        ])
+        assert_interface_configuration(
+            t, "ethernet 1/g1", ["description 'hello WORLD'"]
+        )
 
         configuring_interface(t, "ethernet 1/g1", do="description 'We dont know yet'")
-        assert_interface_configuration(t, "ethernet 1/g1", [
-            "description 'We dont know yet'"
-        ])
+        assert_interface_configuration(
+            t, "ethernet 1/g1", ["description 'We dont know yet'"]
+        )
 
-        configuring_interface(t, "ethernet 1/g1", do='description YEEEAH')
-        assert_interface_configuration(t, "ethernet 1/g1", [
-            "description 'YEEEAH'"
-        ])
+        configuring_interface(t, "ethernet 1/g1", do="description YEEEAH")
+        assert_interface_configuration(t, "ethernet 1/g1", ["description 'YEEEAH'"])
 
-        configuring_interface(t, "ethernet 1/g1", do='no description')
-        assert_interface_configuration(t, "ethernet 1/g1", [
-            ""
-        ])
+        configuring_interface(t, "ethernet 1/g1", do="no description")
+        assert_interface_configuration(t, "ethernet 1/g1", [""])
 
     @with_protocol
     def test_lldp_options_defaults_to_enabled(self, t):
         enable(t)
-        configuring_interface(t, "ethernet 1/g1", do='no lldp transmit')
-        configuring_interface(t, "ethernet 1/g1", do='no lldp receive')
-        configuring_interface(t, "ethernet 1/g1", do='no lldp med transmit-tlv capabilities')
-        configuring_interface(t, "ethernet 1/g1", do='no lldp med transmit-tlv network-policy')
+        configuring_interface(t, "ethernet 1/g1", do="no lldp transmit")
+        configuring_interface(t, "ethernet 1/g1", do="no lldp receive")
+        configuring_interface(
+            t, "ethernet 1/g1", do="no lldp med transmit-tlv capabilities"
+        )
+        configuring_interface(
+            t, "ethernet 1/g1", do="no lldp med transmit-tlv network-policy"
+        )
 
-        assert_interface_configuration(t, "ethernet 1/g1", [
-            'no lldp transmit',
-            'no lldp receive',
-            'no lldp med transmit-tlv capabilities',
-            'no lldp med transmit-tlv network-policy',
-        ])
+        assert_interface_configuration(
+            t,
+            "ethernet 1/g1",
+            [
+                "no lldp transmit",
+                "no lldp receive",
+                "no lldp med transmit-tlv capabilities",
+                "no lldp med transmit-tlv network-policy",
+            ],
+        )
 
-        configuring_interface(t, "ethernet 1/g1", do='lldp transmit')
-        configuring_interface(t, "ethernet 1/g1", do='lldp receive')
-        configuring_interface(t, "ethernet 1/g1", do='lldp med transmit-tlv capabilities')
-        configuring_interface(t, "ethernet 1/g1", do='lldp med transmit-tlv network-policy')
+        configuring_interface(t, "ethernet 1/g1", do="lldp transmit")
+        configuring_interface(t, "ethernet 1/g1", do="lldp receive")
+        configuring_interface(
+            t, "ethernet 1/g1", do="lldp med transmit-tlv capabilities"
+        )
+        configuring_interface(
+            t, "ethernet 1/g1", do="lldp med transmit-tlv network-policy"
+        )
 
-        assert_interface_configuration(t, "ethernet 1/g1", [
-            '',
-        ])
+        assert_interface_configuration(
+            t,
+            "ethernet 1/g1",
+            [
+                "",
+            ],
+        )
 
     @with_protocol
     def test_spanning_tree(self, t):
         enable(t)
-        configuring_interface(t, "ethernet 1/g1", do='spanning-tree disable')
-        configuring_interface(t, "ethernet 1/g1", do='spanning-tree portfast')
+        configuring_interface(t, "ethernet 1/g1", do="spanning-tree disable")
+        configuring_interface(t, "ethernet 1/g1", do="spanning-tree portfast")
 
-        assert_interface_configuration(t, "ethernet 1/g1", [
-            'spanning-tree disable',
-            'spanning-tree portfast',
-        ])
+        assert_interface_configuration(
+            t,
+            "ethernet 1/g1",
+            [
+                "spanning-tree disable",
+                "spanning-tree portfast",
+            ],
+        )
 
-        configuring_interface(t, "ethernet 1/g1", do='no spanning-tree disable')
-        configuring_interface(t, "ethernet 1/g1", do='no spanning-tree portfast')
+        configuring_interface(t, "ethernet 1/g1", do="no spanning-tree disable")
+        configuring_interface(t, "ethernet 1/g1", do="no spanning-tree portfast")
 
-        assert_interface_configuration(t, "ethernet 1/g1", [
-            ''
-        ])
-
-
+        assert_interface_configuration(t, "ethernet 1/g1", [""])
 
     @with_protocol
-    def test_access_vlan_that_doesnt_exist_prints_a_warning_and_config_is_unchanged(self, t):
+    def test_access_vlan_that_doesnt_exist_prints_a_warning_and_config_is_unchanged(
+        self, t
+    ):
         enable(t)
         configure(t)
 
@@ -144,7 +167,9 @@ class DellConfigureInterfaceTest(ProtocolTest):
         t.read("my_switch(config-if-1/g1)#")
 
         t.write("switchport access vlan 1200")
-        t.readln("Warning: The use of large numbers of VLANs or interfaces may cause significant")
+        t.readln(
+            "Warning: The use of large numbers of VLANs or interfaces may cause significant"
+        )
         t.readln("delays in applying the configuration.")
         t.readln("")
         t.readln("")
@@ -160,9 +185,7 @@ class DellConfigureInterfaceTest(ProtocolTest):
         t.readln("")
         t.read("my_switch#")
 
-        assert_interface_configuration(t, 'ethernet 1/g1', [
-            ""
-        ])
+        assert_interface_configuration(t, "ethernet 1/g1", [""])
 
     @with_protocol
     def test_access_vlan(self, t):
@@ -175,7 +198,9 @@ class DellConfigureInterfaceTest(ProtocolTest):
         t.readln("")
         t.read("my_switch(config-if-1/g1)#")
         t.write("switchport access vlan 1264")
-        t.readln("Warning: The use of large numbers of VLANs or interfaces may cause significant")
+        t.readln(
+            "Warning: The use of large numbers of VLANs or interfaces may cause significant"
+        )
         t.readln("delays in applying the configuration.")
         t.readln("")
         t.readln("")
@@ -188,16 +213,22 @@ class DellConfigureInterfaceTest(ProtocolTest):
         t.readln("")
         t.read("my_switch#")
 
-        assert_interface_configuration(t, 'ethernet 1/g1', [
-            "switchport access vlan 1264",
-        ])
+        assert_interface_configuration(
+            t,
+            "ethernet 1/g1",
+            [
+                "switchport access vlan 1264",
+            ],
+        )
 
         configure(t)
         t.write("interface ethernet 1/g1")
         t.readln("")
         t.read("my_switch(config-if-1/g1)#")
         t.write("no switchport access vlan")
-        t.readln("Warning: The use of large numbers of VLANs or interfaces may cause significant")
+        t.readln(
+            "Warning: The use of large numbers of VLANs or interfaces may cause significant"
+        )
         t.readln("delays in applying the configuration.")
         t.readln("")
         t.readln("")
@@ -210,9 +241,7 @@ class DellConfigureInterfaceTest(ProtocolTest):
         t.readln("")
         t.read("my_switch#")
 
-        assert_interface_configuration(t, 'ethernet 1/g1', [
-            ""
-        ])
+        assert_interface_configuration(t, "ethernet 1/g1", [""])
 
         unconfigure_vlan(t, 1264)
 
@@ -230,7 +259,9 @@ class DellConfigureInterfaceTest(ProtocolTest):
         t.readln("")
         t.read("my_switch(config-if-1/g1)#")
         t.write("switchport trunk allowed vlan add 1264")
-        t.readln("Warning: The use of large numbers of VLANs or interfaces may cause significant")
+        t.readln(
+            "Warning: The use of large numbers of VLANs or interfaces may cause significant"
+        )
         t.readln("delays in applying the configuration.")
         t.readln("")
         t.readln("")
@@ -244,10 +275,14 @@ class DellConfigureInterfaceTest(ProtocolTest):
         t.readln("")
         t.read("my_switch#")
 
-        assert_interface_configuration(t, 'ethernet 1/g1', [
-            "switchport mode trunk",
-            "switchport trunk allowed vlan add 1264",
-        ])
+        assert_interface_configuration(
+            t,
+            "ethernet 1/g1",
+            [
+                "switchport mode trunk",
+                "switchport trunk allowed vlan add 1264",
+            ],
+        )
 
         configure(t)
         t.write("interface ethernet 1/g1")
@@ -264,9 +299,7 @@ class DellConfigureInterfaceTest(ProtocolTest):
         t.readln("")
         t.read("my_switch#")
 
-        assert_interface_configuration(t, 'ethernet 1/g1', [
-            ""
-        ])
+        assert_interface_configuration(t, "ethernet 1/g1", [""])
 
         unconfigure_vlan(t, 1264)
 
@@ -281,7 +314,9 @@ class DellConfigureInterfaceTest(ProtocolTest):
         t.readln("")
         t.read("my_switch(config-if-1/g1)#")
         t.write("switchport access vlan 1264")
-        t.readln("Warning: The use of large numbers of VLANs or interfaces may cause significant")
+        t.readln(
+            "Warning: The use of large numbers of VLANs or interfaces may cause significant"
+        )
         t.readln("delays in applying the configuration.")
         t.readln("")
         t.readln("")
@@ -295,9 +330,13 @@ class DellConfigureInterfaceTest(ProtocolTest):
         t.readln("")
         t.read("my_switch#")
 
-        assert_interface_configuration(t, 'ethernet 1/g1', [
-            "switchport access vlan 1264",
-        ])
+        assert_interface_configuration(
+            t,
+            "ethernet 1/g1",
+            [
+                "switchport access vlan 1264",
+            ],
+        )
 
         configure(t)
         t.write("interface ethernet 1/g1")
@@ -314,9 +353,13 @@ class DellConfigureInterfaceTest(ProtocolTest):
         t.readln("")
         t.read("my_switch#")
 
-        assert_interface_configuration(t, 'ethernet 1/g1', [
-            "switchport access vlan 1264",
-        ])
+        assert_interface_configuration(
+            t,
+            "ethernet 1/g1",
+            [
+                "switchport access vlan 1264",
+            ],
+        )
 
         unconfigure_vlan(t, 1264)
 
@@ -339,7 +382,9 @@ class DellConfigureInterfaceTest(ProtocolTest):
 
         t.write("switchport general allowed vlan add 1264")
 
-        t.readln("Warning: The use of large numbers of VLANs or interfaces may cause significant")
+        t.readln(
+            "Warning: The use of large numbers of VLANs or interfaces may cause significant"
+        )
         t.readln("delays in applying the configuration.")
         t.readln("")
         t.readln("")
@@ -353,11 +398,15 @@ class DellConfigureInterfaceTest(ProtocolTest):
         t.readln("")
         t.read("my_switch#")
 
-        assert_interface_configuration(t, 'ethernet 1/g1', [
-            "switchport mode general",
-            "switchport general pvid 1264",
-            "switchport general allowed vlan add 1264",
-        ])
+        assert_interface_configuration(
+            t,
+            "ethernet 1/g1",
+            [
+                "switchport mode general",
+                "switchport general pvid 1264",
+                "switchport general allowed vlan add 1264",
+            ],
+        )
 
         configure(t)
         t.write("interface ethernet 1/g1")
@@ -374,9 +423,13 @@ class DellConfigureInterfaceTest(ProtocolTest):
         t.readln("")
         t.read("my_switch#")
 
-        assert_interface_configuration(t, 'ethernet 1/g1', [
-            "",
-        ])
+        assert_interface_configuration(
+            t,
+            "ethernet 1/g1",
+            [
+                "",
+            ],
+        )
 
         unconfigure_vlan(t, 1264)
 
@@ -387,58 +440,63 @@ class DellConfigureInterfaceTest(ProtocolTest):
         configuring_vlan(t, 1264)
         configuring_vlan(t, 1265)
 
-        assert_interface_configuration(t, 'ethernet 1/g1', [
-            ""
-        ])
+        assert_interface_configuration(t, "ethernet 1/g1", [""])
 
         configuring_interface(t, "ethernet 1/g1", do="switchport mode access")
-        assert_interface_configuration(t, 'ethernet 1/g1', [
-            ""
-        ])
+        assert_interface_configuration(t, "ethernet 1/g1", [""])
 
-        configuring_a_vlan_on_interface(t, "ethernet 1/g1", do="switchport access vlan 1264")
-        assert_interface_configuration(t, 'ethernet 1/g1', [
-            "switchport access vlan 1264"
-        ])
+        configuring_a_vlan_on_interface(
+            t, "ethernet 1/g1", do="switchport access vlan 1264"
+        )
+        assert_interface_configuration(
+            t, "ethernet 1/g1", ["switchport access vlan 1264"]
+        )
 
         configuring_interface(t, "ethernet 1/g1", do="switchport mode access")
-        assert_interface_configuration(t, 'ethernet 1/g1', [
-            "switchport access vlan 1264"
-        ])
+        assert_interface_configuration(
+            t, "ethernet 1/g1", ["switchport access vlan 1264"]
+        )
 
         configuring_interface(t, "ethernet 1/g1", do="switchport mode general")
-        assert_interface_configuration(t, 'ethernet 1/g1', [
-            "switchport mode general"
-        ])
+        assert_interface_configuration(t, "ethernet 1/g1", ["switchport mode general"])
 
         configuring_interface(t, "ethernet 1/g1", do="switchport general pvid 1264")
-        assert_interface_configuration(t, 'ethernet 1/g1', [
-            "switchport mode general",
-            "switchport general pvid 1264"
-        ])
+        assert_interface_configuration(
+            t,
+            "ethernet 1/g1",
+            ["switchport mode general", "switchport general pvid 1264"],
+        )
 
-        configuring_a_vlan_on_interface(t, "ethernet 1/g1", do="switchport general allowed vlan add 1265")
-        assert_interface_configuration(t, 'ethernet 1/g1', [
-            "switchport mode general",
-            "switchport general pvid 1264",
-            "switchport general allowed vlan add 1265",
-        ])
+        configuring_a_vlan_on_interface(
+            t, "ethernet 1/g1", do="switchport general allowed vlan add 1265"
+        )
+        assert_interface_configuration(
+            t,
+            "ethernet 1/g1",
+            [
+                "switchport mode general",
+                "switchport general pvid 1264",
+                "switchport general allowed vlan add 1265",
+            ],
+        )
 
         configuring_interface(t, "ethernet 1/g1", do="switchport mode trunk")
-        assert_interface_configuration(t, 'ethernet 1/g1', [
-            "switchport mode trunk"
-        ])
+        assert_interface_configuration(t, "ethernet 1/g1", ["switchport mode trunk"])
 
-        configuring_a_vlan_on_interface(t, "ethernet 1/g1", do="switchport trunk allowed vlan add 1265")
-        assert_interface_configuration(t, 'ethernet 1/g1', [
-            "switchport mode trunk",
-            "switchport trunk allowed vlan add 1265",
-        ])
+        configuring_a_vlan_on_interface(
+            t, "ethernet 1/g1", do="switchport trunk allowed vlan add 1265"
+        )
+        assert_interface_configuration(
+            t,
+            "ethernet 1/g1",
+            [
+                "switchport mode trunk",
+                "switchport trunk allowed vlan add 1265",
+            ],
+        )
 
         configuring_interface(t, "ethernet 1/g1", do="switchport mode access")
-        assert_interface_configuration(t, 'ethernet 1/g1', [
-            ""
-        ])
+        assert_interface_configuration(t, "ethernet 1/g1", [""])
 
         unconfigure_vlan(t, 1265)
         unconfigure_vlan(t, 1264)
@@ -505,20 +563,29 @@ class DellConfigureInterfaceTest(ProtocolTest):
         t.readln("")
         t.read("my_switch#")
 
-        assert_interface_configuration(t, 'ethernet 1/g1', [
-            "switchport mode general",
-            "switchport general pvid 1264"
-        ])
+        assert_interface_configuration(
+            t,
+            "ethernet 1/g1",
+            ["switchport mode general", "switchport general pvid 1264"],
+        )
 
         configuring_interface(t, "ethernet 1/g1", do="no switchport general pvid")
-        assert_interface_configuration(t, 'ethernet 1/g1', [
-            "switchport mode general",
-        ])
+        assert_interface_configuration(
+            t,
+            "ethernet 1/g1",
+            [
+                "switchport mode general",
+            ],
+        )
 
         configuring_interface(t, "ethernet 1/g1", do="switchport mode access")
-        assert_interface_configuration(t, 'ethernet 1/g1', [
-            "",
-        ])
+        assert_interface_configuration(
+            t,
+            "ethernet 1/g1",
+            [
+                "",
+            ],
+        )
 
         unconfigure_vlan(t, 1264)
 
@@ -545,7 +612,9 @@ class DellConfigureInterfaceTest(ProtocolTest):
         t.read("my_switch(config-if-1/g1)#")
 
         t.write("switchport trunk allowed vlan add 1200")
-        t.readln("Warning: The use of large numbers of VLANs or interfaces may cause significant")
+        t.readln(
+            "Warning: The use of large numbers of VLANs or interfaces may cause significant"
+        )
         t.readln("delays in applying the configuration.")
         t.readln("")
         t.readln("")
@@ -559,7 +628,9 @@ class DellConfigureInterfaceTest(ProtocolTest):
         t.read("my_switch(config-if-1/g1)#")
 
         t.write("switchport trunk allowed vlan add 1200-1202")
-        t.readln("Warning: The use of large numbers of VLANs or interfaces may cause significant")
+        t.readln(
+            "Warning: The use of large numbers of VLANs or interfaces may cause significant"
+        )
         t.readln("delays in applying the configuration.")
         t.readln("")
         t.readln("")
@@ -574,7 +645,9 @@ class DellConfigureInterfaceTest(ProtocolTest):
         t.read("my_switch(config-if-1/g1)#")
 
         t.write("switchport trunk allowed vlan remove 1200")
-        t.readln("Warning: The use of large numbers of VLANs or interfaces may cause significant")
+        t.readln(
+            "Warning: The use of large numbers of VLANs or interfaces may cause significant"
+        )
         t.readln("delays in applying the configuration.")
         t.readln("")
         t.readln("")
@@ -588,7 +661,9 @@ class DellConfigureInterfaceTest(ProtocolTest):
         t.read("my_switch(config-if-1/g1)#")
 
         t.write("switchport trunk allowed vlan remove 1200-1202")
-        t.readln("Warning: The use of large numbers of VLANs or interfaces may cause significant")
+        t.readln(
+            "Warning: The use of large numbers of VLANs or interfaces may cause significant"
+        )
         t.readln("delays in applying the configuration.")
         t.readln("")
         t.readln("")
@@ -603,7 +678,9 @@ class DellConfigureInterfaceTest(ProtocolTest):
         t.read("my_switch(config-if-1/g1)#")
 
         t.write("switchport trunk allowed vlan add 1202-1201")
-        t.readln("VLAN range - separate non-consecutive IDs with ',' and no spaces.  Use '-' for range.")
+        t.readln(
+            "VLAN range - separate non-consecutive IDs with ',' and no spaces.  Use '-' for range."
+        )
         t.readln("")
         t.read("my_switch(config-if-1/g1)#")
 
@@ -649,7 +726,9 @@ class DellConfigureInterfaceTest(ProtocolTest):
         t.read("my_switch(config-if-1/g1)#")
 
         t.write("switchport general allowed vlan add 1200")
-        t.readln("Warning: The use of large numbers of VLANs or interfaces may cause significant")
+        t.readln(
+            "Warning: The use of large numbers of VLANs or interfaces may cause significant"
+        )
         t.readln("delays in applying the configuration.")
         t.readln("")
         t.readln("")
@@ -663,7 +742,9 @@ class DellConfigureInterfaceTest(ProtocolTest):
         t.read("my_switch(config-if-1/g1)#")
 
         t.write("switchport general allowed vlan add 1200-1202")
-        t.readln("Warning: The use of large numbers of VLANs or interfaces may cause significant")
+        t.readln(
+            "Warning: The use of large numbers of VLANs or interfaces may cause significant"
+        )
         t.readln("delays in applying the configuration.")
         t.readln("")
         t.readln("")
@@ -678,7 +759,9 @@ class DellConfigureInterfaceTest(ProtocolTest):
         t.read("my_switch(config-if-1/g1)#")
 
         t.write("switchport general allowed vlan remove 1200")
-        t.readln("Warning: The use of large numbers of VLANs or interfaces may cause significant")
+        t.readln(
+            "Warning: The use of large numbers of VLANs or interfaces may cause significant"
+        )
         t.readln("delays in applying the configuration.")
         t.readln("")
         t.readln("")
@@ -692,7 +775,9 @@ class DellConfigureInterfaceTest(ProtocolTest):
         t.read("my_switch(config-if-1/g1)#")
 
         t.write("switchport general allowed vlan remove 1200-1202")
-        t.readln("Warning: The use of large numbers of VLANs or interfaces may cause significant")
+        t.readln(
+            "Warning: The use of large numbers of VLANs or interfaces may cause significant"
+        )
         t.readln("delays in applying the configuration.")
         t.readln("")
         t.readln("")
@@ -707,7 +792,9 @@ class DellConfigureInterfaceTest(ProtocolTest):
         t.read("my_switch(config-if-1/g1)#")
 
         t.write("switchport general allowed vlan add 1202-1201")
-        t.readln("VLAN range - separate non-consecutive IDs with ',' and no spaces.  Use '-' for range.")
+        t.readln(
+            "VLAN range - separate non-consecutive IDs with ',' and no spaces.  Use '-' for range."
+        )
         t.readln("")
         t.read("my_switch(config-if-1/g1)#")
 
@@ -741,40 +828,76 @@ class DellConfigureInterfaceTest(ProtocolTest):
         configuring_vlan(t, 1205)
 
         configuring_interface(t, "ethernet 1/g1", do="switchport mode trunk")
-        configuring_a_vlan_on_interface(t, "ethernet 1/g1", do="switchport trunk allowed vlan add 1200")
-        assert_interface_configuration(t, 'ethernet 1/g1', [
-            "switchport mode trunk",
-            "switchport trunk allowed vlan add 1200",
-        ])
+        configuring_a_vlan_on_interface(
+            t, "ethernet 1/g1", do="switchport trunk allowed vlan add 1200"
+        )
+        assert_interface_configuration(
+            t,
+            "ethernet 1/g1",
+            [
+                "switchport mode trunk",
+                "switchport trunk allowed vlan add 1200",
+            ],
+        )
 
-        configuring_a_vlan_on_interface(t, "ethernet 1/g1", do="switchport trunk allowed vlan add 1200,1201")
-        assert_interface_configuration(t, 'ethernet 1/g1', [
-            "switchport mode trunk",
-            "switchport trunk allowed vlan add 1200-1201",
-        ])
+        configuring_a_vlan_on_interface(
+            t, "ethernet 1/g1", do="switchport trunk allowed vlan add 1200,1201"
+        )
+        assert_interface_configuration(
+            t,
+            "ethernet 1/g1",
+            [
+                "switchport mode trunk",
+                "switchport trunk allowed vlan add 1200-1201",
+            ],
+        )
 
-        configuring_a_vlan_on_interface(t, "ethernet 1/g1", do="switchport trunk allowed vlan add 1201-1203,1205")
-        assert_interface_configuration(t, 'ethernet 1/g1', [
-            "switchport mode trunk",
-            "switchport trunk allowed vlan add 1200-1203,1205",
-        ])
+        configuring_a_vlan_on_interface(
+            t, "ethernet 1/g1", do="switchport trunk allowed vlan add 1201-1203,1205"
+        )
+        assert_interface_configuration(
+            t,
+            "ethernet 1/g1",
+            [
+                "switchport mode trunk",
+                "switchport trunk allowed vlan add 1200-1203,1205",
+            ],
+        )
 
-        configuring_a_vlan_on_interface(t, "ethernet 1/g1", do="switchport trunk allowed vlan remove 1202")
-        assert_interface_configuration(t, 'ethernet 1/g1', [
-            "switchport mode trunk",
-            "switchport trunk allowed vlan add 1200-1201,1203,1205",
-        ])
+        configuring_a_vlan_on_interface(
+            t, "ethernet 1/g1", do="switchport trunk allowed vlan remove 1202"
+        )
+        assert_interface_configuration(
+            t,
+            "ethernet 1/g1",
+            [
+                "switchport mode trunk",
+                "switchport trunk allowed vlan add 1200-1201,1203,1205",
+            ],
+        )
 
-        configuring_a_vlan_on_interface(t, "ethernet 1/g1", do="switchport trunk allowed vlan remove 1203,1205")
-        assert_interface_configuration(t, 'ethernet 1/g1', [
-            "switchport mode trunk",
-            "switchport trunk allowed vlan add 1200-1201",
-        ])
+        configuring_a_vlan_on_interface(
+            t, "ethernet 1/g1", do="switchport trunk allowed vlan remove 1203,1205"
+        )
+        assert_interface_configuration(
+            t,
+            "ethernet 1/g1",
+            [
+                "switchport mode trunk",
+                "switchport trunk allowed vlan add 1200-1201",
+            ],
+        )
 
-        configuring_a_vlan_on_interface(t, "ethernet 1/g1", do="switchport trunk allowed vlan remove 1200-1203")
-        assert_interface_configuration(t, 'ethernet 1/g1', [
-            "switchport mode trunk",
-        ])
+        configuring_a_vlan_on_interface(
+            t, "ethernet 1/g1", do="switchport trunk allowed vlan remove 1200-1203"
+        )
+        assert_interface_configuration(
+            t,
+            "ethernet 1/g1",
+            [
+                "switchport mode trunk",
+            ],
+        )
 
         configuring_interface(t, "ethernet 1/g1", do="switchport mode access")
 
@@ -795,40 +918,76 @@ class DellConfigureInterfaceTest(ProtocolTest):
         configuring_vlan(t, 1205)
 
         configuring_interface(t, "ethernet 1/g1", do="switchport mode general")
-        configuring_a_vlan_on_interface(t, "ethernet 1/g1", do="switchport general allowed vlan add 1200")
-        assert_interface_configuration(t, 'ethernet 1/g1', [
-            "switchport mode general",
-            "switchport general allowed vlan add 1200",
-        ])
+        configuring_a_vlan_on_interface(
+            t, "ethernet 1/g1", do="switchport general allowed vlan add 1200"
+        )
+        assert_interface_configuration(
+            t,
+            "ethernet 1/g1",
+            [
+                "switchport mode general",
+                "switchport general allowed vlan add 1200",
+            ],
+        )
 
-        configuring_a_vlan_on_interface(t, "ethernet 1/g1", do="switchport general allowed vlan add 1200,1201")
-        assert_interface_configuration(t, 'ethernet 1/g1', [
-            "switchport mode general",
-            "switchport general allowed vlan add 1200-1201",
-        ])
+        configuring_a_vlan_on_interface(
+            t, "ethernet 1/g1", do="switchport general allowed vlan add 1200,1201"
+        )
+        assert_interface_configuration(
+            t,
+            "ethernet 1/g1",
+            [
+                "switchport mode general",
+                "switchport general allowed vlan add 1200-1201",
+            ],
+        )
 
-        configuring_a_vlan_on_interface(t, "ethernet 1/g1", do="switchport general allowed vlan add 1201-1203,1205")
-        assert_interface_configuration(t, 'ethernet 1/g1', [
-            "switchport mode general",
-            "switchport general allowed vlan add 1200-1203,1205",
-        ])
+        configuring_a_vlan_on_interface(
+            t, "ethernet 1/g1", do="switchport general allowed vlan add 1201-1203,1205"
+        )
+        assert_interface_configuration(
+            t,
+            "ethernet 1/g1",
+            [
+                "switchport mode general",
+                "switchport general allowed vlan add 1200-1203,1205",
+            ],
+        )
 
-        configuring_a_vlan_on_interface(t, "ethernet 1/g1", do="switchport general allowed vlan remove 1202")
-        assert_interface_configuration(t, 'ethernet 1/g1', [
-            "switchport mode general",
-            "switchport general allowed vlan add 1200-1201,1203,1205",
-        ])
+        configuring_a_vlan_on_interface(
+            t, "ethernet 1/g1", do="switchport general allowed vlan remove 1202"
+        )
+        assert_interface_configuration(
+            t,
+            "ethernet 1/g1",
+            [
+                "switchport mode general",
+                "switchport general allowed vlan add 1200-1201,1203,1205",
+            ],
+        )
 
-        configuring_a_vlan_on_interface(t, "ethernet 1/g1", do="switchport general allowed vlan remove 1203,1205")
-        assert_interface_configuration(t, 'ethernet 1/g1', [
-            "switchport mode general",
-            "switchport general allowed vlan add 1200-1201",
-        ])
+        configuring_a_vlan_on_interface(
+            t, "ethernet 1/g1", do="switchport general allowed vlan remove 1203,1205"
+        )
+        assert_interface_configuration(
+            t,
+            "ethernet 1/g1",
+            [
+                "switchport mode general",
+                "switchport general allowed vlan add 1200-1201",
+            ],
+        )
 
-        configuring_a_vlan_on_interface(t, "ethernet 1/g1", do="switchport general allowed vlan remove 1200-1203")
-        assert_interface_configuration(t, 'ethernet 1/g1', [
-            "switchport mode general",
-        ])
+        configuring_a_vlan_on_interface(
+            t, "ethernet 1/g1", do="switchport general allowed vlan remove 1200-1203"
+        )
+        assert_interface_configuration(
+            t,
+            "ethernet 1/g1",
+            [
+                "switchport mode general",
+            ],
+        )
 
         configuring_interface(t, "ethernet 1/g1", do="switchport mode access")
 
@@ -855,15 +1014,33 @@ class DellConfigureInterfaceTest(ProtocolTest):
 
         t.write("show interfaces status")
         t.readln("")
-        t.readln("Port   Type                            Duplex  Speed    Neg  Link  Flow Control")
-        t.readln("                                                             State Status")
-        t.readln("-----  ------------------------------  ------  -------  ---- --------- ------------")
-        t.readln("1/g1   Gigabit - Level                 Full    Unknown  Auto Down      Inactive")
-        t.readln("1/g2   Gigabit - Level                 Full    Unknown  Auto Down      Inactive")
-        t.readln("1/xg1  10G - Level                     Full    Unknown  Auto Down      Inactive")
-        t.readln("2/g1   Gigabit - Level                 Full    Unknown  Auto Down      Inactive")
-        t.readln("2/g2   Gigabit - Level                 Full    Unknown  Auto Down      Inactive")
-        t.readln("2/xg1  10G - Level                     Full    Unknown  Auto Down      Inactive")
+        t.readln(
+            "Port   Type                            Duplex  Speed    Neg  Link  Flow Control"
+        )
+        t.readln(
+            "                                                             State Status"
+        )
+        t.readln(
+            "-----  ------------------------------  ------  -------  ---- --------- ------------"
+        )
+        t.readln(
+            "1/g1   Gigabit - Level                 Full    Unknown  Auto Down      Inactive"
+        )
+        t.readln(
+            "1/g2   Gigabit - Level                 Full    Unknown  Auto Down      Inactive"
+        )
+        t.readln(
+            "1/xg1  10G - Level                     Full    Unknown  Auto Down      Inactive"
+        )
+        t.readln(
+            "2/g1   Gigabit - Level                 Full    Unknown  Auto Down      Inactive"
+        )
+        t.readln(
+            "2/g2   Gigabit - Level                 Full    Unknown  Auto Down      Inactive"
+        )
+        t.readln(
+            "2/xg1  10G - Level                     Full    Unknown  Auto Down      Inactive"
+        )
         t.readln("")
         t.readln("")
         t.readln("Ch   Type                            Link")
@@ -935,15 +1112,11 @@ class DellConfigureInterfaceTest(ProtocolTest):
         t.readln("")
         t.read("my_switch#")
 
-        assert_interface_configuration(t, "ethernet 1/g1", [
-            "mtu 5000"
-        ])
+        assert_interface_configuration(t, "ethernet 1/g1", ["mtu 5000"])
 
         configuring_interface(t, "ethernet 1/g1", do="no mtu")
 
-        assert_interface_configuration(t, "ethernet 1/g1", [
-            ""
-        ])
+        assert_interface_configuration(t, "ethernet 1/g1", [""])
 
     @with_protocol
     def test_mtu_on_bond(self, t):
@@ -984,24 +1157,20 @@ class DellConfigureInterfaceTest(ProtocolTest):
         t.readln("")
         t.read("my_switch#")
 
-        assert_interface_configuration(t, "port-channel 1", [
-            "mtu 5000"
-        ])
+        assert_interface_configuration(t, "port-channel 1", ["mtu 5000"])
 
         configuring_bond(t, "port-channel 1", do="no mtu")
 
-        assert_interface_configuration(t, "port-channel 1", [
-            ""
-        ])
+        assert_interface_configuration(t, "port-channel 1", [""])
 
         remove_bond(t, 1)
 
 
 class DellConfigureInterfaceSshTest(DellConfigureInterfaceTest):
     __test__ = True
-    _tester =  SshTester
+    _tester = SshTester
 
 
 class DellConfigureInterfaceTelnetTest(DellConfigureInterfaceTest):
     __test__ = True
-    _tester =  TelnetTester
+    _tester = TelnetTester

@@ -12,14 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from fake_switches.command_processing.piping_processor_base import PipingProcessorBase, StartOutputAt, Grep
+from fake_switches.command_processing.piping_processor_base import (
+    PipingProcessorBase,
+    StartOutputAt,
+    Grep,
+)
 
 
 class PipingProcessor(PipingProcessorBase):
-
     def do_begin(self, *args):
         return StartOutputAt(" ".join(args))
 
     def do_include(self, *args):
         return Grep(" ".join(args))
-

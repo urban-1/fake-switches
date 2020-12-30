@@ -16,13 +16,14 @@ from time import time
 
 from hamcrest import assert_that
 from hamcrest import greater_than
+
 from tests.cisco import enable
 from tests.util.global_reactor import COMMIT_DELAY
 from tests.util.protocol_util import SshTester, with_protocol, ProtocolTest
 
 
 class TestCiscoSwitchProtocolWithCommitDelay(ProtocolTest):
-    _tester =  SshTester
+    _tester = SshTester
     test_switch = "commit-delayed-cisco"
 
     @with_protocol

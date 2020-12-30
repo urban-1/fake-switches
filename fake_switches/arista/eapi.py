@@ -42,7 +42,7 @@ class EAPI(resource.Resource, object):
             switch_configuration=self.switch_configuration,
             terminal_controller=BufferingTerminalController(),
             logger=self.logger,
-            piping_processor=NotPipingProcessor()
+            piping_processor=NotPipingProcessor(),
         )
 
         result = {
@@ -66,19 +66,16 @@ class EAPI(resource.Resource, object):
                     index=command_index,
                     count=len(content["params"]["cmds"]),
                     cmd=content["params"]["cmds"][command_index - 1],
-                    error=e.error
+                    error=e.error,
                 ),
-                "code": e.code
+                "code": e.code,
             }
 
         return json.dumps(result).encode()
 
 
 def driver_for(format):
-    return {
-        "json": JsonDriver(),
-        "text": TextDriver()
-    }[format]
+    return {"json": JsonDriver(), "text": TextDriver()}[format]
 
 
 class CommandProcessorError(Exception):
@@ -123,13 +120,13 @@ class JsonDriver(object):
 
     def format_output(self, command_processor):
         obj = command_processor.display.display_object or {}
-        obj['sourceDetail'] = ''
+        obj["sourceDetail"] = ""
         return obj
 
     def format_errors(self, errors, base_obj):
         obj = base_obj or {}
-        obj['sourceDetail'] = ''
-        obj['errors'] = errors
+        obj["sourceDetail"] = ""
+        obj["errors"] = errors
         return obj
 
 
@@ -138,7 +135,9 @@ class TextDriver(object):
 
     def format_output(self, command_processor):
         return {
-            "output": strip_prompt(command_processor, command_processor.terminal_controller.pop())
+            "output": strip_prompt(
+                command_processor, command_processor.terminal_controller.pop()
+            )
         }
 
     def format_errors(self, errors, base_obj):
@@ -146,7 +145,6 @@ class TextDriver(object):
 
 
 class BufferingTerminalController(TerminalController):
-
     def __init__(self):
         self.buffer = ""
 
@@ -161,4 +159,4 @@ class BufferingTerminalController(TerminalController):
 
 def strip_prompt(command_processor, content):
     prompt = command_processor.get_prompt()
-    return content[:-len(prompt)]
+    return content[: -len(prompt)]

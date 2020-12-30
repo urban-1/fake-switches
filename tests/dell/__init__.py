@@ -32,7 +32,7 @@ def configure(t):
 
 
 def configuring_interface(t, interface, do):
-    interface_short_name = interface.split(' ')[1]
+    interface_short_name = interface.split(" ")[1]
     t.write("configure")
     t.readln("")
     t.read("my_switch(config)#")
@@ -53,7 +53,7 @@ def configuring_interface(t, interface, do):
 
 
 def configuring_bond(t, bond, do):
-    bond_number = bond.split(' ')[1]
+    bond_number = bond.split(" ")[1]
     t.write("configure")
     t.readln("")
     t.read("my_switch(config)#")
@@ -74,7 +74,7 @@ def configuring_bond(t, bond, do):
 
 
 def configuring_a_vlan_on_interface(t, interface, do):
-    interface_short_name = interface.split(' ')[1]
+    interface_short_name = interface.split(" ")[1]
     t.write("configure")
     t.readln("")
     t.read("my_switch(config)#")
@@ -84,7 +84,9 @@ def configuring_a_vlan_on_interface(t, interface, do):
 
     t.write(do)
 
-    t.readln("Warning: The use of large numbers of VLANs or interfaces may cause significant")
+    t.readln(
+        "Warning: The use of large numbers of VLANs or interfaces may cause significant"
+    )
     t.readln("delays in applying the configuration.")
     t.readln("")
     t.readln("")
@@ -127,7 +129,9 @@ def configuring_vlan(t, vlan_id):
     t.read("my_switch(config-vlan)#")
 
     t.write("vlan %s" % vlan_id)
-    t.readln("Warning: The use of large numbers of VLANs or interfaces may cause significant")
+    t.readln(
+        "Warning: The use of large numbers of VLANs or interfaces may cause significant"
+    )
     t.readln("delays in applying the configuration.")
     t.readln("")
 
@@ -151,10 +155,14 @@ def unconfigure_vlan(t, vlan_id):
     t.read("my_switch(config-vlan)#")
 
     t.write("no vlan %s" % vlan_id)
-    t.readln("Warning: The use of large numbers of VLANs or interfaces may cause significant")
+    t.readln(
+        "Warning: The use of large numbers of VLANs or interfaces may cause significant"
+    )
     t.readln("delays in applying the configuration.")
     t.readln("")
-    t.readln("If any of the VLANs being deleted are for access ports, the ports will be")
+    t.readln(
+        "If any of the VLANs being deleted are for access ports, the ports will be"
+    )
     t.readln("unusable until it is assigned a VLAN that exists.")
     t.readln("")
 
@@ -210,7 +218,7 @@ def assert_running_config_contains_in_order(t, lines):
 
 def get_running_config(t):
     t.write("show running-config")
-    config = t.read_lines_until('my_switch#')
+    config = t.read_lines_until("my_switch#")
     return config
 
 
@@ -222,6 +230,15 @@ def assert_lines_order(config, lines):
         expected_line_number = i + begin
         actual_content = config[expected_line_number]
 
-        assert_that(actual_content, is_(expected_content),
-                    "Item <%s> was expected to be found at line %s but found %s instead.\nWas looking for %s in %s" % (
-                        line, expected_line_number, actual_content, pprint.pformat(lines), pprint.pformat(config)))
+        assert_that(
+            actual_content,
+            is_(expected_content),
+            "Item <%s> was expected to be found at line %s but found %s instead.\nWas looking for %s in %s"
+            % (
+                line,
+                expected_line_number,
+                actual_content,
+                pprint.pformat(lines),
+                pprint.pformat(config),
+            ),
+        )
