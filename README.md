@@ -1,17 +1,16 @@
-**
-=== WARNING ===
+
+!!! WARNING !!!
 ===============
 
-Fork of original https://github.com/internap/fake-switches ... 
+**Fork of original https://github.com/internap/fake-switches ...** 
 
-When I started, I had no clue what I was goind :) by the time I was "finished" the 
-project looked very very different in some places. 
+**When I started, I had no clue what I was goind :) by the time I was "finished" the 
+project looked very very different in some places.**
 
-Forking because it actually works! But merging to upstream might take a while...
-(see an incomplete list of major changes at the end of this doc)
-**
+**Forking because it actually works! But merging to upstream might take a while...
+(see an incomplete list of major changes at the end of this doc)**
 
-
+<hr/>
 
 Fake-switches
 =============
@@ -309,7 +308,7 @@ using unittest, I had to hack setUp/tearDown to _not_ rely on a global reactor r
 switches. Instead, each test now boots its own switch 
 
 - Add --config in main.py and in switch_configuration. This allows me to bootstrap
-  devices that are modular in nature - we can specific cards/modules in that config.
+  devices that are modular in nature - we can specify cards/modules in that config.
     - Add config next to core in SwitchFactory - required
 - Add ciena folder aiming for TL1 support on 6500s. For this I needed a new terminal 
   type but most importantly, I needed the same transport layer to support multiple
