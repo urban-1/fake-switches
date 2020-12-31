@@ -269,13 +269,35 @@ ssh -oKexAlgorithms=+diffie-hellman-group1-sha1 root@localhost -p 2222
 Test
 ----
 
-```
-tox -e py38
+To run all tests on all environments:
 
-# Filter based on regex - DID NOT WORK FOR ME
-# READ: https://github.com/nose-devs/nose/issues/1045 !!!
-tox -e py38 
 ```
+tox
+```
+
+You can filter tests which is useful when developing. All arguments after `--`
+are passed to `nosetests`
+
+```
+# Run in one environment only
+tox -e py36
+
+# Get some help
+$ tox -e py38 -- --help
+
+# Run specific tests down to class-level (not individual test)
+tox -e py38 -- --tests tests.ciena
+
+# Filter based on regex - THHIS IS GLITCHY FOR ME
+# READ: https://github.com/nose-devs/nose/issues/1045 !!!
+# Some commands that did work is (specify test class, filter by test - dif
+# not work for py27...):
+tox -e py38 -- --tests tests.ciena.test_ciena_6500.TestCiena6500 -m test_login
+tox -e py38 -- --tests tests.ciena.test_ciena_6500.TestCiena6500 -m test_login$
+tox -e py36 -- --tests tests.ciena.test_ciena_6500 -m 'test_login$'
+tox -e py36 -- --tests tests.ciena.test_ciena_6500 -m 'test_.*logged_out'
+```
+
 
 My changes
 ==========

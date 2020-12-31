@@ -142,10 +142,38 @@ TEST_SWITCHES = {
 
 from twisted.internet import reactor, defer
 
+GLOBAL_BOOTER = None
+
 
 class ThreadedReactor(threading.Thread):
-    def __init(self):
-        super().__init__()
+    """
+    ThreadedReactor will spawn and start the global twisted reactor.
+    The real reactor cannot be restarted (by design...) so we always
+    have one ThreadedReactor, however, each test, in standalone mode
+    (run-tests.py) is booting its own switch. If is_global=True, then
+    this class will boot ALL switches and any further boot()/stop()
+    requests to SwitchBooter will be ignored
+    """
+    _instance = None
+    def __init__(self, is_global=False):
+        global GLOBAL_BOOTER
+        if self._instance:
+            raise RuntimeError(
+                "You should not call __init__, call get_instance() instead"
+            )
+
+        super(ThreadedReactor, self).__init__()
+
+        # In global mode, boot all switches
+        if is_global:
+            # Order matters!
+            GLOBAL_BOOTER = SwitchBooter().boot()
+
+    @classmethod
+    def get_instance(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = ThreadedReactor(*args, **kwargs)
+        return cls._instance
 
     def run(self):
         logging.info("Starting reactor")
@@ -171,7 +199,7 @@ class SwitchBooter:
         "http": SwitchHttpService,
     }
 
-    def __init__(self, device_filter):
+    def __init__(self, device_filter=None):
         self.reactor = reactor
         self._switches = {}
         self._configs = {}
@@ -179,6 +207,10 @@ class SwitchBooter:
         self._booted_ports = []
 
     def boot(self):
+        global GLOBAL_BOOTER
+        if GLOBAL_BOOTER:
+            logging.warning("Not booting when GLOBAL_BOOTER=True")
+            return GLOBAL_BOOTER
         switch_factory = SwitchFactory()
 
         def _get_creds(conf, service="ssh"):
@@ -247,6 +279,11 @@ class SwitchBooter:
 
     def stop(self):
         """ Defer and wait for all ports to stop """
+        global GLOBAL_BOOTER
+        if GLOBAL_BOOTER:
+            logging.warning("Not powering off switch when GLOBAL_BOOTER=True")
+            return
+
         logging.info("Stopping {} services".format(len(self._booted_ports)))
         defered = [
             defer.maybeDeferred(port.stopListening)

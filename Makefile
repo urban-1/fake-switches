@@ -58,9 +58,9 @@ distclean: clean
 
 
 maintclean: distclean
-	rm -fr .venv/ .tox/
+	rm -fr .venv/ .tox/ ./src
 
 
 keys:
-	ssh-keygen -f /tmp/fake-new -q -t rsa1 -b 2048 -C fake@ssh -N '' <<<y 2>&1 >/dev/null
-	cp /tmp/fake-new /tmp/fake-new.pub ./fake_switches/transports/keys
+	ssh-keygen -f /tmp/fake -t rsa -b 2048 -C fake@ssh -N '' <<<y 2>&1 >/dev/null
+	cp /tmp/fake /tmp/fake.pub ./fake_switches/transports/keys

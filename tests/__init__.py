@@ -24,11 +24,11 @@ from tests.util.global_reactor import ThreadedReactor
 
 
 def setup():
-    ThreadedReactor().start()
+    ThreadedReactor.get_instance(is_global=True).start()
 
 
 def tearDown():
-    ThreadedReactor().stop()
+    ThreadedReactor.get_instance().stop()
 
 
 class RegexStringContains(SubstringMatcher):
