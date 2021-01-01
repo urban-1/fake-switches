@@ -13,16 +13,35 @@
 # limitations under the License.
 
 import logging
+import socket
+import sys
 import threading
 
+from fake_switches.switch_configuration import Port, AggregatedPort
 from fake_switches.switch_factory import SwitchFactory
 from fake_switches.transports.http_service import SwitchHttpService
 from fake_switches.transports.ssh_service import SwitchSshService
 from fake_switches.transports.telnet_service import SwitchTelnetService
+from twisted.internet import reactor, defer
 
-from tests.util import _juniper_ports_with_less_ae, unique_port
+
+def unique_port():
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind(("localhost", 0))
+    s.listen(1)
+    port = s.getsockname()[1]
+    s.close()
+    return port
+
 
 COMMIT_DELAY = 1
+
+
+def _juniper_ports_with_less_ae():
+    return [Port("ge-0/0/{}".format(i)) for i in range(1, 5)] + [
+        AggregatedPort("ae{}".format(i)) for i in range(1, 5)
+    ]
+
 
 TEST_SWITCHES = {
     "arista": {
@@ -140,8 +159,6 @@ TEST_SWITCHES = {
 }
 
 
-from twisted.internet import reactor, defer
-
 GLOBAL_BOOTER = None
 
 
@@ -152,9 +169,11 @@ class ThreadedReactor(threading.Thread):
     have one ThreadedReactor, however, each test, in standalone mode
     (run-tests.py) is booting its own switch. If is_global=True, then
     this class will boot ALL switches and any further boot()/stop()
-    requests to SwitchBooter will be ignored
+    requests to SwitchBooter will be ignored.
     """
+
     _instance = None
+
     def __init__(self, is_global=False):
         global GLOBAL_BOOTER
         if self._instance:
@@ -188,8 +207,9 @@ class ThreadedReactor(threading.Thread):
 
 class SwitchBooter:
     """
-    Run a switch on the global reactor - only ONE switch should be
-    running at any time - see ThreadedReactor.stop()
+    Run a switch on the global reactor. The reactor is NOT handled here and
+    is assumed to be running already. The test framework will do this for
+    us when needed.
     """
 
     # Supported test services and they primary class
@@ -207,6 +227,19 @@ class SwitchBooter:
         self._booted_ports = []
 
     def boot(self):
+        """
+        Boot the given configurations (from self._device_filter). If non config
+        is given, then all known configs are booted. This class supports two
+        modes of operation:
+
+        1. Stand-alone test: Each test starts and stops its own switch
+        2. Global-reactor: The reactor is started and all the switches boot
+
+        If in #2 mode, boot() method has not effect when called by each tests
+        and just prints a warning. Each of the above approaches have pros and
+        cons, however, the main reason to run in global mode is that tests go
+        a lot faster!
+        """
         global GLOBAL_BOOTER
         if GLOBAL_BOOTER:
             logging.warning("Not booting when GLOBAL_BOOTER=True")
@@ -272,9 +305,20 @@ class SwitchBooter:
         return self
 
     def get_switch(self, name):
+        """
+        Return a core switch INSTANCE. This includes the following two things
+        usually protocol testers and tests need:
+
+        1. _test_ports: a map with the allocated port per-service
+        2. _test_creds: a map with the credentials of each service
+        """
         return self._switches[name]
 
     def get_config(self, name):
+        """
+        Return the cofig used to boot() a switch. This is needed by some tests
+        in order to access the "extra" arguments of the core_switch
+        """
         return self._configs[name]
 
     def stop(self):
@@ -295,7 +339,12 @@ class SwitchBooter:
 
 
 if __name__ == "__main__":
-    print("Starting reactor...")
+    # ?? Someone else gets to us: tftpy :(
+    # logging.basicConfig(level=logging.DEBUG)
+    logging.getLogger().setLevel(logging.DEBUG)
+    logging.info("Starting reactor...")
     ThreadedReactor().start()
-    SwitchBooter(sys.argv[1]).boot()
+    booter = SwitchBooter(sys.argv[1:]).boot()
+    input("\n\n*** Press Enter to exit ***\n\n")
+    booter.stop()
     ThreadedReactor().stop()

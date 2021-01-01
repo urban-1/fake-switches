@@ -2,3 +2,6 @@
 netaddr>=0.8.0
 Twisted[conch]>=20.0.0
 lxml>=4.6
+# Warning: the following is a dev requirement but
+# env markers seem to be ignored by pbr in test-requirements.txt
+black; python_version>='3.6'

@@ -11,3 +11,4 @@ ChangeLog
 .venv
 dist/
 src/
+docker-compose

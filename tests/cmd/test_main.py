@@ -7,7 +7,7 @@ import unittest
 
 from hamcrest import assert_that, is_not, starts_with
 
-from tests.util import unique_port
+from tests.util.global_reactor import unique_port
 from tests.util.protocol_util import SshTester
 
 TEST_BIND_HOST = "127.0.0.1"
@@ -34,8 +34,12 @@ class FakeSwitchesTest(unittest.TestCase):
         time.sleep(1)
 
         ssh = SshTester(
-            TEST_BIND_HOST, TEST_BIND_PORT, TEST_HOSTNAME, TEST_PASSWORD,
-            config=None, name="ssh-2"
+            TEST_BIND_HOST,
+            TEST_BIND_PORT,
+            TEST_HOSTNAME,
+            TEST_PASSWORD,
+            config=None,
+            name="ssh-2",
         )
         ssh.connect()
         ssh.disconnect()

@@ -1,7 +1,7 @@
-FROM python:2.7-alpine
+FROM python:3.8-alpine
 
 RUN apk update && apk add --no-cache \
-    python-dev gcc git g++ make libffi-dev openssl-dev \
+    python3-dev gcc git g++ make libffi-dev openssl-dev \
     libxml2 libxml2-dev libxslt libxslt-dev
 
 #

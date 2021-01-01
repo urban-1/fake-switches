@@ -6,14 +6,17 @@ help:
 	@echo "fake-switches helper:"
 	@echo ""
 	@echo " - fmt: Format the code (including tests) = black + usort"
-	@echo " - black: Run code formatter"
-	@echo " - usort: Run import formatter"
 	@echo " - tests: Run all tests in lowest verbosity"
 	@echo ""
 	@echo "Internal/advanced:"
 	@echo ""
-	@echo " - fmt_test: Ensure no files need formatting"
-	@echo " - clean: Remove all .pyc filesnd tox envs"
+	@echo " - black: Run code formatter"
+	@echo " - usort: Run import formatter"
+	@echo " - fmt_check: Ensure no files need formatting"
+	@echo " - clean: Remove all .pyc files"
+	@echo " - distclean: Remove all .pyc + eggs/dist/build"
+	@echo " - maintclean: Remove all .pyc + eggs/dist/build + venv/tox/src"
+	@echo " - keys: NOT WORKING - regenerate ssh keys for twisted ssh"
 	@echo ""
 
 
@@ -36,10 +39,10 @@ reqs:
 	@pip install --user -r ./requirements.txt
 
 
-fmt_test:
+fmt_check:
 	@echo " * Checking code format - this will fail if any file needs formatting"
-	@black --check fake_switches/ tests/
-	@usort check fake_switches/ tests/
+	@black --check fake_switches/ tests/ || { echo "Skipping black (py<3.6)"; }
+	@usort check fake_switches/ tests/ || { echo "Skipping usort (py<3.6)"; }
 
 
 tests: fmt_test

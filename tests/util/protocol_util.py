@@ -120,7 +120,6 @@ class SshTester(ProtocolTester):
         return (
             "ssh %s@%s -p %s -o StrictHostKeyChecking=no "
             "-o UserKnownHostsFile=/dev/null "
-            "-o KexAlgorithms=+diffie-hellman-group1-sha1 "
             "-o LogLevel=ERROR "
         ) % (self.username, self.host, self.port)
 
