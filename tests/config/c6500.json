@@ -1,0 +1,43 @@
+{
+    "mode": "tl1",
+    "loadout": [
+        {
+            "model": "SP2_NTK555FA",
+            "aid": "SP",
+            "slot": "15",
+            "chassis": "1",
+            "fields": [
+                "PROVPEC=NTK555FA",
+                "CTYPE=\"SP-2 Dual CPU\"",
+                "SNMPINDEX=673725440",
+                "PEC=NTK555FA",
+                "REL= 09 ",
+                "CLEI=WMUCA5REAA",
+                "SER=NNTMRT0XRKX0",
+                "MDAT=2019-50",
+                "AGE=00-294-23-01",
+                "ONSC=00-294-23-01"
+            ],
+            "statuses": ["IS", "WRK"]
+        },
+        {
+            "model": "SP2_NTK555FA",
+            "aid": "SP",
+            "slot": "16",
+            "chassis": "1",
+            "fields": [
+                "PROVPEC=NTK555FA",
+                "CTYPE=\"SP-2 Dual CPU\"",
+                "SNMPINDEX=673725440",
+                "PEC=NTK555FA",
+                "REL= 09 ",
+                "CLEI=WMUCA5REAA",
+                "SER=NNTMRT0XRKX0",
+                "MDAT=2019-50",
+                "AGE=00-294-23-01",
+                "ONSC=00-294-23-01"
+            ],
+            "statuses": ["IS", "WRK"]
+        }
+    ]
+}

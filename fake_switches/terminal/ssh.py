@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from twisted.conch import recvline
+
 from fake_switches.terminal import TerminalController
 
 
@@ -25,13 +26,11 @@ class SwitchSSHShell(recvline.HistoricRecvLine):
 
     # Hack to get rid of magical characters that reset the screen / clear / goto position 0, 0
     def initializeScreen(self):
-        self.mode = 'insert'
+        self.mode = "insert"
 
     def connectionMade(self):
         recvline.HistoricRecvLine.connectionMade(self)
-        self.session = self.switch_core.launch("ssh", SshTerminalController(
-            shell=self
-        ))
+        self.session = self.switch_core.launch("ssh", SshTerminalController(shell=self))
 
     def lineReceived(self, line):
         line = line.decode()
@@ -58,10 +57,10 @@ class SwitchSSHShell(recvline.HistoricRecvLine):
         else:
             self.terminal.write((len(ch) * command_processor.replace_input).encode())
 
-        if self.mode == 'insert':
+        if self.mode == "insert":
             self.lineBuffer.insert(self.lineBufferIndex, ch)
         else:
-            self.lineBuffer[self.lineBufferIndex:self.lineBufferIndex+1] = [ch]
+            self.lineBuffer[self.lineBufferIndex : self.lineBufferIndex + 1] = [ch]
         self.lineBufferIndex += 1
 
     def get_actual_processor(self):
@@ -83,4 +82,3 @@ class SshTerminalController(TerminalController):
 
     def remove_any_key_handler(self):
         self.shell.awaiting_keystroke = None
-

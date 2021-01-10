@@ -12,25 +12,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from fake_switches.cisco.command_processor.config_interface import \
-    ConfigInterfaceCommandProcessor
+from fake_switches.cisco.command_processor.config_interface import (
+    ConfigInterfaceCommandProcessor,
+)
 
 
 class DellConfigInterfaceCommandProcessor(ConfigInterfaceCommandProcessor):
-    def init(self, switch_configuration, terminal_controller, logger,
-                 piping_processor, *args):
+    def init(
+        self, switch_configuration, terminal_controller, logger, piping_processor, *args
+    ):
         super(DellConfigInterfaceCommandProcessor, self).init(
-            switch_configuration, terminal_controller, logger, piping_processor,
-            *args)
+            switch_configuration, terminal_controller, logger, piping_processor, *args
+        )
         self.description_strip_chars = "\"'"
 
     def get_prompt(self):
         if self.port.name.startswith("ethernet"):
-            short_name = self.port.name.split(' ')[1]
+            short_name = self.port.name.split(" ")[1]
         elif self.port.name.startswith("port-channel"):
-            short_name = "ch{}".format(self.port.name.split(' ')[1])
+            short_name = "ch{}".format(self.port.name.split(" ")[1])
         else:
-            short_name = self.port.name.replace(' ', '').lower()
+            short_name = self.port.name.replace(" ", "").lower()
         return self.switch_configuration.name + "(config-if-%s)#" % short_name
 
     def do_description(self, *args):
@@ -85,7 +87,9 @@ class DellConfigInterfaceCommandProcessor(ConfigInterfaceCommandProcessor):
     def do_name(self, *args):
         if len(args) == 0:
             self.write_line("")
-            self.write_line("Command not found / Incomplete command. Use ? to list commands.")
+            self.write_line(
+                "Command not found / Incomplete command. Use ? to list commands."
+            )
         elif len(args) > 1:
             self.write_line("                                     ^")
             self.write_line("% Invalid input detected at '^' marker.")
@@ -102,14 +106,18 @@ class DellConfigInterfaceCommandProcessor(ConfigInterfaceCommandProcessor):
             self.set_access_vlan(int(args[2]))
         elif "mode".startswith(args[0]):
             self.set_switchport_mode(args[1])
-        elif ("general".startswith(args[0]) or "trunk".startswith(args[0])) and "allowed".startswith(args[1]):
+        elif (
+            "general".startswith(args[0]) or "trunk".startswith(args[0])
+        ) and "allowed".startswith(args[1]):
             if "general".startswith(args[0]) and self.port.mode != "general":
                 self.write_line("Interface not in General Mode.")
             elif "trunk".startswith(args[0]) and self.port.mode != "trunk":
                 self.write_line("Interface not in Trunk Mode.")
             elif "vlan".startswith(args[2]):
                 if len(args) > 5:
-                    self.write_line("                                                                 ^")
+                    self.write_line(
+                        "                                                                 ^"
+                    )
                     self.write_line("% Invalid input detected at '^' marker.")
                 else:
                     operation = args[3]
@@ -148,7 +156,9 @@ class DellConfigInterfaceCommandProcessor(ConfigInterfaceCommandProcessor):
             value = int(args[0])
         except ValueError:
             self.write_line("                            ^")
-            self.write_line("Invalid input. Please specify an integer in the range 1518 to 9216.")
+            self.write_line(
+                "Invalid input. Please specify an integer in the range 1518 to 9216."
+            )
             return
 
         if not (1518 <= value <= 9216):
@@ -198,23 +208,31 @@ class DellConfigInterfaceCommandProcessor(ConfigInterfaceCommandProcessor):
         try:
             vlans = parse_vlan_list(vlan_range)
         except ValueError:
-            self.write_line("VLAN range - separate non-consecutive IDs with ',' and no spaces.  Use '-' for range.")
+            self.write_line(
+                "VLAN range - separate non-consecutive IDs with ',' and no spaces.  Use '-' for range."
+            )
             self.write_line("")
             return
 
         self.print_vlan_warning()
 
-        vlans_not_found = [v for v in vlans if self.switch_configuration.get_vlan(v) is None]
+        vlans_not_found = [
+            v for v in vlans if self.switch_configuration.get_vlan(v) is None
+        ]
         if len(vlans_not_found) > 0:
             self.write_line("")
             self.write_line("          Failure Information")
             self.write_line("---------------------------------------")
-            self.write_line("   VLANs failed to be configured : {}".format(len(vlans_not_found)))
+            self.write_line(
+                "   VLANs failed to be configured : {}".format(len(vlans_not_found))
+            )
             self.write_line("---------------------------------------")
             self.write_line("   VLAN             Error")
             self.write_line("---------------------------------------")
             for vlan in vlans_not_found:
-                self.write_line("VLAN      {: >4} ERROR: This VLAN does not exist.".format(vlan))
+                self.write_line(
+                    "VLAN      {: >4} ERROR: This VLAN does not exist.".format(vlan)
+                )
             return
 
         if "add".startswith(operation):
@@ -231,7 +249,9 @@ class DellConfigInterfaceCommandProcessor(ConfigInterfaceCommandProcessor):
         self.write_line("")
 
     def print_vlan_warning(self):
-        self.write_line("Warning: The use of large numbers of VLANs or interfaces may cause significant")
+        self.write_line(
+            "Warning: The use of large numbers of VLANs or interfaces may cause significant"
+        )
         self.write_line("delays in applying the configuration.")
         self.write_line("")
 

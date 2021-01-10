@@ -81,7 +81,7 @@ def vlan_display_name(vlan):
 
 
 def safe_split_port_name(name):
-    matches = re.search('\d', name)
+    matches = re.search("\d", name)
     if matches:
         number_start, _ = matches.span()
         return name[0:number_start], name[number_start:]

@@ -13,13 +13,21 @@
 # limitations under the License.
 from hamcrest import assert_that, is_
 
-from tests.arista import enable, remove_vlan, create_vlan, create_interface_vlan, configuring_interface_vlan, \
-    remove_interface_vlan, with_eapi, assert_interface_configuration
+from tests.arista import (
+    enable,
+    remove_vlan,
+    create_vlan,
+    create_interface_vlan,
+    configuring_interface_vlan,
+    remove_interface_vlan,
+    with_eapi,
+    assert_interface_configuration,
+)
 from tests.util.protocol_util import ProtocolTest, SshTester, with_protocol
 
 
 class TestAristaDHCP(ProtocolTest):
-    tester_class = SshTester
+    _tester = SshTester
     test_switch = "arista"
 
     @with_protocol
@@ -30,42 +38,51 @@ class TestAristaDHCP(ProtocolTest):
         create_interface_vlan(t, "299")
         configuring_interface_vlan(t, "299", do="ip helper-address 1.1.1.1")
 
-        assert_interface_configuration(t, "Vlan299", [
-            "interface Vlan299",
-            "   ip helper-address 1.1.1.1"
-        ])
+        assert_interface_configuration(
+            t, "Vlan299", ["interface Vlan299", "   ip helper-address 1.1.1.1"]
+        )
 
         configuring_interface_vlan(t, "299", do="ip helper-address one.one.one.one")
         configuring_interface_vlan(t, "299", do="ip helper-address one-one-one-one")
 
-        assert_interface_configuration(t, "Vlan299", [
-            "interface Vlan299",
-            "   ip helper-address 1.1.1.1",
-            "   ip helper-address one.one.one.one",
-            "   ip helper-address one-one-one-one",
-        ])
+        assert_interface_configuration(
+            t,
+            "Vlan299",
+            [
+                "interface Vlan299",
+                "   ip helper-address 1.1.1.1",
+                "   ip helper-address one.one.one.one",
+                "   ip helper-address one-one-one-one",
+            ],
+        )
 
         configuring_interface_vlan(t, "299", do="no ip helper-address one.one.one.one")
 
-        assert_interface_configuration(t, "Vlan299", [
-            "interface Vlan299",
-            "   ip helper-address 1.1.1.1",
-            "   ip helper-address one-one-one-one",
-        ])
+        assert_interface_configuration(
+            t,
+            "Vlan299",
+            [
+                "interface Vlan299",
+                "   ip helper-address 1.1.1.1",
+                "   ip helper-address one-one-one-one",
+            ],
+        )
 
         configuring_interface_vlan(t, "299", do="ip helper-address 1.1.1.1")
 
-        assert_interface_configuration(t, "Vlan299", [
-            "interface Vlan299",
-            "   ip helper-address 1.1.1.1",
-            "   ip helper-address one-one-one-one",
-        ])
+        assert_interface_configuration(
+            t,
+            "Vlan299",
+            [
+                "interface Vlan299",
+                "   ip helper-address 1.1.1.1",
+                "   ip helper-address one-one-one-one",
+            ],
+        )
 
         configuring_interface_vlan(t, "299", do="no ip helper-address")
 
-        assert_interface_configuration(t, "Vlan299", [
-            "interface Vlan299"
-        ])
+        assert_interface_configuration(t, "Vlan299", ["interface Vlan299"])
 
         remove_interface_vlan(t, "299")
         remove_vlan(t, "299")
@@ -80,20 +97,27 @@ class TestAristaDHCP(ProtocolTest):
         configuring_interface_vlan(t, "299", do="ip helper-address 1.1.1.1")
         configuring_interface_vlan(t, "299", do="ip helper-address 2.2.2.2")
 
-        result = api.enable("show running-config interfaces Vlan299", strict=True, encoding="text")
+        result = api.enable(
+            "show running-config interfaces Vlan299", strict=True, encoding="text"
+        )
 
-        assert_that(result, is_([
-            {
-                "command": "show running-config interfaces Vlan299",
-                "encoding": "text",
-                "response": {
-                    "output": "interface Vlan299\n   ip helper-address 1.1.1.1\n   ip helper-address 2.2.2.2\n"
-                },
-                "result": {
-                    "output": "interface Vlan299\n   ip helper-address 1.1.1.1\n   ip helper-address 2.2.2.2\n"
-                }
-            }
-        ]))
+        assert_that(
+            result,
+            is_(
+                [
+                    {
+                        "command": "show running-config interfaces Vlan299",
+                        "encoding": "text",
+                        "response": {
+                            "output": "interface Vlan299\n   ip helper-address 1.1.1.1\n   ip helper-address 2.2.2.2\n"
+                        },
+                        "result": {
+                            "output": "interface Vlan299\n   ip helper-address 1.1.1.1\n   ip helper-address 2.2.2.2\n"
+                        },
+                    }
+                ]
+            ),
+        )
 
         remove_interface_vlan(t, "299")
         remove_vlan(t, "299")
@@ -125,11 +149,17 @@ class TestAristaDHCP(ProtocolTest):
         t.readln("% Invalid input")
         t.read("my_arista(config-if-Vl299)#")
 
-        t.write("ip helper-address 1234567890123456789012345678901234567890123456789012345678901234")
+        t.write(
+            "ip helper-address 1234567890123456789012345678901234567890123456789012345678901234"
+        )
         t.read("my_arista(config-if-Vl299)#")
 
-        t.write("ip helper-address 12345678901234567890123456789012345678901234567890123456789012345")
-        t.readln("% Host name is invalid. Host name must contain only alphanumeric characters, '.' and '-'.")
+        t.write(
+            "ip helper-address 12345678901234567890123456789012345678901234567890123456789012345"
+        )
+        t.readln(
+            "% Host name is invalid. Host name must contain only alphanumeric characters, '.' and '-'."
+        )
         t.readln("It must begin and end with an alphanumeric character.")
         t.readln("Maximum characters in hostname is 64.")
         t.read("my_arista(config-if-Vl299)#")

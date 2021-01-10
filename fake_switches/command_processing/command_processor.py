@@ -16,8 +16,15 @@ import re
 
 
 class CommandProcessor(object):
-
     def get_command_func(self, line):
+        """
+        Look into the Processor to find a method matching the given
+        command/line:
+
+        - sw mode access => do_sw
+        - no vlan 100 => do_vlan_no
+        - config-whatever => do_config_whatever
+        """
         if line.startswith("!"):
             return (lambda: None), []
         else:
@@ -28,9 +35,9 @@ class CommandProcessor(object):
             if command == "no":
                 command += "_" + args.pop(0)
 
-            command = re.sub('[-]', "_", command)
+            command = re.sub("[-]", "_", command)
 
-            matching = sorted([c for c in dir(self) if c.startswith('do_' + command)])
+            matching = sorted([c for c in dir(self) if c.startswith("do_" + command)])
             if len(matching) >= 1:
                 return getattr(self, matching[0], None), args
 

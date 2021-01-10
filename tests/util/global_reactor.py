@@ -12,204 +12,339 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
+import socket
+import sys
 import threading
 
+from fake_switches.switch_configuration import Port, AggregatedPort
 from fake_switches.switch_factory import SwitchFactory
 from fake_switches.transports.http_service import SwitchHttpService
 from fake_switches.transports.ssh_service import SwitchSshService
 from fake_switches.transports.telnet_service import SwitchTelnetService
-from tests.util import _juniper_ports_with_less_ae, _unique_port
+from twisted.internet import reactor, defer
+
+
+def unique_port():
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind(("localhost", 0))
+    s.listen(1)
+    port = s.getsockname()[1]
+    s.close()
+    return port
+
 
 COMMIT_DELAY = 1
+
+
+def _juniper_ports_with_less_ae():
+    return [Port("ge-0/0/{}".format(i)) for i in range(1, 5)] + [
+        AggregatedPort("ae{}".format(i)) for i in range(1, 5)
+    ]
+
 
 TEST_SWITCHES = {
     "arista": {
         "model": "arista_generic",
         "hostname": "my_arista",
-        "ssh": _unique_port(),
-        "http": _unique_port(),
+        "ssh": {"port": "allocate"},
+        "http": {"port": "allocate"},
         "extra": {},
     },
     "brocade": {
         "model": "brocade_generic",
         "hostname": "my_switch",
-        "ssh": _unique_port(),
-        "extra": {
-            "password": "Br0cad3"
-        },
+        "ssh": {"port": "allocate"},
+        "extra": {"password": "Br0cad3"},
     },
     "cisco": {
         "model": "cisco_generic",
         "hostname": "my_switch",
-        "telnet": _unique_port(),
-        "ssh": _unique_port(),
-        "extra": {
-            "password": "CiSc000"
-        },
+        "telnet": {"port": "allocate"},
+        "ssh": {"port": "allocate"},
+        "extra": {"password": "CiSc000"},
     },
     "cisco-auto-enabled": {
         "model": "cisco_generic",
         "hostname": "my_switch",
-        "telnet": _unique_port(),
-        "ssh": _unique_port(),
-        "extra": {
-            "auto_enabled": True
-        },
+        "telnet": {"port": "allocate"},
+        "ssh": {"port": "allocate"},
+        "extra": {"auto_enabled": True},
     },
     "cisco6500": {
         "model": "cisco_6500",
         "hostname": "my_switch",
-        "telnet": _unique_port(),
-        "ssh": _unique_port(),
+        "telnet": {"port": "allocate"},
+        "ssh": {"port": "allocate"},
         "extra": {},
+    },
+    "ciena6500": {
+        "model": "ciena_6500",
+        "hostname": "eu-uk-not1-1",
+        "ssh": {
+            "port": "allocate",
+            "user": None,
+            "variant": "tl1",
+        },
+        "extra": {"config_file": "tests/config/c6500.json"},
     },
     "dell": {
         "model": "dell_generic",
         "hostname": "my_switch",
-        "telnet": _unique_port(),
-        "ssh": _unique_port(),
-        "extra": {
-            "password": "DeLL10G"
-        },
+        "telnet": {"port": "allocate"},
+        "ssh": {"port": "allocate"},
+        "extra": {"password": "DeLL10G"},
     },
     "dell10g": {
         "model": "dell10g_generic",
         "hostname": "my_switch",
-        "telnet": _unique_port(),
-        "ssh": _unique_port(),
-        "extra": {
-            "password": "DeLL"
-        },
+        "telnet": {"port": "allocate"},
+        "ssh": {"port": "allocate"},
+        "extra": {"password": "DeLL"},
     },
     "juniper": {
         "model": "juniper_generic",
         "hostname": "ju_ju_ju_juniper",
-        "ssh": _unique_port(),
-        "extra": {
-            "ports": _juniper_ports_with_less_ae()
-        },
+        "ssh": {"port": "allocate"},
+        "extra": {"ports": _juniper_ports_with_less_ae()},
     },
     "juniper_qfx": {
         "model": "juniper_qfx_copper_generic",
         "hostname": "ju_ju_ju_juniper_qfx_copper",
-        "ssh": _unique_port(),
-        "extra": {
-            "ports": _juniper_ports_with_less_ae()
-        },
+        "ssh": {"port": "allocate"},
+        "extra": {"ports": _juniper_ports_with_less_ae()},
     },
     "juniper_mx": {
         "model": "juniper_mx_generic",
         "hostname": "super_juniper_mx",
-        "ssh": _unique_port(),
+        "ssh": {"port": "allocate"},
         "extra": {},
     },
     "commit-delayed-arista": {
         "model": "arista_generic",
         "hostname": "my_arista",
-        "ssh": _unique_port(),
-        "extra": {
-            "commit_delay": COMMIT_DELAY
-        },
+        "ssh": {"port": "allocate"},
+        "extra": {"commit_delay": COMMIT_DELAY},
     },
     "commit-delayed-brocade": {
         "model": "brocade_generic",
         "hostname": "my_switch",
-        "ssh": _unique_port(),
-        "extra": {
-            "commit_delay": COMMIT_DELAY
-        },
+        "ssh": {"port": "allocate"},
+        "extra": {"commit_delay": COMMIT_DELAY},
     },
     "commit-delayed-cisco": {
         "model": "cisco_generic",
         "hostname": "my_switch",
-        "ssh": _unique_port(),
-        "extra": {
-            "commit_delay": COMMIT_DELAY
-        },
+        "ssh": {"port": "allocate"},
+        "extra": {"commit_delay": COMMIT_DELAY},
     },
     "commit-delayed-dell": {
         "model": "dell_generic",
         "hostname": "my_switch",
-        "ssh": _unique_port(),
-        "extra": {
-            "commit_delay": COMMIT_DELAY
-        },
+        "ssh": {"port": "allocate"},
+        "extra": {"commit_delay": COMMIT_DELAY},
     },
     "commit-delayed-dell10g": {
         "model": "dell10g_generic",
         "hostname": "my_switch",
-        "ssh": _unique_port(),
-        "extra": {
-            "commit_delay": COMMIT_DELAY
-        },
+        "ssh": {"port": "allocate"},
+        "extra": {"commit_delay": COMMIT_DELAY},
     },
     "commit-delayed-juniper": {
         "model": "juniper_generic",
         "hostname": "ju_ju_ju_juniper",
-        "ssh": _unique_port(),
-        "extra": {
-            "commit_delay": COMMIT_DELAY
-        },
-    }
+        "ssh": {"port": "allocate"},
+        "extra": {"commit_delay": COMMIT_DELAY},
+    },
 }
 
 
+GLOBAL_BOOTER = None
+
+
 class ThreadedReactor(threading.Thread):
-    _threaded_reactor = None
+    """
+    ThreadedReactor will spawn and start the global twisted reactor.
+    The real reactor cannot be restarted (by design...) so we always
+    have one ThreadedReactor, however, each test, in standalone mode
+    (run-tests.py) is booting its own switch. If is_global=True, then
+    this class will boot ALL switches and any further boot()/stop()
+    requests to SwitchBooter will be ignored.
+    """
+
+    _instance = None
+
+    def __init__(self, is_global=False):
+        global GLOBAL_BOOTER
+        if self._instance:
+            raise RuntimeError(
+                "You should not call __init__, call get_instance() instead"
+            )
+
+        super(ThreadedReactor, self).__init__()
+
+        # In global mode, boot all switches
+        if is_global:
+            # Order matters!
+            GLOBAL_BOOTER = SwitchBooter().boot()
 
     @classmethod
-    def start_reactor(cls):
-        cls._threaded_reactor = ThreadedReactor()
-        cls._threaded_reactor.switches = {}
-
-        switch_factory = SwitchFactory()
-
-        for name, conf in TEST_SWITCHES.items():
-            switch_core = switch_factory.get(conf["model"], hostname=conf["hostname"], **conf["extra"] or {})
-            if "telnet" in conf:
-                SwitchTelnetService("127.0.0.1",
-                                    port=conf["telnet"],
-                                    switch_core=switch_core,
-                                    users={'root': b'root'}
-                                    ).hook_to_reactor(cls._threaded_reactor.reactor)
-            if "ssh" in conf:
-                SwitchSshService("127.0.0.1",
-                                 port=conf["ssh"],
-                                 switch_core=switch_core,
-                                 users={'root': b'root'}
-                                 ).hook_to_reactor(cls._threaded_reactor.reactor)
-            if "http" in conf:
-                SwitchHttpService("127.0.0.1",
-                                  port=conf["http"],
-                                  switch_core=switch_core,
-                                  users={'root': b'root'}
-                                  ).hook_to_reactor(cls._threaded_reactor.reactor)
-
-            cls._threaded_reactor.switches[name] = switch_core
-
-        cls._threaded_reactor.start()
-
-    @classmethod
-    def stop_reactor(cls):
-        cls._threaded_reactor.stop()
-
-    @classmethod
-    def get_switch(cls, name):
-        return cls._threaded_reactor.switches[name]
-
-    def __init__(self, *args, **kwargs):
-        threading.Thread.__init__(self, *args, **kwargs)
-        from twisted.internet import reactor
-
-        self.reactor = reactor
+    def get_instance(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = ThreadedReactor(*args, **kwargs)
+        return cls._instance
 
     def run(self):
-        self.reactor.run(installSignalHandlers=False)
+        logging.info("Starting reactor")
+        # Blocking
+        reactor.run(installSignalHandlers=False)
 
     def stop(self):
-        self.reactor.callFromThread(self.reactor.stop)
+        logging.info("Stoping reactor")
+        reactor.callFromThread(reactor.stop)
+        logging.info("Stoped reactor")
 
 
-if __name__ == '__main__':
-    print('Starting reactor...')
-    ThreadedReactor.start_reactor()
+class SwitchBooter:
+    """
+    Run a switch on the global reactor. The reactor is NOT handled here and
+    is assumed to be running already. The test framework will do this for
+    us when needed.
+    """
+
+    # Supported test services and they primary class
+    SVCS = {
+        "telnet": SwitchTelnetService,
+        "ssh": SwitchSshService,
+        "http": SwitchHttpService,
+    }
+
+    def __init__(self, device_filter=None):
+        self.reactor = reactor
+        self._switches = {}
+        self._configs = {}
+        self._device_filter = device_filter or {}
+        self._booted_ports = []
+
+    def boot(self):
+        """
+        Boot the given configurations (from self._device_filter). If non config
+        is given, then all known configs are booted. This class supports two
+        modes of operation:
+
+        1. Stand-alone test: Each test starts and stops its own switch
+        2. Global-reactor: The reactor is started and all the switches boot
+
+        If in #2 mode, boot() method has not effect when called by each tests
+        and just prints a warning. Each of the above approaches have pros and
+        cons, however, the main reason to run in global mode is that tests go
+        a lot faster!
+        """
+        global GLOBAL_BOOTER
+        if GLOBAL_BOOTER:
+            logging.warning("Not booting when GLOBAL_BOOTER=True")
+            return GLOBAL_BOOTER
+        switch_factory = SwitchFactory()
+
+        def _get_creds(conf, service="ssh"):
+            # Disable auth
+            if conf[service].get("user", "default") is None:
+                return {}
+
+            return {"root": b"root"}
+
+        def _get_port(conf, service="ssh"):
+            port = conf[service].get("port")
+            if port != "allocate":
+                return port
+            return unique_port()
+
+        for name, conf in TEST_SWITCHES.items():
+            if self._device_filter and name not in self._device_filter:
+                continue
+
+            logging.info("Booting config {}: {}".format(name, conf))
+
+            switch_core = switch_factory.get(
+                conf["model"], hostname=conf["hostname"], **conf["extra"] or {}
+            )
+
+            # Some test meta
+            switch_core._test_ports = {}
+            switch_core._test_creds = {}
+
+            for svc, svc_klass in self.SVCS.items():
+                if svc not in conf:
+                    continue
+
+                # Setup this service
+                switch_core._test_ports[svc] = _get_port(conf, svc)
+                switch_core._test_creds[svc] = _get_creds(conf, svc)
+                other_settings = {}
+                if svc == "ssh":
+                    other_settings = {"variant": conf["ssh"].get("variant", "cli")}
+
+                logging.info(
+                    "Booter [{}]: starting service '{}'' on port {}".format(
+                        name, svc, switch_core._test_ports[svc]
+                    )
+                )
+                svc_instance = svc_klass(
+                    "127.0.0.1",
+                    port=switch_core._test_ports[svc],
+                    switch_core=switch_core,
+                    users=switch_core._test_creds[svc],
+                    **other_settings
+                )
+                self._booted_ports.append(svc_instance.hook_to_reactor(reactor))
+
+            # Register this core and its config to make it accessible to tests
+            self._switches[name] = switch_core
+            self._configs[name] = conf
+
+        return self
+
+    def get_switch(self, name):
+        """
+        Return a core switch INSTANCE. This includes the following two things
+        usually protocol testers and tests need:
+
+        1. _test_ports: a map with the allocated port per-service
+        2. _test_creds: a map with the credentials of each service
+        """
+        return self._switches[name]
+
+    def get_config(self, name):
+        """
+        Return the cofig used to boot() a switch. This is needed by some tests
+        in order to access the "extra" arguments of the core_switch
+        """
+        return self._configs[name]
+
+    def stop(self):
+        """ Defer and wait for all ports to stop """
+        global GLOBAL_BOOTER
+        if GLOBAL_BOOTER:
+            logging.warning("Not powering off switch when GLOBAL_BOOTER=True")
+            return
+
+        logging.info("Stopping {} services".format(len(self._booted_ports)))
+        defered = [
+            defer.maybeDeferred(port.stopListening)
+            for port in self._booted_ports
+            if port
+        ]
+
+        result = defer.gatherResults(defered)
+
+
+if __name__ == "__main__":
+    # ?? Someone else gets to us: tftpy :(
+    # logging.basicConfig(level=logging.DEBUG)
+    logging.getLogger().setLevel(logging.DEBUG)
+    logging.info("Starting reactor...")
+    ThreadedReactor().start()
+    booter = SwitchBooter(sys.argv[1:]).boot()
+    input("\n\n*** Press Enter to exit ***\n\n")
+    booter.stop()
+    ThreadedReactor().stop()

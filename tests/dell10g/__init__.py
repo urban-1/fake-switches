@@ -77,7 +77,7 @@ def configuring_vlan(t, vlan_id, do):
 
 
 def configuring_interface(t, interface, do):
-    interface_short_name = interface.split(' ')[1]
+    interface_short_name = interface.split(" ")[1]
     t.write("configure")
     t.readln("")
     t.read("my_switch(config)#")
@@ -140,7 +140,7 @@ def assert_running_config_contains_in_order(t, lines):
 
 def get_running_config(t):
     t.write("show running-config")
-    config = t.read_lines_until('my_switch#')
+    config = t.read_lines_until("my_switch#")
     return config
 
 
@@ -152,6 +152,14 @@ def assert_lines_order(config, lines):
         expected_line_number = i + begin
         actual_content = config[expected_line_number]
 
-        assert_that(actual_content, is_(expected_content),
-                    "Item <%s> was expected to be found at line {} but found {} instead.\nWas looking for {} in {}".format(
-                        line, expected_line_number, actual_content, pprint.pformat(lines), pprint.pformat(config)))
+        assert_that(
+            actual_content,
+            is_(expected_content),
+            "Item <%s> was expected to be found at line {} but found {} instead.\nWas looking for {} in {}".format(
+                line,
+                expected_line_number,
+                actual_content,
+                pprint.pformat(lines),
+                pprint.pformat(config),
+            ),
+        )

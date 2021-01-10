@@ -1,5 +1,24 @@
-[![Build Status](https://travis-ci.org/internap/fake-switches.svg?branch=master)](https://travis-ci.org/internap/fake-switches)
-[![PyPI version](https://badge.fury.io/py/fake-switches.svg)](http://badge.fury.io/py/fake-switches)
+
+!!! WARNING !!!
+===============
+
+**Fork of original https://github.com/internap/fake-switches ...** 
+
+**When I started, I had no clue what I was doing :) by the time I was "finished" the 
+project looked very very different in some places.**
+
+**Forking because it actually works! But merging to upstream might take a while...
+(see an incomplete list of major changes at the end of this doc)**
+
+<hr/>
+
+
+dev_urban [![Build Status](https://www.travis-ci.com/urban-1/fake-switches.svg?branch=dev_urban)](https://www.travis-ci.com/urban-1/fake-switches)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+master [![Build Status](https://www.travis-ci.com/urban-1/fake-switches.svg?branch=master)](https://www.travis-ci.com/urban-1/fake-switches)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+upstream [![Build Status](https://travis-ci.org/internap/fake-switches.svg?branch=master)](https://travis-ci.org/internap/fake-switches)
+
 
 Fake-switches
 =============
@@ -230,3 +249,112 @@ Contributing
 
 Feel free raise issues and send some pull request,
 we'll be happy to look at them!
+
+
+Quick Start
+-----------
+
+
+Run locally:
+
+```
+$ PYTHONPATH=.:$PYTHONPATH python3 ./fake_switches/cmd/main.py
+```
+
+Connect:
+
+```
+ssh root@localhost -p 2222
+```
+
+Some security config on ssh may disable sha1, in this case run:
+
+```
+ssh -oKexAlgorithms=+diffie-hellman-group1-sha1 root@localhost -p 2222
+```
+
+Test
+----
+
+To run all tests on all environments:
+
+```
+tox
+```
+
+You can filter tests which is useful when developing. All arguments after `--`
+are passed to `nosetests`
+
+```
+# Run in one environment only
+tox -e py36
+
+# Get some help
+$ tox -e py38 -- --help
+
+# Run specific tests down to class-level (not individual test)
+tox -e py38 -- --tests tests.ciena
+
+# Filter based on regex - THHIS IS GLITCHY FOR ME
+# READ: https://github.com/nose-devs/nose/issues/1045 !!!
+# Some commands that did work is (specify test class, filter by test - dif
+# not work for py27...):
+tox -e py38 -- --tests tests.ciena.test_ciena_6500.TestCiena6500 -m test_login
+tox -e py38 -- --tests tests.ciena.test_ciena_6500.TestCiena6500 -m test_login$
+tox -e py36 -- --tests tests.ciena.test_ciena_6500 -m 'test_login$'
+tox -e py36 -- --tests tests.ciena.test_ciena_6500 -m 'test_.*logged_out'
+```
+
+
+My changes
+==========
+
+- WARNING: I have messed with the tests of this project before I figure out how `tox` works :D. 
+Turns out that it calls nosetests to run the tests. This is important cause it executes 
+setup()/tearDown() in `tests/__init__.py`!!! Because I was running the tests with a custom script
+using unittest, I had to hack setUp/tearDown to _not_ rely on a global reactor running all 
+switches. Instead, each test now **can** boot its own switch (it doesnt not tho via `tox`) 
+- Added --config in main.py and in switch_configuration. This allows me to bootstrap
+  devices that are modular in nature - we can specify cards/modules in that config.
+    - Add config next to core in SwitchFactory - required
+- Added ciena folder aiming for TL1 support on 6500s. For this I needed a new terminal 
+  type but most importantly, I needed the same transport layer to support multiple
+  "variants". Variant support added to SwitchSshService and is understood by the 
+  core_switch which has an opportunity to return different Shell/TerminalProtocol  
+    - Allow shell override from core_switch
+- Needed a way for ssh (twisted) to not ask username/password. For this I added
+  support for username="None" add a free4all auth (fake key-based auth always 
+  allowing access)
+- Added test runner. As per warning earlier, I changed the tests to 
+  spawn one singleton reactor in the run-tests.py but at the same time, each 
+  test is spawning its own switch! For this to work, most of the booting code
+  has changed:
+    - Added SwitchBooter class responsible for turning on and off devices
+    - Added config per-service and moved "port" there
+    - Removed autoinc next port and replaced it with a "real" next free port based
+      on bind()
+    - Added some decorators for tests where needed, hacked the existing ones to 
+      not be based on config and instead take parameters from core_switch
+- Added a Makefile to handle code formating. This is the most disruptive change
+  since it touches all of the code... but once your eyes get used to formatted
+  code, is hard to live without it
+- Added some comments here and there
+- Once I reallized I will fork, I changed travis to not have a pypi push step
+  since I don't want to accidentaly release a new package :). Did few other 
+  tweaks including this doc and changing/upping most versions (python, tox, docker, etc)
+- Finally, since this was a 2-3 days pet project and I got impatient... my commit
+  messages do not always reflect what is changing :D
+
+My TODO
+-------
+
+If I keep on hacking this I would like to do the following:
+
+
+- [ ] Clean up test code that seems to be from various iterations/generations of the 
+  project. Primarily split config from code and reorg a bit utils
+- [ ] Checkout docker image and what updates it needs. I also think that we can reduce its size
+if we remove not needed build tools after install 
+- [ ] Clean up some classes that seem to be very thin (unsure if thats better/possible)
+- [ ] Deprecate py27 (does not hurt atm but had to bypass black/usort)
+- [ ] Implement Ciena 6500 configurables and more commands

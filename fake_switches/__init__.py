@@ -14,8 +14,8 @@
 
 from functools import reduce
 
-def group_sequences(item_list, are_in_sequence):
 
+def group_sequences(item_list, are_in_sequence):
     def group(ranges, current):
         if len(ranges) == 0:
             ranges.append([current])

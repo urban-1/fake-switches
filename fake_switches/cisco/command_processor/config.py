@@ -33,10 +33,14 @@ class ConfigCommandProcessor(BaseCommandProcessor):
     def do_vlan(self, raw_number, *_):
         number = int(raw_number)
         if number < 0:
-            self.write_line("Command rejected: Bad VLAN list - character #1 ('-') delimits a VLAN number")
+            self.write_line(
+                "Command rejected: Bad VLAN list - character #1 ('-') delimits a VLAN number"
+            )
             self.write_line(" which is out of the range 1..4094.")
         elif number < 1 or number > 4094:
-            self.write_line("Command rejected: Bad VLAN list - character #X (EOL) delimits a VLAN")
+            self.write_line(
+                "Command rejected: Bad VLAN list - character #X (EOL) delimits a VLAN"
+            )
             self.write_line("number which is out of the range 1..4094.")
         else:
             vlan = self.switch_configuration.get_vlan(number)
@@ -71,13 +75,16 @@ class ConfigCommandProcessor(BaseCommandProcessor):
         if port:
             self.move_to(self.config_interface_processor, port)
         else:
-            m = re.match("vlan{separator}(\d+)".format(separator=self.interface_separator), interface_name.lower())
+            m = re.match(
+                "vlan{separator}(\d+)".format(separator=self.interface_separator),
+                interface_name.lower(),
+            )
             if m:
                 vlan_id = int(m.groups()[0])
                 new_vlan_interface = self.make_vlan_port(vlan_id, interface_name)
                 self.switch_configuration.add_port(new_vlan_interface)
                 self.move_to(self.config_interface_processor, new_vlan_interface)
-            elif interface_name.lower().startswith('port-channel'):
+            elif interface_name.lower().startswith("port-channel"):
                 new_int = self.make_aggregated_port(interface_name)
                 self.switch_configuration.add_port(new_int)
                 self.move_to(self.config_interface_processor, new_int)
@@ -90,7 +97,7 @@ class ConfigCommandProcessor(BaseCommandProcessor):
             self.switch_configuration.remove_port(port)
 
     def do_default(self, cmd, *args):
-        if 'interface'.startswith(cmd):
+        if "interface".startswith(cmd):
             interface_name = self.interface_separator.join(args)
             port = self.switch_configuration.get_port_by_partial_name(interface_name)
             if port:
@@ -107,7 +114,11 @@ class ConfigCommandProcessor(BaseCommandProcessor):
         self.write_line("")
 
     def make_vlan_port(self, vlan_id, interface_name):
-        return self.switch_configuration.new("VlanPort", vlan_id, interface_name.capitalize())
+        return self.switch_configuration.new(
+            "VlanPort", vlan_id, interface_name.capitalize()
+        )
 
     def make_aggregated_port(self, interface_name):
-        return self.switch_configuration.new("AggregatedPort", interface_name.capitalize())
+        return self.switch_configuration.new(
+            "AggregatedPort", interface_name.capitalize()
+        )

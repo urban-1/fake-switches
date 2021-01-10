@@ -3,39 +3,45 @@ import unittest
 from fake_switches.netconf import dict_2_etree, XML_ATTRIBUTES
 from hamcrest import assert_that, has_length
 from ncclient import manager
-from tests.util.global_reactor import TEST_SWITCHES
+
+from tests.util.global_reactor import TEST_SWITCHES, SwitchBooter
 
 
 class BaseJuniper(unittest.TestCase):
     test_switch = None
 
     def setUp(self):
-        self.conf = TEST_SWITCHES[self.test_switch]
+        self.booter = SwitchBooter([self.test_switch]).boot()
         self.nc = self.create_client()
 
     def create_client(self):
+        port = self.booter.get_switch(self.test_switch)._test_ports["ssh"]
         return manager.connect(
             host="127.0.0.1",
-            port=self.conf["ssh"],
+            port=port,
             username="root",
             password="root",
             hostkey_verify=False,
-            device_params={'name': 'junos'}
+            device_params={"name": "junos"},
         )
 
     def tearDown(self):
-        assert_that(self.nc.get_config(source="running").xpath("data/configuration/*"), has_length(0))
+        assert_that(
+            self.nc.get_config(source="running").xpath("data/configuration/*"),
+            has_length(0),
+        )
         try:
             self.nc.discard_changes()
         finally:
             self.nc.close_session()
 
+        self.booter.stop()
+
     def edit(self, config):
-        result = self.nc.edit_config(target="candidate", config=dict_2_etree({
-            "config": {
-                "configuration": config
-            }
-        }))
+        result = self.nc.edit_config(
+            target="candidate",
+            config=dict_2_etree({"config": {"configuration": config}}),
+        )
         assert_that(result.xpath("//rpc-reply/ok"), has_length(1))
 
     def cleanup(self, *args):
@@ -44,8 +50,16 @@ class BaseJuniper(unittest.TestCase):
         self.nc.commit()
 
     def get_interface(self, name):
-        result = self.nc.get_config(source="running", filter=dict_2_etree({"filter": {
-            "configuration": {"interfaces": {"interface": {"name": name}}}}}))
+        result = self.nc.get_config(
+            source="running",
+            filter=dict_2_etree(
+                {
+                    "filter": {
+                        "configuration": {"interfaces": {"interface": {"name": name}}}
+                    }
+                }
+            ),
+        )
         if len(result.xpath("data/configuration")) == 0:
             return None
         return result.xpath("data/configuration/interfaces/interface")[0]
@@ -53,9 +67,12 @@ class BaseJuniper(unittest.TestCase):
 
 def vlan(vlan_name):
     def m(edit):
-        edit({"vlans": {
-            "vlan": {"name": vlan_name, XML_ATTRIBUTES: {"operation": "delete"}}
-        }})
+        edit(
+            {
+                "vlans": {
+                    "vlan": {"name": vlan_name, XML_ATTRIBUTES: {"operation": "delete"}}
+                }
+            }
+        )
 
     return m
-

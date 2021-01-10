@@ -12,16 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from tests.dell import enable, configuring_vlan, \
-    assert_running_config_contains_in_order, unconfigure_vlan, \
-    assert_interface_configuration
-from tests.util.protocol_util import with_protocol, ProtocolTest, SshTester, TelnetTester
+from tests.dell import (
+    enable,
+    configuring_vlan,
+    assert_running_config_contains_in_order,
+    unconfigure_vlan,
+    assert_interface_configuration,
+)
+from tests.util.protocol_util import (
+    with_protocol,
+    ProtocolTest,
+    SshTester,
+    TelnetTester,
+)
 
 
 class DellConfigureVlanTest(ProtocolTest):
     __test__ = False
 
-    tester_class = SshTester
+    _tester = SshTester
     test_switch = "dell"
 
     @with_protocol
@@ -30,19 +39,13 @@ class DellConfigureVlanTest(ProtocolTest):
 
         configuring_vlan(t, 1234)
 
-        assert_running_config_contains_in_order(t, [
-            "vlan database",
-            "vlan 1,1234",
-            "exit"
-        ])
+        assert_running_config_contains_in_order(
+            t, ["vlan database", "vlan 1,1234", "exit"]
+        )
 
         unconfigure_vlan(t, 1234)
 
-        assert_running_config_contains_in_order(t, [
-            "vlan database",
-            "vlan 1",
-            "exit"
-        ])
+        assert_running_config_contains_in_order(t, ["vlan database", "vlan 1", "exit"])
 
     @with_protocol
     def test_unconfiguring_a_vlan_failing(self, t):
@@ -57,7 +60,9 @@ class DellConfigureVlanTest(ProtocolTest):
         t.read("my_switch(config-vlan)#")
 
         t.write("no vlan 3899")
-        t.readln("Warning: The use of large numbers of VLANs or interfaces may cause significant")
+        t.readln(
+            "Warning: The use of large numbers of VLANs or interfaces may cause significant"
+        )
         t.readln("delays in applying the configuration.")
         t.readln("")
         t.readln("")
@@ -108,20 +113,24 @@ class DellConfigureVlanTest(ProtocolTest):
         t.readln("")
         t.read("my_switch#")
 
-        assert_interface_configuration(t, "vlan 1234", [
-            "interface vlan 1234",
-            "name \"this-name-is-too-long-buddy-budd\"",
-            "exit",
-        ])
+        assert_interface_configuration(
+            t,
+            "vlan 1234",
+            [
+                "interface vlan 1234",
+                'name "this-name-is-too-long-buddy-budd"',
+                "exit",
+            ],
+        )
 
         unconfigure_vlan(t, 1234)
 
 
 class DellConfigureVlanSshTest(DellConfigureVlanTest):
     __test__ = True
-    tester_class = SshTester
+    _tester = SshTester
 
 
 class DellConfigureVlanTelnetTest(DellConfigureVlanTest):
     __test__ = True
-    tester_class = TelnetTester
+    _tester = TelnetTester

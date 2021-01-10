@@ -17,12 +17,19 @@ from fake_switches.switch_configuration import split_port_name, VlanPort
 
 
 class ConfigVlanCommandProcessor(BaseCommandProcessor):
-    def init(self, switch_configuration, terminal_controller, logger, piping_processor, *args):
-        super(ConfigVlanCommandProcessor, self).init(switch_configuration, terminal_controller, logger, piping_processor)
+    def init(
+        self, switch_configuration, terminal_controller, logger, piping_processor, *args
+    ):
+        super(ConfigVlanCommandProcessor, self).init(
+            switch_configuration, terminal_controller, logger, piping_processor
+        )
         self.vlan = args[0]
 
     def get_prompt(self):
-        return "SSH@%s(config-vlan-%s)#" % (self.switch_configuration.name, self.vlan.number)
+        return "SSH@%s(config-vlan-%s)#" % (
+            self.switch_configuration.name,
+            self.vlan.number,
+        )
 
     def do_untagged(self, *args):
         port = self.switch_configuration.get_port_by_partial_name(" ".join(args))
@@ -39,8 +46,15 @@ class ConfigVlanCommandProcessor(BaseCommandProcessor):
         port = self.switch_configuration.get_port_by_partial_name(" ".join(args))
 
         if port is not None:
-            if port.access_vlan != self.vlan.number and port.trunk_native_vlan != self.vlan.number:
-                self.write_line("Error: ports ethe {} are not untagged members of vlan {}".format(args[1], self.vlan.number))
+            if (
+                port.access_vlan != self.vlan.number
+                and port.trunk_native_vlan != self.vlan.number
+            ):
+                self.write_line(
+                    "Error: ports ethe {} are not untagged members of vlan {}".format(
+                        args[1], self.vlan.number
+                    )
+                )
                 return
 
             if port.trunk_vlans is None:
@@ -68,7 +82,11 @@ class ConfigVlanCommandProcessor(BaseCommandProcessor):
         port = self.switch_configuration.get_port_by_partial_name(" ".join(args))
         if port is not None:
             if port.trunk_vlans is None or self.vlan.number not in port.trunk_vlans:
-                self.write_line("Error: ports ethe {} are not tagged members of vlan {}".format(args[1], self.vlan.number))
+                self.write_line(
+                    "Error: ports ethe {} are not tagged members of vlan {}".format(
+                        args[1], self.vlan.number
+                    )
+                )
                 return
 
             port.trunk_vlans.remove(self.vlan.number)
@@ -87,19 +105,32 @@ class ConfigVlanCommandProcessor(BaseCommandProcessor):
             self.write_line("Type ? for a list")
         else:
             actual_ve = next(
-                (p for p in self.switch_configuration.ports if isinstance(p, VlanPort) and p.vlan_id == self.vlan.number),
-                False)
+                (
+                    p
+                    for p in self.switch_configuration.ports
+                    if isinstance(p, VlanPort) and p.vlan_id == self.vlan.number
+                ),
+                False,
+            )
             if not actual_ve:
                 name = "ve {}".format(args[1])
-                self.switch_configuration.add_port(self.switch_configuration.new("VlanPort", self.vlan.number,
-                                                                                 name))
+                self.switch_configuration.add_port(
+                    self.switch_configuration.new("VlanPort", self.vlan.number, name)
+                )
             else:
-                self.write_line("Error: VLAN: %s  already has router-interface %s" % (
-                    self.vlan.number, split_port_name(actual_ve.name)[1]))
+                self.write_line(
+                    "Error: VLAN: %s  already has router-interface %s"
+                    % (self.vlan.number, split_port_name(actual_ve.name)[1])
+                )
 
     def do_no_router_interface(self, *_):
-        self.switch_configuration.remove_port(next(
-            p for p in self.switch_configuration.ports if isinstance(p, VlanPort) and p.vlan_id == self.vlan.number))
+        self.switch_configuration.remove_port(
+            next(
+                p
+                for p in self.switch_configuration.ports
+                if isinstance(p, VlanPort) and p.vlan_id == self.vlan.number
+            )
+        )
 
     def do_exit(self):
         self.is_done = True

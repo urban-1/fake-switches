@@ -15,6 +15,7 @@
 from time import time
 
 from hamcrest import assert_that, less_than, greater_than
+
 from tests.dell import enable
 from tests.util.global_reactor import COMMIT_DELAY
 from tests.util.protocol_util import with_protocol, SshTester, ProtocolTest
@@ -22,7 +23,7 @@ from tests.util.protocol_util import with_protocol, SshTester, ProtocolTest
 
 class DellEnabledWithCommitDelayTest(ProtocolTest):
 
-    tester_class = SshTester
+    _tester = SshTester
     test_switch = "commit-delayed-dell"
 
     @with_protocol

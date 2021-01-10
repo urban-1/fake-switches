@@ -13,13 +13,18 @@
 # limitations under the License.
 
 from tests.dell import enable, configure, configuring_vlan, unconfigure_vlan
-from tests.util.protocol_util import with_protocol, ProtocolTest, SshTester, TelnetTester
+from tests.util.protocol_util import (
+    with_protocol,
+    ProtocolTest,
+    SshTester,
+    TelnetTester,
+)
 
 
 class DellConfigureTest(ProtocolTest):
     __test__ = False
 
-    tester_class = SshTester
+    _tester = SshTester
     test_switch = "dell"
 
     @with_protocol
@@ -86,9 +91,9 @@ class DellConfigureTest(ProtocolTest):
 
 class DellConfigureSshTest(DellConfigureTest):
     __test__ = True
-    tester_class = SshTester
+    _tester = SshTester
 
 
 class DellConfigureTelnetTest(DellConfigureTest):
     __test__ = True
-    tester_class = TelnetTester
+    _tester = TelnetTester

@@ -1,4 +1,9 @@
-from tests.util.protocol_util import SshTester, TelnetTester, with_protocol, ProtocolTest
+from tests.util.protocol_util import (
+    SshTester,
+    TelnetTester,
+    with_protocol,
+    ProtocolTest,
+)
 
 
 class TestCiscoAutoEnabledSwitchProtocol(ProtocolTest):
@@ -22,9 +27,9 @@ class TestCiscoAutoEnabledSwitchProtocol(ProtocolTest):
 
 class TestCiscoSwitchProtocolSSH(TestCiscoAutoEnabledSwitchProtocol):
     __test__ = True
-    tester_class = SshTester
+    _tester = SshTester
 
 
 class TestCiscoSwitchProtocolTelnet(TestCiscoAutoEnabledSwitchProtocol):
     __test__ = True
-    tester_class = TelnetTester
+    _tester = TelnetTester

@@ -14,13 +14,21 @@
 
 from hamcrest import assert_that, is_
 
-from tests.arista import enable, assert_interface_configuration, configuring_interface, with_eapi, create_vlan, \
-    remove_vlan, create_interface_vlan, remove_interface_vlan
+from tests.arista import (
+    enable,
+    assert_interface_configuration,
+    configuring_interface,
+    with_eapi,
+    create_vlan,
+    remove_vlan,
+    create_interface_vlan,
+    remove_interface_vlan,
+)
 from tests.util.protocol_util import ProtocolTest, SshTester, with_protocol
 
 
 class TestAristaInterfaceVlans(ProtocolTest):
-    tester_class = SshTester
+    _tester = SshTester
     test_switch = "arista"
 
     @with_protocol
@@ -29,68 +37,96 @@ class TestAristaInterfaceVlans(ProtocolTest):
 
         configuring_interface(t, "Et1", do="switchport mode TrunK")
 
-        assert_interface_configuration(t, "Ethernet1", [
-            "interface Ethernet1",
-            "   switchport mode trunk"])
+        assert_interface_configuration(
+            t, "Ethernet1", ["interface Ethernet1", "   switchport mode trunk"]
+        )
 
         # not really added because all vlan are in trunk by default on arista
         configuring_interface(t, "Et1", do="switchport trunk allowed vlan add 123")
 
-        assert_interface_configuration(t, "Ethernet1", [
-            "interface Ethernet1",
-            "   switchport mode trunk"])
+        assert_interface_configuration(
+            t, "Ethernet1", ["interface Ethernet1", "   switchport mode trunk"]
+        )
 
         configuring_interface(t, "Et1", do="switchport trunk allowed vlan none")
 
-        assert_interface_configuration(t, "Ethernet1", [
-            "interface Ethernet1",
-            "   switchport trunk allowed vlan none",
-            "   switchport mode trunk"])
+        assert_interface_configuration(
+            t,
+            "Ethernet1",
+            [
+                "interface Ethernet1",
+                "   switchport trunk allowed vlan none",
+                "   switchport mode trunk",
+            ],
+        )
 
         configuring_interface(t, "Et1", do="switchport trunk allowed vlan add 123")
 
-        assert_interface_configuration(t, "Ethernet1", [
-            "interface Ethernet1",
-            "   switchport trunk allowed vlan 123",
-            "   switchport mode trunk"])
+        assert_interface_configuration(
+            t,
+            "Ethernet1",
+            [
+                "interface Ethernet1",
+                "   switchport trunk allowed vlan 123",
+                "   switchport mode trunk",
+            ],
+        )
 
-        configuring_interface(t, "Et1", do="switchport trunk allowed vlan add 124,126-128")
+        configuring_interface(
+            t, "Et1", do="switchport trunk allowed vlan add 124,126-128"
+        )
 
-        assert_interface_configuration(t, "Ethernet1", [
-            "interface Ethernet1",
-            "   switchport trunk allowed vlan 123-124,126-128",
-            "   switchport mode trunk"])
+        assert_interface_configuration(
+            t,
+            "Ethernet1",
+            [
+                "interface Ethernet1",
+                "   switchport trunk allowed vlan 123-124,126-128",
+                "   switchport mode trunk",
+            ],
+        )
 
-        configuring_interface(t, "Et1", do="switchport trunk allowed vlan remove 123-124,127")
+        configuring_interface(
+            t, "Et1", do="switchport trunk allowed vlan remove 123-124,127"
+        )
 
-        assert_interface_configuration(t, "Ethernet1", [
-            "interface Ethernet1",
-            "   switchport trunk allowed vlan 126,128",
-            "   switchport mode trunk"])
+        assert_interface_configuration(
+            t,
+            "Ethernet1",
+            [
+                "interface Ethernet1",
+                "   switchport trunk allowed vlan 126,128",
+                "   switchport mode trunk",
+            ],
+        )
 
         configuring_interface(t, "Et1", do="switchport trunk allowed vlan all")
 
-        assert_interface_configuration(t, "Ethernet1", [
-            "interface Ethernet1",
-            "   switchport mode trunk"])
+        assert_interface_configuration(
+            t, "Ethernet1", ["interface Ethernet1", "   switchport mode trunk"]
+        )
 
         configuring_interface(t, "Et1", do="switchport trunk allowed vlan 123-124,127")
 
-        assert_interface_configuration(t, "Ethernet1", [
-            "interface Ethernet1",
-            "   switchport trunk allowed vlan 123-124,127",
-            "   switchport mode trunk"])
+        assert_interface_configuration(
+            t,
+            "Ethernet1",
+            [
+                "interface Ethernet1",
+                "   switchport trunk allowed vlan 123-124,127",
+                "   switchport mode trunk",
+            ],
+        )
 
         configuring_interface(t, "Et1", do="no switchport trunk allowed vlan")
 
-        assert_interface_configuration(t, "Ethernet1", [
-            "interface Ethernet1",
-            "   switchport mode trunk"])
+        assert_interface_configuration(
+            t, "Ethernet1", ["interface Ethernet1", "   switchport mode trunk"]
+        )
 
         configuring_interface(t, "Et1", do="no switchport mode")
 
-        assert_interface_configuration(t, "Ethernet1", [
-            "interface Ethernet1"])
+        assert_interface_configuration(t, "Ethernet1", ["interface Ethernet1"])
 
     @with_protocol
     def test_configure_trunk_port_by_removing_one_vlan_shows_all_others(self, t):
@@ -98,15 +134,15 @@ class TestAristaInterfaceVlans(ProtocolTest):
 
         configuring_interface(t, "Et1", do="switchport trunk allowed vlan remove 100")
 
-        assert_interface_configuration(t, "Ethernet1", [
-            "interface Ethernet1",
-            "   switchport trunk allowed vlan 1-99,101-4094"
-        ])
+        assert_interface_configuration(
+            t,
+            "Ethernet1",
+            ["interface Ethernet1", "   switchport trunk allowed vlan 1-99,101-4094"],
+        )
 
         configuring_interface(t, "Et1", do="no switchport trunk allowed vlan")
 
-        assert_interface_configuration(t, "Ethernet1", [
-            "interface Ethernet1"])
+        assert_interface_configuration(t, "Ethernet1", ["interface Ethernet1"])
 
     @with_protocol
     def test_switchport_trunk_mode_errors(self, t):
@@ -301,8 +337,8 @@ class TestAristaInterfaceVlans(ProtocolTest):
                         "tpidStatus": True,
                         "trunkAllowedVlans": "ALL",
                         "trunkingNativeVlanId": 1,
-                        "trunkingNativeVlanName": "default"
-                    }
+                        "trunkingNativeVlanName": "default",
+                    },
                 },
                 "Ethernet2": {
                     "enabled": True,
@@ -321,20 +357,25 @@ class TestAristaInterfaceVlans(ProtocolTest):
                         "tpidStatus": True,
                         "trunkAllowedVlans": "ALL",
                         "trunkingNativeVlanId": 1,
-                        "trunkingNativeVlanName": "default"
-                    }
-                }
-            }
+                        "trunkingNativeVlanName": "default",
+                    },
+                },
+            },
         }
 
-        assert_that(result, is_([
-            {
-                "command": "show interfaces switchport",
-                "encoding": "json",
-                "response": expected_json_content,
-                "result": expected_json_content
-            }
-        ]))
+        assert_that(
+            result,
+            is_(
+                [
+                    {
+                        "command": "show interfaces switchport",
+                        "encoding": "json",
+                        "response": expected_json_content,
+                        "result": expected_json_content,
+                    }
+                ]
+            ),
+        )
 
         remove_interface_vlan(t, "299")
         remove_vlan(t, "299")

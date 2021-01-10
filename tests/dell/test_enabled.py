@@ -12,16 +12,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from tests.dell import enable, assert_running_config_contains_in_order, \
-    configuring_vlan, configuring_interface_vlan, unconfigure_vlan, \
-    configuring_a_vlan_on_interface, configuring_interface
-from tests.util.protocol_util import with_protocol, ProtocolTest, SshTester, TelnetTester
+from tests.dell import (
+    enable,
+    assert_running_config_contains_in_order,
+    configuring_vlan,
+    configuring_interface_vlan,
+    unconfigure_vlan,
+    configuring_a_vlan_on_interface,
+    configuring_interface,
+)
+from tests.util.protocol_util import (
+    with_protocol,
+    ProtocolTest,
+    SshTester,
+    TelnetTester,
+)
 
 
 class DellEnabledTest(ProtocolTest):
     __test__ = False
 
-    tester_class = SshTester
+    _tester = SshTester
     test_switch = "dell"
 
     @with_protocol
@@ -132,14 +143,17 @@ class DellEnabledTest(ProtocolTest):
     @with_protocol
     def test_show_running_config_displays_header(self, t):
         enable(t)
-        assert_running_config_contains_in_order(t, [
-            '!Current Configuration:',
-            '!System Description "PowerConnect 6224P, 3.3.7.3, VxWorks 6.5"',
-            '!System Software Version 3.3.7.3',
-            '!Cut-through mode is configured as disabled',
-            '!',
-            'configure',
-        ])
+        assert_running_config_contains_in_order(
+            t,
+            [
+                "!Current Configuration:",
+                '!System Description "PowerConnect 6224P, 3.3.7.3, VxWorks 6.5"',
+                "!System Software Version 3.3.7.3",
+                "!Cut-through mode is configured as disabled",
+                "!",
+                "configure",
+            ],
+        )
 
     @with_protocol
     def test_show_vlan(self, t):
@@ -172,39 +186,93 @@ class DellEnabledTest(ProtocolTest):
 
         t.write("show vlan")
         t.readln("")
-        t.readln("VLAN       Name                         Ports          Type      Authorization")
-        t.readln("-----  ---------------                  -------------  -----     -------------")
-        t.readln("1      Default                                         Default   Required     ")
-        t.readln("10                                                     Static    Required     ")
-        t.readln("11                                                     Static    Required     ")
-        t.readln("12                                                     Static    Required     ")
-        t.readln("13                                                     Static    Required     ")
-        t.readln("14                                                     Static    Required     ")
-        t.readln("15                                                     Static    Required     ")
-        t.readln("16                                                     Static    Required     ")
-        t.readln("17     this-name-is-too-long-buddy-budd                Static    Required     ")
-        t.readln("18                                                     Static    Required     ")
-        t.readln("19                                                     Static    Required     ")
-        t.readln("20                                                     Static    Required     ")
-        t.readln("21                                                     Static    Required     ")
-        t.readln("22                                                     Static    Required     ")
-        t.readln("23                                                     Static    Required     ")
-        t.readln("24                                                     Static    Required     ")
-        t.readln("25                                                     Static    Required     ")
-        t.readln("26                                                     Static    Required     ")
+        t.readln(
+            "VLAN       Name                         Ports          Type      Authorization"
+        )
+        t.readln(
+            "-----  ---------------                  -------------  -----     -------------"
+        )
+        t.readln(
+            "1      Default                                         Default   Required     "
+        )
+        t.readln(
+            "10                                                     Static    Required     "
+        )
+        t.readln(
+            "11                                                     Static    Required     "
+        )
+        t.readln(
+            "12                                                     Static    Required     "
+        )
+        t.readln(
+            "13                                                     Static    Required     "
+        )
+        t.readln(
+            "14                                                     Static    Required     "
+        )
+        t.readln(
+            "15                                                     Static    Required     "
+        )
+        t.readln(
+            "16                                                     Static    Required     "
+        )
+        t.readln(
+            "17     this-name-is-too-long-buddy-budd                Static    Required     "
+        )
+        t.readln(
+            "18                                                     Static    Required     "
+        )
+        t.readln(
+            "19                                                     Static    Required     "
+        )
+        t.readln(
+            "20                                                     Static    Required     "
+        )
+        t.readln(
+            "21                                                     Static    Required     "
+        )
+        t.readln(
+            "22                                                     Static    Required     "
+        )
+        t.readln(
+            "23                                                     Static    Required     "
+        )
+        t.readln(
+            "24                                                     Static    Required     "
+        )
+        t.readln(
+            "25                                                     Static    Required     "
+        )
+        t.readln(
+            "26                                                     Static    Required     "
+        )
         t.readln("")
         t.read("--More-- or (q)uit")
         t.write_raw("m")
         t.readln("\r                     ")
         t.readln("")
         t.readln("")
-        t.readln("VLAN       Name                         Ports          Type      Authorization")
-        t.readln("-----  ---------------                  -------------  -----     -------------")
-        t.readln("27                                                     Static    Required     ")
-        t.readln("28                                                     Static    Required     ")
-        t.readln("29                                                     Static    Required     ")
-        t.readln("300    shizzle                                         Static    Required     ")
-        t.readln("4000                                                   Static    Required     ")
+        t.readln(
+            "VLAN       Name                         Ports          Type      Authorization"
+        )
+        t.readln(
+            "-----  ---------------                  -------------  -----     -------------"
+        )
+        t.readln(
+            "27                                                     Static    Required     "
+        )
+        t.readln(
+            "28                                                     Static    Required     "
+        )
+        t.readln(
+            "29                                                     Static    Required     "
+        )
+        t.readln(
+            "300    shizzle                                         Static    Required     "
+        )
+        t.readln(
+            "4000                                                   Static    Required     "
+        )
         t.readln("")
         t.read("my_switch#")
 
@@ -245,9 +313,15 @@ class DellEnabledTest(ProtocolTest):
 
         t.write("show vlan id 1000")
         t.readln("")
-        t.readln("VLAN       Name                         Ports          Type      Authorization")
-        t.readln("-----  ---------------                  -------------  -----     -------------")
-        t.readln("1000                                                   Static    Required     ")
+        t.readln(
+            "VLAN       Name                         Ports          Type      Authorization"
+        )
+        t.readln(
+            "-----  ---------------                  -------------  -----     -------------"
+        )
+        t.readln(
+            "1000                                                   Static    Required     "
+        )
         t.readln("")
         t.read("my_switch#")
 
@@ -271,44 +345,78 @@ class DellEnabledTest(ProtocolTest):
 
         configuring_vlan(t, 1000)
         configuring_interface(t, "ethernet 1/g1", do="switchport mode access")
-        configuring_a_vlan_on_interface(t, "ethernet 1/g1", do="switchport access vlan 1000")
+        configuring_a_vlan_on_interface(
+            t, "ethernet 1/g1", do="switchport access vlan 1000"
+        )
 
         t.write("show vlan id 1000")
         t.readln("")
-        t.readln("VLAN       Name                         Ports          Type      Authorization")
-        t.readln("-----  ---------------                  -------------  -----     -------------")
-        t.readln("1000                                    1/g1           Static    Required     ")
+        t.readln(
+            "VLAN       Name                         Ports          Type      Authorization"
+        )
+        t.readln(
+            "-----  ---------------                  -------------  -----     -------------"
+        )
+        t.readln(
+            "1000                                    1/g1           Static    Required     "
+        )
         t.readln("")
         t.read("my_switch#")
 
         configuring_interface(t, "ethernet 1/g1", do="switchport mode trunk")
         t.write("show vlan id 1000")
         t.readln("")
-        t.readln("VLAN       Name                         Ports          Type      Authorization")
-        t.readln("-----  ---------------                  -------------  -----     -------------")
-        t.readln("1000                                                   Static    Required     ")
+        t.readln(
+            "VLAN       Name                         Ports          Type      Authorization"
+        )
+        t.readln(
+            "-----  ---------------                  -------------  -----     -------------"
+        )
+        t.readln(
+            "1000                                                   Static    Required     "
+        )
         t.readln("")
         t.read("my_switch#")
 
-        configuring_a_vlan_on_interface(t, "ethernet 1/g1", do="switchport trunk allowed vlan add 1000")
+        configuring_a_vlan_on_interface(
+            t, "ethernet 1/g1", do="switchport trunk allowed vlan add 1000"
+        )
         configuring_interface(t, "ethernet 1/g2", do="switchport mode trunk")
-        configuring_a_vlan_on_interface(t, "ethernet 1/g2", do="switchport trunk allowed vlan add 1000")
+        configuring_a_vlan_on_interface(
+            t, "ethernet 1/g2", do="switchport trunk allowed vlan add 1000"
+        )
         t.write("show vlan id 1000")
         t.readln("")
-        t.readln("VLAN       Name                         Ports          Type      Authorization")
-        t.readln("-----  ---------------                  -------------  -----     -------------")
-        t.readln("1000                                    1/g1-1/g2      Static    Required     ")
+        t.readln(
+            "VLAN       Name                         Ports          Type      Authorization"
+        )
+        t.readln(
+            "-----  ---------------                  -------------  -----     -------------"
+        )
+        t.readln(
+            "1000                                    1/g1-1/g2      Static    Required     "
+        )
         t.readln("")
         t.read("my_switch#")
 
         configuring_interface(t, "ethernet 1/xg1", do="switchport mode trunk")
-        configuring_a_vlan_on_interface(t, "ethernet 1/xg1", do="switchport trunk allowed vlan add 1000")
+        configuring_a_vlan_on_interface(
+            t, "ethernet 1/xg1", do="switchport trunk allowed vlan add 1000"
+        )
         t.write("show vlan id 1000")
         t.readln("")
-        t.readln("VLAN       Name                         Ports          Type      Authorization")
-        t.readln("-----  ---------------                  -------------  -----     -------------")
-        t.readln("1000                                    1/g1-1/g2,     Static    Required     ")
-        t.readln("                                        1/xg1                                 ")
+        t.readln(
+            "VLAN       Name                         Ports          Type      Authorization"
+        )
+        t.readln(
+            "-----  ---------------                  -------------  -----     -------------"
+        )
+        t.readln(
+            "1000                                    1/g1-1/g2,     Static    Required     "
+        )
+        t.readln(
+            "                                        1/xg1                                 "
+        )
         t.readln("")
         t.read("my_switch#")
 
@@ -346,9 +454,9 @@ class DellEnabledTest(ProtocolTest):
 
 class DellEnabledSshTest(DellEnabledTest):
     __test__ = True
-    tester_class = SshTester
+    _tester = SshTester
 
 
 class DellEnabledTelnetTest(DellEnabledTest):
     __test__ = True
-    tester_class = TelnetTester
+    _tester = TelnetTester

@@ -17,8 +17,12 @@ import logging
 from twisted.web import resource
 
 from fake_switches.arista.command_processor.config import ConfigCommandProcessor
-from fake_switches.arista.command_processor.config_interface import ConfigInterfaceCommandProcessor
-from fake_switches.arista.command_processor.config_vlan import ConfigVlanCommandProcessor
+from fake_switches.arista.command_processor.config_interface import (
+    ConfigInterfaceCommandProcessor,
+)
+from fake_switches.arista.command_processor.config_vlan import (
+    ConfigVlanCommandProcessor,
+)
 from fake_switches.arista.command_processor.default import DefaultCommandProcessor
 from fake_switches.arista.command_processor.enabled import EnabledCommandProcessor
 from fake_switches.arista.command_processor.terminal_display import TerminalDisplay
@@ -31,7 +35,6 @@ from fake_switches.terminal import LoggingTerminalController
 
 
 class AristaSwitchCore(SwitchCore):
-
     def __init__(self, switch_configuration):
         super(AristaSwitchCore, self).__init__(switch_configuration)
         self.switch_configuration.add_vlan(self.switch_configuration.new("Vlan", 1))
@@ -42,33 +45,39 @@ class AristaSwitchCore(SwitchCore):
     def launch(self, protocol, terminal_controller):
         self.last_connection_id += 1
 
-        self.logger = logging.getLogger("fake_switches.arista.{}.{}.{}"
-                                        .format(self.switch_configuration.name, self.last_connection_id, protocol))
+        self.logger = logging.getLogger(
+            "fake_switches.arista.{}.{}.{}".format(
+                self.switch_configuration.name, self.last_connection_id, protocol
+            )
+        )
 
         processor = self.processor_stack(display=TerminalDisplay())
 
-        processor.init(self.switch_configuration,
-                       LoggingTerminalController(self.logger, terminal_controller),
-                       self.logger,
-                       NotPipingProcessor())
+        processor.init(
+            self.switch_configuration,
+            LoggingTerminalController(self.logger, terminal_controller),
+            self.logger,
+            NotPipingProcessor(),
+        )
 
         return AristaShellSession(processor)
 
     @staticmethod
     def get_default_ports():
-        return [
-            Port("Ethernet1"),
-            Port("Ethernet2")
-        ]
+        return [Port("Ethernet1"), Port("Ethernet2")]
 
     def processor_stack(self, display):
         common = (display,)
 
         return DefaultCommandProcessor(
-            *common, enabled=EnabledCommandProcessor(
-                *common, config=ConfigCommandProcessor(
-                    *common, config_vlan=ConfigVlanCommandProcessor(*common),
-                    config_interface=ConfigInterfaceCommandProcessor(*common))
+            *common,
+            enabled=EnabledCommandProcessor(
+                *common,
+                config=ConfigCommandProcessor(
+                    *common,
+                    config_vlan=ConfigVlanCommandProcessor(*common),
+                    config_interface=ConfigInterfaceCommandProcessor(*common)
+                )
             )
         )
 
@@ -77,11 +86,18 @@ class AristaSwitchCore(SwitchCore):
 
     def get_http_resource(self):
         root = resource.Resource()
-        root.putChild(b'command-api', EAPI(
-            switch_configuration=self.switch_configuration,
-            processor_stack_factory=self.processor_stack,
-            logger=logging.getLogger("fake_switches.arista.{}.eapi".format(self.switch_configuration.name))
-        ))
+        root.putChild(
+            b"command-api",
+            EAPI(
+                switch_configuration=self.switch_configuration,
+                processor_stack_factory=self.processor_stack,
+                logger=logging.getLogger(
+                    "fake_switches.arista.{}.eapi".format(
+                        self.switch_configuration.name
+                    )
+                ),
+            ),
+        )
         return root
 
 

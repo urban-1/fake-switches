@@ -13,8 +13,13 @@
 # limitations under the License.
 from netaddr import IPNetwork
 
-from fake_switches.arista.command_processor import vlan_display_name, AristaBaseCommandProcessor, InvalidVlanNumber, \
-    VlanNumberIsZero, with_valid_port_list
+from fake_switches.arista.command_processor import (
+    vlan_display_name,
+    AristaBaseCommandProcessor,
+    InvalidVlanNumber,
+    VlanNumberIsZero,
+    with_valid_port_list,
+)
 from fake_switches.command_processing.shell_session import TerminalExitSignal
 from fake_switches.dell.command_processor.enabled import to_vlan_ranges
 from fake_switches.switch_configuration import VlanPort
@@ -55,10 +60,15 @@ class DefaultCommandProcessor(AristaBaseCommandProcessor):
                 self.display.invalid_command(self, "Invalid input")
                 return
 
-            vlans = list(filter(lambda e: e.number == number, self.switch_configuration.vlans))
+            vlans = list(
+                filter(lambda e: e.number == number, self.switch_configuration.vlans)
+            )
             if len(vlans) == 0:
-                self.display.invalid_result(self, "VLAN {} not found in current VLAN database".format(args[0]),
-                                            json_data=_to_vlans_json([]))
+                self.display.invalid_result(
+                    self,
+                    "VLAN {} not found in current VLAN database".format(args[0]),
+                    json_data=_to_vlans_json([]),
+                )
                 return
         else:
             vlans = self.switch_configuration.vlans
@@ -82,18 +92,15 @@ def _to_vlans_json(vlans):
                 "dynamic": False,
                 "interfaces": {},
                 "name": vlan_display_name(vlan),
-                "status": "active"
-            } for vlan in vlans
+                "status": "active",
+            }
+            for vlan in vlans
         }
     }
 
 
 def _to_interface_json(ports):
-    return {
-        "interfaces": {
-            port.name: _json_format_interface(port) for port in ports
-        }
-    }
+    return {"interfaces": {port.name: _json_format_interface(port) for port in ports}}
 
 
 def _json_format_interface(port):
@@ -116,7 +123,7 @@ def _to_phys_interface_json(port):
             "inPktsRate": 0.0,
             "outBitsRate": 0.0,
             "updateInterval": 0.0,
-            "outPktsRate": 0.0
+            "outPktsRate": 0.0,
         },
         "mtu": 9214,
         "hardware": "ethernet",
@@ -135,7 +142,7 @@ def _to_phys_interface_json(port):
                 "deferredTransmissions": 0,
                 "txPause": 0,
                 "collisions": 0,
-                "lateCollisions": 0
+                "lateCollisions": 0,
             },
             "inOctets": 0,
             "outDiscards": 0,
@@ -148,16 +155,16 @@ def _to_phys_interface_json(port):
                 "fcsErrors": 0,
                 "alignmentErrors": 0,
                 "giantFrames": 0,
-                "symbolErrors": 0
+                "symbolErrors": 0,
             },
             "linkStatusChanges": 5,
             "outMulticastPkts": 0,
             "totalInErrors": 0,
-            "inDiscards": 0
+            "inDiscards": 0,
         },
         "interfaceAddress": [],
         "physicalAddress": "00:00:00:00:00:00",
-        "description": ""
+        "description": "",
     }
 
 
@@ -174,7 +181,7 @@ def _to_ip_interface_json(port):
         "lineProtocolStatus": "up",
         "mtu": 1500,
         "name": port.name,
-        "physicalAddress": "00:00:00:00:00:00"
+        "physicalAddress": "00:00:00:00:00:00",
     }
 
 
@@ -189,33 +196,27 @@ def _interface_address_json(port):
         primary_ipn = port.ips[0]
         secondary_ipns = port.ips[1:]
 
-    return [{
-        "broadcastAddress": "255.255.255.255",
-        "dhcp": False,
-        "primaryIp": {
-            "address": str(primary_ipn.ip),
-            "maskLen": primary_ipn.prefixlen
-        },
-        "secondaryIps": {
-            str(ipn.ip): {
-                "address": str(ipn.ip),
-                "maskLen": ipn.prefixlen
-            } for ipn in secondary_ipns
-        },
-        "secondaryIpsOrderedList": [
-            {
-                "address": str(ipn.ip),
-                "maskLen": ipn.prefixlen
-            }
-            for ipn in secondary_ipns
-        ],
-        "virtualIp": {
-            "address": "0.0.0.0",
-            "maskLen": 0
-        },
-        "virtualSecondaryIps": {},
-        "virtualSecondaryIpsOrderedList": []
-    }]
+    return [
+        {
+            "broadcastAddress": "255.255.255.255",
+            "dhcp": False,
+            "primaryIp": {
+                "address": str(primary_ipn.ip),
+                "maskLen": primary_ipn.prefixlen,
+            },
+            "secondaryIps": {
+                str(ipn.ip): {"address": str(ipn.ip), "maskLen": ipn.prefixlen}
+                for ipn in secondary_ipns
+            },
+            "secondaryIpsOrderedList": [
+                {"address": str(ipn.ip), "maskLen": ipn.prefixlen}
+                for ipn in secondary_ipns
+            ],
+            "virtualIp": {"address": "0.0.0.0", "maskLen": 0},
+            "virtualSecondaryIps": {},
+            "virtualSecondaryIpsOrderedList": [],
+        }
+    ]
 
 
 def _to_switchport_json(ports):
@@ -238,9 +239,10 @@ def _to_switchport_json(ports):
                     "tpidStatus": True,
                     "trunkAllowedVlans": _allow_vlans(port.trunk_vlans),
                     "trunkingNativeVlanId": 1,
-                    "trunkingNativeVlanName": "default"
-                }
-            } for port in ports
+                    "trunkingNativeVlanName": "default",
+                },
+            }
+            for port in ports
         }
     }
 

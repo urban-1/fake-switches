@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from fake_switches.terminal.ssh import SwitchSSHShell
 
 
 class SwitchCore(object):
@@ -29,3 +30,14 @@ class SwitchCore(object):
 
     def get_http_resource(self):
         raise NotImplementedError()
+
+    def get_protocol_shell(self, variant):
+        """
+        Allow the config to provide a different shell for the
+        given protol. Not all devices' ssh shell behave the same.
+        By default return ssh.SwitchSSHShell. Variant is a string
+        that is vendor/core specific with the default being "cli".
+        An example other variant would be "tl1" (over ssh) for
+        optical devices.
+        """
+        return SwitchSSHShell

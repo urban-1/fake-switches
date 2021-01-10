@@ -12,15 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from tests.dell10g import enable, configuring_vlan, \
-    assert_running_config_contains_in_order, add_vlan, configuring
-from tests.util.protocol_util import with_protocol, ProtocolTest, SshTester, TelnetTester
+from tests.dell10g import (
+    enable,
+    configuring_vlan,
+    assert_running_config_contains_in_order,
+    add_vlan,
+    configuring,
+)
+from tests.util.protocol_util import (
+    with_protocol,
+    ProtocolTest,
+    SshTester,
+    TelnetTester,
+)
 
 
 class Dell10GConfigureVlanTest(ProtocolTest):
     __test__ = False
 
-    tester_class = SshTester
+    _tester = SshTester
     test_switch = "dell10g"
 
     @with_protocol
@@ -31,13 +41,16 @@ class Dell10GConfigureVlanTest(ProtocolTest):
         add_vlan(t, 1001)
         add_vlan(t, 2000)
         configuring_vlan(t, 2000, do="name shizzle")
-        assert_running_config_contains_in_order(t, [
-            "vlan 2000",
-            "name shizzle",
-            "exit",
-            "vlan 1,1000-1001",
-            "exit",
-        ])
+        assert_running_config_contains_in_order(
+            t,
+            [
+                "vlan 2000",
+                "name shizzle",
+                "exit",
+                "vlan 1,1000-1001",
+                "exit",
+            ],
+        )
 
         configuring(t, do="no vlan 1000")
         configuring(t, do="no vlan 1001")
@@ -46,9 +59,9 @@ class Dell10GConfigureVlanTest(ProtocolTest):
 
 class Dell10GConfigureVlanSshTest(Dell10GConfigureVlanTest):
     __test__ = True
-    tester_class = SshTester
+    _tester = SshTester
 
 
 class Dell10GConfigureVlanTelnetTest(Dell10GConfigureVlanTest):
     __test__ = True
-    tester_class = TelnetTester
+    _tester = TelnetTester

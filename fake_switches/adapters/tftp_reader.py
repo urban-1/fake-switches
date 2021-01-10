@@ -29,4 +29,3 @@ class FakeFile(object):
 
     def write(self, data):
         self.content += data
-

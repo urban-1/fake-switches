@@ -15,13 +15,14 @@
 import time
 
 from hamcrest import assert_that, greater_than
+
 from tests.brocade.test_brocade_switch_protocol import enable
 from tests.util.global_reactor import COMMIT_DELAY
 from tests.util.protocol_util import SshTester, with_protocol, ProtocolTest
 
 
 class TestBrocadeSwitchProtocolWithCommitDelay(ProtocolTest):
-    tester_class = SshTester
+    _tester = SshTester
     test_switch = "commit-delayed-brocade"
 
     @with_protocol

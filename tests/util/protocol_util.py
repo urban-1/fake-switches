@@ -1,16 +1,20 @@
 import logging
 import re
+import sys
 import unittest
 from functools import wraps
 
 import pexpect
-from flexmock import flexmock_teardown
 from hamcrest import assert_that, equal_to
 
-from tests.util.global_reactor import TEST_SWITCHES
+from tests.util.global_reactor import TEST_SWITCHES, SwitchBooter
 
 
 def with_protocol(test):
+    """
+    Provides a pexpect client (post-auth) to the test!
+    """
+
     @wraps(test)
     def wrapper(self):
         try:
@@ -30,7 +34,7 @@ class LoggingFileInterface(object):
         self.prefix = prefix
 
     def write(self, data):
-        for line in data.rstrip(b'\r\n').split(b'\r\n'):
+        for line in data.rstrip(b"\r\n").split(b"\r\n"):
             logging.info(self.prefix + repr(line))
 
     def flush(self):
@@ -38,13 +42,13 @@ class LoggingFileInterface(object):
 
 
 class ProtocolTester(object):
-    def __init__(self, name, host, port, username, password, conf=None):
-        self.name = name
+    def __init__(self, host, port, username, password, config, name=None):
+        self.name = name or self.CONF_KEY
         self.host = host
         self.port = port
         self.username = username
         self.password = password
-        self.conf = conf
+        self.conf = config
 
         self.child = None
 
@@ -52,9 +56,13 @@ class ProtocolTester(object):
         self.child = pexpect.spawn(self.get_ssh_connect_command())
         self.child.delaybeforesend = 0.0005
         self.child.logfile = None
-        self.child.logfile_read = LoggingFileInterface(prefix="[%s] " % self.name)
-        self.child.timeout = 1
-        self.login()
+        self.child.logfile_read = LoggingFileInterface(prefix="[%s] < " % self.name)
+        self.child.logfile_send = LoggingFileInterface(prefix="[%s] > " % self.name)
+        self.child.timeout = 3
+
+        if self.username:
+            logging.info(">>>> LOGIN [{}] with {}".format(self.name, self.username))
+            self.login()
 
     def disconnect(self):
         self.child.close()
@@ -65,8 +73,13 @@ class ProtocolTester(object):
     def login(self):
         pass
 
+    def rread(self, expected):
+        self.read(expected, True)
+
     def read(self, expected, regex=False):
         self.wait_for(expected, regex)
+        logging.debug("   read: matched: {!r}".format(expected))
+        logging.debug("   read: before: {!r}".format(self.child.before))
         assert_that(self.child.before, equal_to(b""))
 
     def readln(self, expected, regex=False):
@@ -74,7 +87,7 @@ class ProtocolTester(object):
 
     def read_lines_until(self, expected):
         self.wait_for(expected)
-        lines = self.child.before.decode().split('\r\n')
+        lines = self.child.before.decode().split("\r\n")
         return lines
 
     def read_eof(self):
@@ -104,42 +117,60 @@ class SshTester(ProtocolTester):
     CONF_KEY = "ssh"
 
     def get_ssh_connect_command(self):
-        return 'ssh %s@%s -p %s -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null' \
-               % (self.username, self.host, self.port)
+        return (
+            "ssh %s@%s -p %s -o StrictHostKeyChecking=no "
+            "-o UserKnownHostsFile=/dev/null "
+            "-o LogLevel=ERROR "
+        ) % (self.username, self.host, self.port)
 
     def login(self):
-        self.wait_for('[pP]assword: ', regex=True)
+        # self.rread(r'[pP]assword: ')
+        self.wait_for("[pP]assword: ", regex=True)
         self.write_invisible(self.password)
-        self.wait_for('[>#]$', regex=True)
+        self.wait_for("[>#]$", regex=True)
+        # self.rread(r'^.*[>#]$')
 
 
 class TelnetTester(ProtocolTester):
     CONF_KEY = "telnet"
 
     def get_ssh_connect_command(self):
-        return 'telnet %s %s' \
-               % (self.host, self.port)
+        return "telnet %s %s" % (self.host, self.port)
 
     def login(self):
         self.wait_for("Username: ")
         self.write(self.username)
         self.wait_for("[pP]assword: ", True)
         self.write_invisible(self.password)
-        self.wait_for('[>#]$', regex=True)
+        self.wait_for("[>#]$", regex=True)
 
 
 class ProtocolTest(unittest.TestCase):
-    tester_class = SshTester
+    _tester = SshTester
     test_switch = None
 
     def setUp(self):
-        conf = TEST_SWITCHES[self.test_switch]
-        self.protocol = self.tester_class(self.tester_class.CONF_KEY,
-                                          "127.0.0.1",
-                                          conf[self.tester_class.CONF_KEY],
-                                          u'root',
-                                          u'root',
-                                          conf)
+        if not self.test_switch:
+            return
+
+        self.booter = SwitchBooter(device_filter={self.test_switch}).boot()
+
+        core_switch = self.booter.get_switch(self.test_switch)
+
+        if not self._tester:
+            return
+        creds = core_switch._test_creds[self._tester.CONF_KEY]
+        username = password = None
+        if creds:
+            username = password = next(iter(creds))
+
+        self.protocol = self._tester(
+            "127.0.0.1",
+            core_switch._test_ports[self._tester.CONF_KEY],
+            username,
+            password,
+            config=self.booter.get_config(self.test_switch),
+        )
 
     def tearDown(self):
-        flexmock_teardown()
+        self.booter.stop()

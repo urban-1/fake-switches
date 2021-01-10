@@ -23,7 +23,7 @@ from tests.util.protocol_util import SshTester, with_protocol, ProtocolTest
 
 
 class TestAristaSwitchProtocolWithCommitDelay(ProtocolTest):
-    tester_class = SshTester
+    _tester = SshTester
     test_switch = "commit-delayed-arista"
 
     @with_protocol

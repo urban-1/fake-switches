@@ -69,7 +69,6 @@ class TerminalController(object):
 
 
 class LoggingTerminalController(TerminalController):
-
     def __init__(self, logger, terminal_controller):
         """
         :param logger: log everything written on the terminal as debug
@@ -92,7 +91,6 @@ class LoggingTerminalController(TerminalController):
 
 
 class NoopTerminalController(TerminalController):
-
     def write(self, text):
         return None
 

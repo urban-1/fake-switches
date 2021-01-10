@@ -1,9 +1,10 @@
 import mock
+
 from tests.util.protocol_util import SshTester, with_protocol, ProtocolTest
 
 
 class TestBrocadeSwitchProtocol(ProtocolTest):
-    tester_class = SshTester
+    _tester = SshTester
     test_switch = "brocade"
 
     @with_protocol
@@ -114,13 +115,17 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
         set_interface_untagged_on_vlan(t, "ethernet 1/1", "123")
 
         t.write("show interfaces ethernet 1/1 | inc Member of")
-        t.readln("  Member of VLAN 123 (untagged), port is in untagged mode, port state is Disabled")
+        t.readln(
+            "  Member of VLAN 123 (untagged), port is in untagged mode, port state is Disabled"
+        )
         t.read("SSH@my_switch#")
 
         unset_interface_untagged_on_vlan(t, "ethernet 1/1", "123")
 
         t.write("show interfaces ethe1/1 | inc VLAN 1")
-        t.readln("  Member of VLAN 1 (untagged), port is in untagged mode, port state is Disabled")
+        t.readln(
+            "  Member of VLAN 1 (untagged), port is in untagged mode, port state is Disabled"
+        )
         t.read("SSH@my_switch#")
 
         remove_vlan(t, "123")
@@ -132,13 +137,17 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
         configuring_vlan(t, "123", do="tagged ethernet 1/1")
 
         t.write("show interfaces ethe 1/1 | inc Member of")
-        t.readln("  Member of VLAN 1 (untagged), 1 L2 VLANS (tagged), port is in dual mode (default vlan), port state is Disabled")
+        t.readln(
+            "  Member of VLAN 1 (untagged), 1 L2 VLANS (tagged), port is in dual mode (default vlan), port state is Disabled"
+        )
         t.read("SSH@my_switch#")
 
         configuring_vlan(t, "123", do="no tagged ethernet 1/1")
 
         t.write("show interfaces ethe1/1 | inc VLAN 1")
-        t.readln("  Member of VLAN 1 (untagged), port is in untagged mode, port state is Disabled")
+        t.readln(
+            "  Member of VLAN 1 (untagged), port is in untagged mode, port state is Disabled"
+        )
         t.read("SSH@my_switch#")
 
         remove_vlan(t, "123")
@@ -308,7 +317,9 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
         configuring_vlan(t, "456", do="untagged ethernet 1/1")
 
         t.write("show interfaces ethernet 1/1 | inc Member of")
-        t.readln("  Member of VLAN 456 (untagged), 2 L2 VLANS (tagged), port is in dual mode, port state is Disabled")
+        t.readln(
+            "  Member of VLAN 456 (untagged), 2 L2 VLANS (tagged), port is in dual mode, port state is Disabled"
+        )
         t.read("SSH@my_switch#")
 
         configuring_vlan(t, "123", do="no tagged ethernet 1/1")
@@ -316,7 +327,9 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
         configuring_vlan(t, "456", do="no untagged ethernet 1/1")
 
         t.write("show interfaces ethe1/1 | inc VLAN 1")
-        t.readln("  Member of VLAN 1 (untagged), port is in untagged mode, port state is Disabled")
+        t.readln(
+            "  Member of VLAN 1 (untagged), port is in untagged mode, port state is Disabled"
+        )
         t.read("SSH@my_switch#")
 
         remove_vlan(t, "123")
@@ -332,14 +345,18 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
         configuring_vlan(t, "1", do="no untagged ethernet 1/1")
 
         t.write("show interfaces ethernet 1/1 | inc Member of")
-        t.readln("  Member of 1 L2 VLAN(S) (tagged), port is in tagged mode, port state is Disabled")
+        t.readln(
+            "  Member of 1 L2 VLAN(S) (tagged), port is in tagged mode, port state is Disabled"
+        )
         t.read("SSH@my_switch#")
 
         configuring_vlan(t, "123", do="no tagged ethernet 1/1")
         # untagged vlan 1 returns by default magically
 
         t.write("show interfaces ethe1/1 | inc VLAN 1")
-        t.readln("  Member of VLAN 1 (untagged), port is in untagged mode, port state is Disabled")
+        t.readln(
+            "  Member of VLAN 1 (untagged), port is in untagged mode, port state is Disabled"
+        )
         t.read("SSH@my_switch#")
 
         remove_vlan(t, "123")
@@ -357,31 +374,55 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
 
         t.write("show interfaces")
         t.readln("GigabitEthernet1/1 is disabled, line protocol is down")
-        t.readln("  Hardware is GigabitEthernet, address is 0000.0000.0000 (bia 0000.0000.0000)")
-        t.readln("  Member of VLAN 1 (untagged), port is in untagged mode, port state is Disabled")
+        t.readln(
+            "  Hardware is GigabitEthernet, address is 0000.0000.0000 (bia 0000.0000.0000)"
+        )
+        t.readln(
+            "  Member of VLAN 1 (untagged), port is in untagged mode, port state is Disabled"
+        )
         t.readln("  No port name")
         t.readln("GigabitEthernet1/2 is disabled, line protocol is down")
-        t.readln("  Hardware is GigabitEthernet, address is 0000.0000.0000 (bia 0000.0000.0000)")
-        t.readln("  Member of VLAN 1 (untagged), port is in untagged mode, port state is Disabled")
+        t.readln(
+            "  Hardware is GigabitEthernet, address is 0000.0000.0000 (bia 0000.0000.0000)"
+        )
+        t.readln(
+            "  Member of VLAN 1 (untagged), port is in untagged mode, port state is Disabled"
+        )
         t.readln("  Port name is hello")
         t.readln("GigabitEthernet1/3 is down, line protocol is down")
-        t.readln("  Hardware is GigabitEthernet, address is 0000.0000.0000 (bia 0000.0000.0000)")
-        t.readln("  Member of VLAN 1 (untagged), port is in untagged mode, port state is Disabled")
+        t.readln(
+            "  Hardware is GigabitEthernet, address is 0000.0000.0000 (bia 0000.0000.0000)"
+        )
+        t.readln(
+            "  Member of VLAN 1 (untagged), port is in untagged mode, port state is Disabled"
+        )
         t.readln("  No port name")
         t.readln("GigabitEthernet1/4 is disabled, line protocol is down")
-        t.readln("  Hardware is GigabitEthernet, address is 0000.0000.0000 (bia 0000.0000.0000)")
-        t.readln("  Member of VLAN 1 (untagged), port is in untagged mode, port state is Disabled")
+        t.readln(
+            "  Hardware is GigabitEthernet, address is 0000.0000.0000 (bia 0000.0000.0000)"
+        )
+        t.readln(
+            "  Member of VLAN 1 (untagged), port is in untagged mode, port state is Disabled"
+        )
         t.readln("  No port name")
         t.readln("Ve1000 is down, line protocol is down")
-        t.readln("  Hardware is Virtual Ethernet, address is 0000.0000.0000 (bia 0000.0000.0000)")
+        t.readln(
+            "  Hardware is Virtual Ethernet, address is 0000.0000.0000 (bia 0000.0000.0000)"
+        )
         t.readln("  Port name is Salut")
         t.readln("  Vlan id: 1000")
-        t.readln("  Internet address is 0.0.0.0/0, IP MTU 1500 bytes, encapsulation ethernet")
+        t.readln(
+            "  Internet address is 0.0.0.0/0, IP MTU 1500 bytes, encapsulation ethernet"
+        )
         t.readln("Ve2000 is down, line protocol is down")
-        t.readln("  Hardware is Virtual Ethernet, address is 0000.0000.0000 (bia 0000.0000.0000)")
+        t.readln(
+            "  Hardware is Virtual Ethernet, address is 0000.0000.0000 (bia 0000.0000.0000)"
+        )
         t.readln("  No port name")
         t.readln("  Vlan id: 2000")
-        t.readln("  Internet address is 1.1.1.1/24, IP MTU 1500 bytes, encapsulation ethernet")
+        t.readln(
+            "  Internet address is 1.1.1.1/24, IP MTU 1500 bytes, encapsulation ethernet"
+        )
         t.read("SSH@my_switch#")
 
         configuring_interface(t, "1/2", do="no port-name hello")
@@ -406,11 +447,18 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
 
         t.write("show vlan brief")
         t.readln("")
-        t.readln("VLAN     Name       Encap ESI                              Ve    Pri Ports")
-        t.readln("----     ----       ----- ---                              ----- --- -----")
         t.readln(
-            "1        DEFAULT-VL                                        -     -   Untagged Ports : ethe 1/2 to 1/4")
-        t.readln("123      [None]                                            -     -   Untagged Ports : ethe 1/1")
+            "VLAN     Name       Encap ESI                              Ve    Pri Ports"
+        )
+        t.readln(
+            "----     ----       ----- ---                              ----- --- -----"
+        )
+        t.readln(
+            "1        DEFAULT-VL                                        -     -   Untagged Ports : ethe 1/2 to 1/4"
+        )
+        t.readln(
+            "123      [None]                                            -     -   Untagged Ports : ethe 1/1"
+        )
         t.readln("2222     your-name-                                        -     -")
         t.readln("3333     some-name                                         -     -")
         t.read("SSH@my_switch#")
@@ -542,21 +590,23 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
         t.readln("")
         t.read("SSH@my_switch#")
 
-        assert_interface_configuration(t, "ve 2999", [
-            "interface ve 2999",
-            "!"
-        ])
+        assert_interface_configuration(t, "ve 2999", ["interface ve 2999", "!"])
 
         configuring_interface_vlan(t, "2999", do="port-name hey ho")
         configuring_interface_vlan(t, "2999", do="ip address 2.2.2.2/24")
         configuring_interface_vlan(t, "2999", do="ip address 1.1.1.1/24")
 
-        assert_interface_configuration(t, "ve 2999", [
-            "interface ve 2999",
-            " port-name hey ho",
-            " ip address 1.1.1.1/24",
-            " ip address 2.2.2.2/24",
-            "!"])
+        assert_interface_configuration(
+            t,
+            "ve 2999",
+            [
+                "interface ve 2999",
+                " port-name hey ho",
+                " ip address 1.1.1.1/24",
+                " ip address 2.2.2.2/24",
+                "!",
+            ],
+        )
 
         t.write("configure terminal")
         t.read("SSH@my_switch(config)#")
@@ -571,10 +621,7 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
         t.read("SSH@my_switch#")
 
         configuring(t, do="no interface ve 2999")
-        assert_interface_configuration(t, "ve 2999", [
-            "interface ve 2999",
-            "!"
-        ])
+        assert_interface_configuration(t, "ve 2999", ["interface ve 2999", "!"])
 
         configuring_vlan(t, "2999", do="no router-interface 2999")
         t.write("show run int ve 2999")
@@ -588,14 +635,23 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
         enable(t)
 
         create_interface_vlan(t, "2999")
-        configuring_access_group_interface_vlan(t, "2999", do="ip access-group SHNITZLE in")
-        configuring_access_group_interface_vlan(t, "2999", do="ip access-group WHIZZLE out")
+        configuring_access_group_interface_vlan(
+            t, "2999", do="ip access-group SHNITZLE in"
+        )
+        configuring_access_group_interface_vlan(
+            t, "2999", do="ip access-group WHIZZLE out"
+        )
 
-        assert_interface_configuration(t, "ve 2999", [
-            "interface ve 2999",
-            " ip access-group SHNITZLE in",
-            " ip access-group WHIZZLE out",
-            "!"])
+        assert_interface_configuration(
+            t,
+            "ve 2999",
+            [
+                "interface ve 2999",
+                " ip access-group SHNITZLE in",
+                " ip access-group WHIZZLE out",
+                "!",
+            ],
+        )
 
         configuring_interface_vlan(t, "2999", do="no ip access-group WHIZZLE out")
 
@@ -619,9 +675,7 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
         t.write("exit")
         t.read("SSH@my_switch#")
 
-        assert_interface_configuration(t, "ve 2999", [
-            "interface ve 2999",
-            "!"])
+        assert_interface_configuration(t, "ve 2999", ["interface ve 2999", "!"])
 
         configuring(t, do="no interface ve 2999")
         configuring(t, do="no vlan 2999")
@@ -633,16 +687,13 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
         create_interface_vlan(t, "2999")
         configuring_interface_vlan(t, "2999", do="ip address 2.2.2.2/24")
 
-        assert_interface_configuration(t, "ve 2999", [
-            "interface ve 2999",
-            " ip address 2.2.2.2/24",
-            "!"])
+        assert_interface_configuration(
+            t, "ve 2999", ["interface ve 2999", " ip address 2.2.2.2/24", "!"]
+        )
 
         configuring_interface_vlan(t, "2999", do="no ip address 2.2.2.2/24")
 
-        assert_interface_configuration(t, "ve 2999", [
-            "interface ve 2999",
-            "!"])
+        assert_interface_configuration(t, "ve 2999", ["interface ve 2999", "!"])
 
         configuring(t, do="no interface ve 2999")
         configuring(t, do="no vlan 2999")
@@ -653,7 +704,9 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
         configuring(t, do="ip route 100.100.100.100 255.255.255.0 2.2.2.2")
         configuring(t, do="ip route 1.1.2.0 255.255.255.0 2.2.2.3")
         t.write("show ip route static")
-        t.readln("        Destination        Gateway        Port          Cost          Type Uptime src-vrf")
+        t.readln(
+            "        Destination        Gateway        Port          Cost          Type Uptime src-vrf"
+        )
         t.readln("1       100.100.100.100/24 2.2.2.2")
         t.readln("2       1.1.2.0/24         2.2.2.3")
         t.readln("")
@@ -662,7 +715,9 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
         configuring(t, do="no ip route 100.100.100.100 255.255.255.0 2.2.2.2")
 
         t.write("show ip route static")
-        t.readln("        Destination        Gateway        Port          Cost          Type Uptime src-vrf")
+        t.readln(
+            "        Destination        Gateway        Port          Cost          Type Uptime src-vrf"
+        )
         t.readln("1       1.1.2.0/24         2.2.2.3")
 
     @with_protocol
@@ -673,8 +728,12 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
 
         create_interface_vlan(t, "2999")
         configuring_interface_vlan(t, "2999", do="ip address 2.2.2.2/24")
-        configuring_access_group_interface_vlan(t, "2999", do="ip access-group SHNITZLE in")
-        configuring_access_group_interface_vlan(t, "2999", do="ip access-group WHIZZLE out")
+        configuring_access_group_interface_vlan(
+            t, "2999", do="ip access-group SHNITZLE in"
+        )
+        configuring_access_group_interface_vlan(
+            t, "2999", do="ip access-group WHIZZLE out"
+        )
 
         create_interface_vlan(t, "3000")
         configuring_interface_vlan(t, "3000", do="port-name howdy")
@@ -718,13 +777,12 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
         configuring_interface(t, "1/1", do="no port-name")
         configuring_interface(t, "1/3", do="no port-name")
         configuring_interface(t, "1/3", do="disable")
-        
+
         configuring(t, do="no interface ethernet 1/4")
 
         t.write("show running-config interface")
         t.readln("")
         t.read("SSH@my_switch#")
-
 
     @with_protocol
     def test_configuring_no_interface_does_not_remove_interfaces_from_vlans(self, t):
@@ -755,7 +813,6 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
 
         configuring(t, do="no vlan 3000")
         configuring(t, do="no vlan 3001")
-
 
     @with_protocol
     def test_overlapping_and_secondary_ips(self, t):
@@ -793,7 +850,9 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
         t.read("SSH@my_switch(config-vif-1000)#")
 
         t.write("no ip address 2.2.2.2/24")
-        t.readln("IP/Port: Errno(18) Delete secondary address before deleting primary address")
+        t.readln(
+            "IP/Port: Errno(18) Delete secondary address before deleting primary address"
+        )
         t.read("SSH@my_switch(config-vif-1000)#")
 
         t.write("no ip address 2.2.2.5/25")
@@ -803,12 +862,17 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
         t.write("exit")
         t.read("SSH@my_switch#")
 
-        assert_interface_configuration(t, "ve 1000", [
-            "interface ve 1000",
-            " ip address 2.2.2.2/24",
-            " ip address 2.2.2.72/29 secondary",
-            " ip address 2.2.2.87/30 secondary",
-            "!"])
+        assert_interface_configuration(
+            t,
+            "ve 1000",
+            [
+                "interface ve 1000",
+                " ip address 2.2.2.2/24",
+                " ip address 2.2.2.72/29 secondary",
+                " ip address 2.2.2.87/30 secondary",
+                "!",
+            ],
+        )
 
         configuring(t, do="no interface ve 2000")
         configuring(t, do="no vlan 2000")
@@ -827,13 +891,18 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
         configuring_interface_vlan(t, "1000", do="ip address 1.2.2.2/24")
         configuring_interface_vlan(t, "1000", do="ip address 1.2.2.3/24 secondary")
 
-        assert_interface_configuration(t, "ve 1000", [
-            "interface ve 1000",
-            " ip address 1.2.2.2/24",
-            " ip address 2.2.2.2/24",
-            " ip address 1.2.2.3/24 secondary",
-            " ip address 2.2.2.3/24 secondary",
-            "!"])
+        assert_interface_configuration(
+            t,
+            "ve 1000",
+            [
+                "interface ve 1000",
+                " ip address 1.2.2.2/24",
+                " ip address 2.2.2.2/24",
+                " ip address 1.2.2.3/24 secondary",
+                " ip address 2.2.2.3/24 secondary",
+                "!",
+            ],
+        )
 
         configuring(t, do="no interface ve 1000")
         configuring(t, do="no vlan 1000")
@@ -867,11 +936,15 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
         t.write("interface ethe 1/3")
         t.read("SSH@my_switch(config-if-e1000-1/3)#")
         t.write("vrf forwarding NOT-DEFAULT-LAN")
-        t.readln("Error - VRF(NOT-DEFAULT-LAN) does not exist or Route-Distinguisher not specified or Address Family not configured")
+        t.readln(
+            "Error - VRF(NOT-DEFAULT-LAN) does not exist or Route-Distinguisher not specified or Address Family not configured"
+        )
         t.read("SSH@my_switch(config-if-e1000-1/3)#")
 
         t.write("vrf forwarding SOME-LAN")
-        t.readln("Warning: All IPv4 and IPv6 addresses (including link-local) on this interface have been removed")
+        t.readln(
+            "Warning: All IPv4 and IPv6 addresses (including link-local) on this interface have been removed"
+        )
         t.read("SSH@my_switch(config-if-e1000-1/3)#")
         t.write("exit")
         t.read("SSH@my_switch(config)#")
@@ -879,10 +952,11 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
         t.write("exit")
         t.read("SSH@my_switch#")
 
-        assert_interface_configuration(t, "ethernet 1/3", [
-            "interface ethernet 1/3",
-            " vrf forwarding SOME-LAN",
-            "!"])
+        assert_interface_configuration(
+            t,
+            "ethernet 1/3",
+            ["interface ethernet 1/3", " vrf forwarding SOME-LAN", "!"],
+        )
 
         t.write("conf t")
         t.read("SSH@my_switch(config)#")
@@ -904,7 +978,9 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
         t.write("interface ethe 1/3")
         t.read("SSH@my_switch(config-if-e1000-1/3)#")
         t.write("vrf forwarding DEFAULT-LAN")
-        t.readln("Warning: All IPv4 and IPv6 addresses (including link-local) on this interface have been removed")
+        t.readln(
+            "Warning: All IPv4 and IPv6 addresses (including link-local) on this interface have been removed"
+        )
         t.read("SSH@my_switch(config-if-e1000-1/3)#")
 
         t.write("exit")
@@ -912,17 +988,20 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
         t.write("exit")
         t.read("SSH@my_switch#")
 
-        assert_interface_configuration(t, "ethernet 1/3", [
-            "interface ethernet 1/3",
-            " vrf forwarding DEFAULT-LAN",
-            "!"])
+        assert_interface_configuration(
+            t,
+            "ethernet 1/3",
+            ["interface ethernet 1/3", " vrf forwarding DEFAULT-LAN", "!"],
+        )
 
         t.write("conf t")
         t.read("SSH@my_switch(config)#")
         t.write("interface ethe 1/3")
         t.read("SSH@my_switch(config-if-e1000-1/3)#")
         t.write("no vrf forwarding DEFAULT-LAN")
-        t.readln("Warning: All IPv4 and IPv6 addresses (including link-local) on this interface have been removed")
+        t.readln(
+            "Warning: All IPv4 and IPv6 addresses (including link-local) on this interface have been removed"
+        )
         t.read("SSH@my_switch(config-if-e1000-1/3)#")
 
         t.write("exit")
@@ -941,28 +1020,34 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
         configuring_interface_vlan(t, "4000", do="ip address 10.10.0.10/24")
         configuring_interface_vlan(t, "4000", do="ip address 10.10.1.10/24")
 
-        assert_interface_configuration(t, "Vlan4000", [
-            "interface ve 4000",
-            " ip address 10.10.0.10/24",
-            " ip address 10.10.1.10/24",
-            "!"])
+        assert_interface_configuration(
+            t,
+            "Vlan4000",
+            [
+                "interface ve 4000",
+                " ip address 10.10.0.10/24",
+                " ip address 10.10.1.10/24",
+                "!",
+            ],
+        )
 
         t.write("conf t")
         t.read("SSH@my_switch(config)#")
         t.write("interface ve 4000")
         t.read("SSH@my_switch(config-vif-4000)#")
         t.write("vrf forwarding DEFAULT-LAN")
-        t.readln("Warning: All IPv4 and IPv6 addresses (including link-local) on this interface have been removed")
+        t.readln(
+            "Warning: All IPv4 and IPv6 addresses (including link-local) on this interface have been removed"
+        )
         t.read("SSH@my_switch(config-vif-4000)#")
         t.write("exit")
         t.read("SSH@my_switch(config)#")
         t.write("exit")
         t.read("SSH@my_switch#")
 
-        assert_interface_configuration(t, "Vlan4000", [
-            "interface ve 4000",
-            " vrf forwarding DEFAULT-LAN",
-            "!"])
+        assert_interface_configuration(
+            t, "Vlan4000", ["interface ve 4000", " vrf forwarding DEFAULT-LAN", "!"]
+        )
 
         configuring_interface_vlan(t, "4000", do="ip address 10.10.0.10/24")
         configuring_interface_vlan(t, "4000", do="ip address 10.10.1.10/24")
@@ -975,16 +1060,16 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
         t.readln("Incomplete command.")
         t.read("SSH@my_switch(config-vif-4000)#")
         t.write("no vrf forwarding DEFAULT-LAN")
-        t.readln("Warning: All IPv4 and IPv6 addresses (including link-local) on this interface have been removed")
+        t.readln(
+            "Warning: All IPv4 and IPv6 addresses (including link-local) on this interface have been removed"
+        )
         t.read("SSH@my_switch(config-vif-4000)#")
         t.write("exit")
         t.read("SSH@my_switch(config)#")
         t.write("exit")
         t.read("SSH@my_switch#")
 
-        assert_interface_configuration(t, "Vlan4000", [
-            "interface ve 4000",
-            "!"])
+        assert_interface_configuration(t, "Vlan4000", ["interface ve 4000", "!"])
 
         configuring(t, do="no interface ve 4000")
         configuring(t, do="no vlan 4000")
@@ -1189,23 +1274,28 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
         t.write("exit")
         t.read("SSH@my_switch#")
 
-        assert_interface_configuration(t, "ve 2995", [
-            "interface ve 2995",
-            " ip address 10.0.0.2/29",
-            " ip vrrp-extended auth-type simple-text-auth ********",
-            " ip vrrp-extended vrid 1",
-            "  backup priority 110 track-priority 50",
-            "  ip-address 10.0.0.1",
-            "  ip-address 10.0.0.3",
-            "  ip-address 10.0.0.4",
-            "  advertise backup",
-            "  dead-interval 15",
-            "  hello-interval 5",
-            "  track-port ethernet 2/4",
-            "  activate",
-            " ip vrrp-extended vrid 2",
-            "  exit",
-            "!"])
+        assert_interface_configuration(
+            t,
+            "ve 2995",
+            [
+                "interface ve 2995",
+                " ip address 10.0.0.2/29",
+                " ip vrrp-extended auth-type simple-text-auth ********",
+                " ip vrrp-extended vrid 1",
+                "  backup priority 110 track-priority 50",
+                "  ip-address 10.0.0.1",
+                "  ip-address 10.0.0.3",
+                "  ip-address 10.0.0.4",
+                "  advertise backup",
+                "  dead-interval 15",
+                "  hello-interval 5",
+                "  track-port ethernet 2/4",
+                "  activate",
+                " ip vrrp-extended vrid 2",
+                "  exit",
+                "!",
+            ],
+        )
 
         configuring_interface_vlan_vrrp(t, 2995, 1, "no advertise backup")
         configuring_interface_vlan_vrrp(t, 2995, 1, "no ip-address 10.0.0.1")
@@ -1217,30 +1307,40 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
         configuring_interface_vlan_vrrp(t, 2995, 1, "no track-port ethernet 2/4")
         configuring_interface_vlan_vrrp(t, 2995, 1, "no backup")
 
-        assert_interface_configuration(t, "ve 2995", [
-            "interface ve 2995",
-            " ip address 10.0.0.2/29",
-            " ip vrrp-extended auth-type simple-text-auth ********",
-            " ip vrrp-extended vrid 1",
-            "  exit",
-            " ip vrrp-extended vrid 2",
-            "  exit",
-            "!"])
+        assert_interface_configuration(
+            t,
+            "ve 2995",
+            [
+                "interface ve 2995",
+                " ip address 10.0.0.2/29",
+                " ip vrrp-extended auth-type simple-text-auth ********",
+                " ip vrrp-extended vrid 1",
+                "  exit",
+                " ip vrrp-extended vrid 2",
+                "  exit",
+                "!",
+            ],
+        )
 
         configuring_interface_vlan(t, 2995, "no ip vrrp-extended vrid 1")
         configuring_interface_vlan(t, 2995, "no ip vrrp-extended vrid 2")
         configuring_interface_vlan(t, 2995, "no ip address 10.0.0.2/29")
 
-        assert_interface_configuration(t, "ve 2995", [
-            "interface ve 2995",
-            " ip vrrp-extended auth-type simple-text-auth ********",
-            "!"])
+        assert_interface_configuration(
+            t,
+            "ve 2995",
+            [
+                "interface ve 2995",
+                " ip vrrp-extended auth-type simple-text-auth ********",
+                "!",
+            ],
+        )
 
-        configuring_interface_vlan(t, 2995, "no ip vrrp-extended auth-type simple-text-auth ABC")
+        configuring_interface_vlan(
+            t, 2995, "no ip vrrp-extended auth-type simple-text-auth ABC"
+        )
 
-        assert_interface_configuration(t, "ve 2995", [
-            "interface ve 2995",
-            "!"])
+        assert_interface_configuration(t, "ve 2995", ["interface ve 2995", "!"])
 
         configuring(t, do="no interface ve 2995")
         remove_vlan(t, "2995")
@@ -1252,9 +1352,7 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
         create_vlan(t, "2995")
         create_interface_vlan(t, "2995")
 
-        assert_interface_configuration(t, "ve 2995", [
-            "interface ve 2995",
-            "!"])
+        assert_interface_configuration(t, "ve 2995", ["interface ve 2995", "!"])
 
         t.write("configure terminal")
         t.read("SSH@my_switch(config)#")
@@ -1275,10 +1373,9 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
 
         configuring_interface_vlan(t, vlan="2995", do="ip helper-address 10.10.0.1")
 
-        assert_interface_configuration(t, "ve 2995", [
-            "interface ve 2995",
-            " ip helper-address 10.10.0.1",
-            "!"])
+        assert_interface_configuration(
+            t, "ve 2995", ["interface ve 2995", " ip helper-address 10.10.0.1", "!"]
+        )
 
         t.write("configure terminal")
         t.read("SSH@my_switch(config)#")
@@ -1295,20 +1392,30 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
         configuring_interface_vlan(t, vlan="2995", do="ip helper-address 10.10.0.2")
         configuring_interface_vlan(t, vlan="2995", do="ip helper-address 10.10.0.3")
 
-        assert_interface_configuration(t, "ve 2995", [
-            "interface ve 2995",
-            " ip helper-address 10.10.0.1",
-            " ip helper-address 10.10.0.2",
-            " ip helper-address 10.10.0.3",
-            "!"])
+        assert_interface_configuration(
+            t,
+            "ve 2995",
+            [
+                "interface ve 2995",
+                " ip helper-address 10.10.0.1",
+                " ip helper-address 10.10.0.2",
+                " ip helper-address 10.10.0.3",
+                "!",
+            ],
+        )
 
         configuring_interface_vlan(t, vlan="2995", do="no ip helper-address 10.10.0.1")
 
-        assert_interface_configuration(t, "ve 2995", [
-            "interface ve 2995",
-            " ip helper-address 10.10.0.2",
-            " ip helper-address 10.10.0.3",
-            "!"])
+        assert_interface_configuration(
+            t,
+            "ve 2995",
+            [
+                "interface ve 2995",
+                " ip helper-address 10.10.0.2",
+                " ip helper-address 10.10.0.3",
+                "!",
+            ],
+        )
 
         t.write("configure terminal")
         t.read("SSH@my_switch(config)#")
@@ -1334,9 +1441,7 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
         configuring_interface_vlan(t, vlan="2995", do="no ip helper-address 10.10.0.2")
         configuring_interface_vlan(t, vlan="2995", do="no ip helper-address 10.10.0.3")
 
-        assert_interface_configuration(t, "ve 2995", [
-            "interface ve 2995",
-            "!"])
+        assert_interface_configuration(t, "ve 2995", ["interface ve 2995", "!"])
 
         configuring(t, do="no interface ve 2995")
         remove_vlan(t, "2995")
@@ -1353,7 +1458,9 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
 
         t.write("show vlan 1600")
         t.readln("")
-        t.readln("PORT-VLAN 1600, Name [None], Priority Level -, Priority Force 0, Creation Type STATIC")
+        t.readln(
+            "PORT-VLAN 1600, Name [None], Priority Level -, Priority Force 0, Creation Type STATIC"
+        )
         t.readln("Topo HW idx    : 81    Topo SW idx: 257    Topo next vlan: 0")
         t.readln("L2 protocols   : STP")
         t.readln("Associated Virtual Interface Id: NONE")
@@ -1372,7 +1479,9 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
 
         t.write("show vlan 1600")
         t.readln("")
-        t.readln("PORT-VLAN 1600, Name Shizzle, Priority Level -, Priority Force 0, Creation Type STATIC")
+        t.readln(
+            "PORT-VLAN 1600, Name Shizzle, Priority Level -, Priority Force 0, Creation Type STATIC"
+        )
         t.readln("Topo HW idx    : 81    Topo SW idx: 257    Topo next vlan: 0")
         t.readln("L2 protocols   : STP")
         t.readln("Associated Virtual Interface Id: 999")
@@ -1385,10 +1494,14 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
         t.readln("")
         t.readln("Ve999 is down, line protocol is down")
         t.readln("  Type is Vlan (Vlan Id: 1600)")
-        t.readln("  Hardware is Virtual Ethernet, address is 748e.f8a7.1b01 (bia 748e.f8a7.1b01)")
+        t.readln(
+            "  Hardware is Virtual Ethernet, address is 748e.f8a7.1b01 (bia 748e.f8a7.1b01)"
+        )
         t.readln("  No port name")
         t.readln("  Vlan id: 1600")
-        t.readln("  Internet address is 0.0.0.0/0, IP MTU 1500 bytes, encapsulation ethernet")
+        t.readln(
+            "  Internet address is 0.0.0.0/0, IP MTU 1500 bytes, encapsulation ethernet"
+        )
         t.readln("  Configured BW 0 kbps")
         t.read("SSH@my_switch#")
 
@@ -1403,7 +1516,9 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
 
         t.write("show vlan 1600")
         t.readln("")
-        t.readln("PORT-VLAN 1600, Name [None], Priority Level -, Priority Force 0, Creation Type STATIC")
+        t.readln(
+            "PORT-VLAN 1600, Name [None], Priority Level -, Priority Force 0, Creation Type STATIC"
+        )
         t.readln("Topo HW idx    : 81    Topo SW idx: 257    Topo next vlan: 0")
         t.readln("L2 protocols   : STP")
         t.readln("Untagged Ports : ethe 1/2")
@@ -1423,7 +1538,9 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
 
         t.write("show vlan 1600")
         t.readln("")
-        t.readln("PORT-VLAN 1600, Name [None], Priority Level -, Priority Force 0, Creation Type STATIC")
+        t.readln(
+            "PORT-VLAN 1600, Name [None], Priority Level -, Priority Force 0, Creation Type STATIC"
+        )
         t.readln("Topo HW idx    : 81    Topo SW idx: 257    Topo next vlan: 0")
         t.readln("L2 protocols   : STP")
         t.readln("Statically tagged Ports    : ethe 1/4")
@@ -1445,7 +1562,9 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
 
         t.write("show vlan 1600")
         t.readln("")
-        t.readln("PORT-VLAN 1600, Name [None], Priority Level -, Priority Force 0, Creation Type STATIC")
+        t.readln(
+            "PORT-VLAN 1600, Name [None], Priority Level -, Priority Force 0, Creation Type STATIC"
+        )
         t.readln("Topo HW idx    : 81    Topo SW idx: 257    Topo next vlan: 0")
         t.readln("L2 protocols   : STP")
         t.readln("Statically tagged Ports    : ethe 1/3 to 1/4")
@@ -1477,13 +1596,19 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
 
         t.readln("System: NetIron CER (Serial #: 1P2539K036,  Part #: 40-1000617-02)")
         t.readln("License: RT_SCALE, ADV_SVCS_PREM (LID: XXXXXXXXXX)")
-        t.readln("Boot     : Version 5.8.0T185 Copyright (c) 1996-2014 Brocade Communications Systems, Inc.")
+        t.readln(
+            "Boot     : Version 5.8.0T185 Copyright (c) 1996-2014 Brocade Communications Systems, Inc."
+        )
         t.readln("Compiled on May 18 2015 at 13:03:00 labeled as ceb05800")
         t.readln(" (463847 bytes) from boot flash")
-        t.readln("Monitor  : Version 5.8.0T185 Copyright (c) 1996-2014 Brocade Communications Systems, Inc.")
+        t.readln(
+            "Monitor  : Version 5.8.0T185 Copyright (c) 1996-2014 Brocade Communications Systems, Inc."
+        )
         t.readln("Compiled on May 18 2015 at 13:03:00 labeled as ceb05800")
         t.readln(" (463847 bytes) from code flash")
-        t.readln("IronWare : Version 5.8.0bT183 Copyright (c) 1996-2014 Brocade Communications Systems, Inc.")
+        t.readln(
+            "IronWare : Version 5.8.0bT183 Copyright (c) 1996-2014 Brocade Communications Systems, Inc."
+        )
         t.readln("Compiled on May 21 2015 at 09:20:22 labeled as ce05800b")
         t.readln(" (17563175 bytes) from Primary")
         t.readln("CPLD Version: 0x00000010")
@@ -1504,18 +1629,13 @@ class TestBrocadeSwitchProtocol(ProtocolTest):
         create_interface_vlan(t, "1201")
         configuring_interface_vlan(t, "1201", do="no ip redirect")
 
-        assert_interface_configuration(t, "ve 1201", [
-            "interface ve 1201",
-            " no ip redirect",
-            "!"
-        ])
+        assert_interface_configuration(
+            t, "ve 1201", ["interface ve 1201", " no ip redirect", "!"]
+        )
 
         configuring_interface_vlan(t, "1201", do="ip redirect")
 
-        assert_interface_configuration(t, "ve 1201", [
-            "interface ve 1201",
-            "!"
-        ])
+        assert_interface_configuration(t, "ve 1201", ["interface ve 1201", "!"])
 
         remove_vlan(t, "1201")
 
@@ -1662,8 +1782,12 @@ def configuring_access_group_interface_vlan(t, vlan, do):
 
     t.write(do)
 
-    t.readln("Warning: An undefined or zero length ACL has been applied. "
-             "Filtering will not occur for the specified interface VE {} (outbound).".format(vlan))
+    t.readln(
+        "Warning: An undefined or zero length ACL has been applied. "
+        "Filtering will not occur for the specified interface VE {} (outbound).".format(
+            vlan
+        )
+    )
     t.read("SSH@my_switch(config-vif-{})#".format(vlan))
     t.write("exit")
     t.read("SSH@my_switch(config)#")

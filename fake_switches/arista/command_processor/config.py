@@ -11,8 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from fake_switches.arista.command_processor import AristaBaseCommandProcessor, NameIsIncomplete, InvalidVlanNumber, \
-    VlanNumberIsZero
+from fake_switches.arista.command_processor import (
+    AristaBaseCommandProcessor,
+    NameIsIncomplete,
+    InvalidVlanNumber,
+    VlanNumberIsZero,
+)
 from fake_switches.switch_configuration import split_port_name
 
 
@@ -65,14 +69,18 @@ class ConfigCommandProcessor(AristaBaseCommandProcessor):
         else:
             name, if_id = split_port_name(interface_name)
             if name == "Vlan":
-                new_vlan_interface = self.switch_configuration.new("VlanPort", if_id, interface_name)
+                new_vlan_interface = self.switch_configuration.new(
+                    "VlanPort", if_id, interface_name
+                )
                 self.switch_configuration.add_port(new_vlan_interface)
                 self.move_to(self.config_interface_processor, new_vlan_interface)
             else:
                 raise NotImplementedError
 
     def do_no_interface(self, *args):
-        port = self.switch_configuration.get_port_by_partial_name(self.read_interface_name(args))
+        port = self.switch_configuration.get_port_by_partial_name(
+            self.read_interface_name(args)
+        )
         if port is not None:
             self.switch_configuration.remove_port(port)
         self.sub_processor = None

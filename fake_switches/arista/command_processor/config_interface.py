@@ -15,18 +15,27 @@ import re
 
 from netaddr import IPNetwork, AddrFormatError
 
-from fake_switches.arista.command_processor import AristaBaseCommandProcessor, with_params, with_vlan_list, \
-    short_port_name
+from fake_switches.arista.command_processor import (
+    AristaBaseCommandProcessor,
+    with_params,
+    with_vlan_list,
+    short_port_name,
+)
 
 
 class ConfigInterfaceCommandProcessor(AristaBaseCommandProcessor):
-    def init(self, switch_configuration, terminal_controller, logger, piping_processor, *args):
-        super(ConfigInterfaceCommandProcessor, self).init(switch_configuration, terminal_controller, logger,
-                                                          piping_processor)
+    def init(
+        self, switch_configuration, terminal_controller, logger, piping_processor, *args
+    ):
+        super(ConfigInterfaceCommandProcessor, self).init(
+            switch_configuration, terminal_controller, logger, piping_processor
+        )
         self.port = args[0]
 
     def get_prompt(self):
-        return self.switch_configuration.name + "(config-if-{})#".format(short_port_name(self.port.name))
+        return self.switch_configuration.name + "(config-if-{})#".format(
+            short_port_name(self.port.name)
+        )
 
     def do_ip(self, *args):
         if "address".startswith(args[0]):
@@ -43,7 +52,11 @@ class ConfigInterfaceCommandProcessor(AristaBaseCommandProcessor):
             self._remove_ip(args[1:])
         elif "helper-address".startswith(args[0]):
             self._remove_ip_helper(args[1:])
-        elif "virtual-router".startswith(args[0]) and "address".startswith(args[1]) and len(args) == 2:
+        elif (
+            "virtual-router".startswith(args[0])
+            and "address".startswith(args[1])
+            and len(args) == 2
+        ):
             self._remove_all_virtual_router_addresses()
         elif "virtual-router".startswith(args[0]) and "address".startswith(args[1]):
             self._remove_virtual_router_address(*args[2:])
@@ -66,13 +79,13 @@ class ConfigInterfaceCommandProcessor(AristaBaseCommandProcessor):
         self.port.load_interval = None
 
     def do_mpls(self, *args):
-        if args[0] == 'ip':
+        if args[0] == "ip":
             self.port.mpls_ip = True
         else:
             raise NotImplementedError
 
     def do_no_mpls(self, *args):
-        if args[0] == 'ip':
+        if args[0] == "ip":
             self.port.mpls_ip = False
         else:
             raise NotImplementedError
@@ -80,16 +93,28 @@ class ConfigInterfaceCommandProcessor(AristaBaseCommandProcessor):
     def do_switchport(self, *args):
         operations = [
             (("mode",), self._switchport_mode),
-            (("trunk", "allowed", "vlan", "add"), self._switchport_trunk_allowed_vlan_add),
-            (("trunk", "allowed", "vlan", "remove"), self._switchport_trunk_allowed_vlan_remove),
-            (("trunk", "allowed", "vlan", "none"), self._switchport_trunk_allowed_vlan_none),
-            (("trunk", "allowed", "vlan", "all"), self._switchport_trunk_allowed_vlan_all),
-            (("trunk", "allowed", "vlan"), self._switchport_trunk_allowed_vlan)
+            (
+                ("trunk", "allowed", "vlan", "add"),
+                self._switchport_trunk_allowed_vlan_add,
+            ),
+            (
+                ("trunk", "allowed", "vlan", "remove"),
+                self._switchport_trunk_allowed_vlan_remove,
+            ),
+            (
+                ("trunk", "allowed", "vlan", "none"),
+                self._switchport_trunk_allowed_vlan_none,
+            ),
+            (
+                ("trunk", "allowed", "vlan", "all"),
+                self._switchport_trunk_allowed_vlan_all,
+            ),
+            (("trunk", "allowed", "vlan"), self._switchport_trunk_allowed_vlan),
         ]
 
         for cmd, target in operations:
             if _is_cmd(args, *cmd):
-                target(*args[len(cmd):])
+                target(*args[len(cmd) :])
                 return
 
         self.display.invalid_command(self, "Incomplete command")
@@ -109,7 +134,9 @@ class ConfigInterfaceCommandProcessor(AristaBaseCommandProcessor):
         new_ip, remainder = _read_ip(args)
         if len(remainder) > 1:
             raise NotImplementedError
-        ip_owner, existing_ip = self.switch_configuration.get_port_and_ip_by_ip(new_ip.ip)
+        ip_owner, existing_ip = self.switch_configuration.get_port_and_ip_by_ip(
+            new_ip.ip
+        )
         if not ip_owner or ip_owner == self.port:
             if len(remainder) > 0 and "secondary".startswith(remainder[0]):
                 self.port.add_ip(new_ip)
@@ -120,10 +147,11 @@ class ConfigInterfaceCommandProcessor(AristaBaseCommandProcessor):
                     self.port.ips[0] = new_ip
         else:
             self.display.invalid_result(
-                self, "Subnet {new} overlaps with existing subnet {current} of interface {owner}".format(
-                    new=new_ip.network,
-                    current=existing_ip.network,
-                    owner=ip_owner.name))
+                self,
+                "Subnet {new} overlaps with existing subnet {current} of interface {owner}".format(
+                    new=new_ip.network, current=existing_ip.network, owner=ip_owner.name
+                ),
+            )
         self.port.vendor_specific["has-internet-protocol"] = True
 
     def _remove_ip(self, args):
@@ -135,16 +163,24 @@ class ConfigInterfaceCommandProcessor(AristaBaseCommandProcessor):
 
             if len(remainder) > 0 and "secondary".startswith(remainder[0]):
                 if new_ip not in self.port.ips[1:]:
-                    self.display.warning(self, "Address {} was not found for deletion".format(new_ip))
+                    self.display.warning(
+                        self, "Address {} was not found for deletion".format(new_ip)
+                    )
                     return
             else:
                 if new_ip != self.port.ips[0]:
-                    self.display.invalid_command(self, "Address {} does not match primary address {}"
-                                                 .format(new_ip, self.port.ips[0]))
+                    self.display.invalid_command(
+                        self,
+                        "Address {} does not match primary address {}".format(
+                            new_ip, self.port.ips[0]
+                        ),
+                    )
                     return
 
                 if len(self.port.ips) > 1:
-                    self.display.invalid_command(self, "Primary address cannot be deleted before secondary")
+                    self.display.invalid_command(
+                        self, "Primary address cannot be deleted before secondary"
+                    )
                     return
 
             self.port.remove_ip(new_ip)
@@ -177,7 +213,8 @@ class ConfigInterfaceCommandProcessor(AristaBaseCommandProcessor):
                 self,
                 "Host name is invalid. Host name must contain only alphanumeric characters, '.' and '-'.\n"
                 "It must begin and end with an alphanumeric character.\n"
-                "Maximum characters in hostname is 64.")
+                "Maximum characters in hostname is 64.",
+            )
             return None
 
         return args[0]

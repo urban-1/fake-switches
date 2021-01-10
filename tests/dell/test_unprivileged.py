@@ -12,13 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from tests.util.protocol_util import with_protocol, ProtocolTest, SshTester, TelnetTester
+from tests.util.protocol_util import (
+    with_protocol,
+    ProtocolTest,
+    SshTester,
+    TelnetTester,
+)
 
 
 class DellUnprivilegedTest(ProtocolTest):
     __test__ = False
 
-    tester_class = SshTester
+    _tester = SshTester
     test_switch = "dell"
 
     @with_protocol
@@ -58,9 +63,9 @@ class DellUnprivilegedTest(ProtocolTest):
 
 class DellUnprivilegedSshTest(DellUnprivilegedTest):
     __test__ = True
-    tester_class = SshTester
+    _tester = SshTester
 
 
 class DellUnprivilegedTelnetTest(DellUnprivilegedTest):
     __test__ = True
-    tester_class = TelnetTester
+    _tester = TelnetTester

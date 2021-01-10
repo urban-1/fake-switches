@@ -16,12 +16,19 @@ from fake_switches.command_processing.base_command_processor import BaseCommandP
 
 
 class ConfigVrfCommandProcessor(BaseCommandProcessor):
-    def init(self, switch_configuration, terminal_controller, logger, piping_processor, *args):
-        super(ConfigVrfCommandProcessor, self).init(switch_configuration, terminal_controller, logger, piping_processor)
+    def init(
+        self, switch_configuration, terminal_controller, logger, piping_processor, *args
+    ):
+        super(ConfigVrfCommandProcessor, self).init(
+            switch_configuration, terminal_controller, logger, piping_processor
+        )
         self.vrf = args[0]
 
     def get_prompt(self):
-        return "SSH@%s(config-vrf-%s)#" % (self.switch_configuration.name, self.vrf.name)
+        return "SSH@%s(config-vrf-%s)#" % (
+            self.switch_configuration.name,
+            self.vrf.name,
+        )
 
     def do_exit(self):
         self.is_done = True

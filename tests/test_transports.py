@@ -1,8 +1,11 @@
 import unittest
 
+from fake_switches.transports import (
+    SwitchSshService,
+    SwitchTelnetService,
+    SwitchHttpService,
+)
 from hamcrest import assert_that, equal_to
-
-from fake_switches.transports import SwitchSshService, SwitchTelnetService, SwitchHttpService
 
 
 class TransportsTests(unittest.TestCase):

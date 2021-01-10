@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import re
+
 from lxml import etree
 
 
@@ -27,10 +28,7 @@ XML_NS = "__xml_ns__"
 
 class SimpleDatastore(object):
     def __init__(self):
-        self.data = {
-            RUNNING: {},
-            CANDIDATE: {}
-        }
+        self.data = {RUNNING: {}, CANDIDATE: {}}
 
     def set_data(self, source, data):
         self.data[source] = data
@@ -55,7 +53,6 @@ class Response(object):
 
 
 def dict_2_etree(source_dict):
-
     def append(root, data):
         if isinstance(data, dict):
             for k, v in data.items():
@@ -106,7 +103,9 @@ def unqualify(lxml_element):
 
 
 class NetconfError(Exception):
-    def __init__(self, msg, severity="error", err_type=None, tag=None, info=None, path=None):
+    def __init__(
+        self, msg, severity="error", err_type=None, tag=None, info=None, path=None
+    ):
         super(NetconfError, self).__init__(msg)
         self.severity = severity
         self.type = err_type
@@ -122,15 +121,18 @@ class NetconfError(Exception):
 
 
 def error_to_rpcerror_dict(error):
-    error_specs = {
-        "error-message": str(error)
-    }
+    error_specs = {"error-message": str(error)}
 
-    if error.path: error_specs["error-path"] = error.path
-    if error.type: error_specs["error-type"] = error.type
-    if error.tag: error_specs["error-tag"] = error.tag
-    if error.severity: error_specs["error-severity"] = error.severity
-    if error.info: error_specs["error-info"] = error.info
+    if error.path:
+        error_specs["error-path"] = error.path
+    if error.type:
+        error_specs["error-type"] = error.type
+    if error.tag:
+        error_specs["error-tag"] = error.tag
+    if error.severity:
+        error_specs["error-severity"] = error.severity
+    if error.info:
+        error_specs["error-info"] = error.info
     return {"rpc-error": error_specs}
 
 
@@ -149,42 +151,62 @@ class AlreadyLocked(NetconfError):
 
 class CannotLockUncleanCandidate(NetconfError):
     def __init__(self):
-        super(CannotLockUncleanCandidate, self).__init__("configuration database modified")
+        super(CannotLockUncleanCandidate, self).__init__(
+            "configuration database modified"
+        )
 
 
 class UnknownVlan(NetconfError):
     def __init__(self, vlan, interface, unit):
-        super(UnknownVlan, self).__init__("No vlan matches vlan tag %s for interface %s.%s" % (vlan, interface, unit))
+        super(UnknownVlan, self).__init__(
+            "No vlan matches vlan tag %s for interface %s.%s" % (vlan, interface, unit)
+        )
 
 
 class AggregatePortOutOfRange(NetconfError):
     def __init__(self, port, interface, max_range=999):
-        super(AggregatePortOutOfRange, self).__init__("device value outside range 0..{} for '{}' in '{}'".format(max_range, port, interface))
+        super(AggregatePortOutOfRange, self).__init__(
+            "device value outside range 0..{} for '{}' in '{}'".format(
+                max_range, port, interface
+            )
+        )
 
 
 class PhysicalPortOutOfRange(NetconfError):
     def __init__(self, port, interface, max_number):
-        super(PhysicalPortOutOfRange, self).__init__("port value outside range 1..{} for '{}' in '{}'".format(max_number, port, interface))
+        super(PhysicalPortOutOfRange, self).__init__(
+            "port value outside range 1..{} for '{}' in '{}'".format(
+                max_number, port, interface
+            )
+        )
 
 
 class InvalidTrailingInput(NetconfError):
     def __init__(self, port, interface):
-        super(InvalidTrailingInput, self).__init__("invalid trailing input '{}' in '{}'".format(port, interface))
+        super(InvalidTrailingInput, self).__init__(
+            "invalid trailing input '{}' in '{}'".format(port, interface)
+        )
 
 
 class InvalidInterfaceType(NetconfError):
     def __init__(self, interface):
-        super(InvalidInterfaceType, self).__init__("invalid interface type in '{}'".format(interface))
+        super(InvalidInterfaceType, self).__init__(
+            "invalid interface type in '{}'".format(interface)
+        )
 
 
 class InvalidNumericValue(NetconfError):
     def __init__(self, value):
-        super(InvalidNumericValue, self).__init__("Invalid numeric value: '{}'".format(value))
+        super(InvalidNumericValue, self).__init__(
+            "Invalid numeric value: '{}'".format(value)
+        )
 
 
 class InvalidMTUValue(NetconfError):
     def __init__(self, value, max_mtu):
-        super(InvalidMTUValue, self).__init__("Value {} is not within range (256..{})".format(value, max_mtu))
+        super(InvalidMTUValue, self).__init__(
+            "Value {} is not within range (256..{})".format(value, max_mtu)
+        )
 
 
 class OperationNotSupported(NetconfError):
@@ -193,21 +215,29 @@ class OperationNotSupported(NetconfError):
             "Operation %s not found amongst current capabilities" % name,
             severity="error",
             err_type="protocol",
-            tag="operation-not-supported"
+            tag="operation-not-supported",
         )
 
 
 def xml_equals(actual_node, node):
-    if unqualify(node) != unqualify(actual_node): return False
-    if len(node) != len(actual_node): return False
+    if unqualify(node) != unqualify(actual_node):
+        return False
+    if len(node) != len(actual_node):
+        return False
     if node.text is not None:
-        if actual_node.text is None: return False
-        elif node.text.strip() != actual_node.text.strip(): return False
-    elif actual_node.text is not None: return False
+        if actual_node.text is None:
+            return False
+        elif node.text.strip() != actual_node.text.strip():
+            return False
+    elif actual_node.text is not None:
+        return False
     for name, value in node.attrib.items():
-        if name not in actual_node.attrib: return False
-        if actual_node.attrib[name] != value: return False
-    if actual_node.nsmap != node.nsmap: return False
+        if name not in actual_node.attrib:
+            return False
+        if actual_node.attrib[name] != value:
+            return False
+    if actual_node.nsmap != node.nsmap:
+        return False
     return _compare_children(node, actual_node)
 
 

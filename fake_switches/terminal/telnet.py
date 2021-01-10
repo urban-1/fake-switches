@@ -16,8 +16,8 @@ import string
 
 from twisted.conch.telnet import ECHO, Telnet, SGA, CR, LF
 
-from fake_switches.terminal import lf_to_crlf
 from fake_switches.terminal import TerminalController
+from fake_switches.terminal import lf_to_crlf
 
 
 class StatefulTelnet(Telnet, object):
@@ -43,8 +43,8 @@ class StatefulTelnet(Telnet, object):
         self.handler = lambda data: None
         self._buffer = ""
         self._key_handlers = {
-            '\r': self._run_command,
-            '\n': self._run_command,
+            "\r": self._run_command,
+            "\n": self._run_command,
         }
 
     def applicationDataReceived(self, data):
@@ -68,7 +68,7 @@ class StatefulTelnet(Telnet, object):
         self.next_line()
 
     def next_line(self):
-        self.write('\n')
+        self.write("\n")
 
     def enable_input_replacement(self, replace_char):
         self._replace_input = replace_char
@@ -105,18 +105,19 @@ class SwitchTelnetShell(StatefulTelnet):
 
     def connectionMade(self):
         super(SwitchTelnetShell, self).connectionMade()
-        self.write('Username: ')
+        self.write("Username: ")
         self.handler = self.validate_username
 
     def validate_username(self, _):
-        self.write('Password: ')
+        self.write("Password: ")
         self.enable_input_replacement("")
         self.handler = self.validate_password
 
     def validate_password(self, _):
         self.disable_input_replacement()
         self.session = self.switch_core.launch(
-            "telnet", TelnetTerminalController(shell=self))
+            "telnet", TelnetTerminalController(shell=self)
+        )
         self.handler = self.command
 
     def command(self, line):

@@ -16,13 +16,20 @@ import json
 from hamcrest import assert_that, is_
 from pyeapi.eapilib import CommandError
 
-from tests.arista import enable, remove_vlan, create_vlan, create_interface_vlan, configuring_interface_vlan, \
-    remove_interface_vlan, with_eapi
+from tests.arista import (
+    enable,
+    remove_vlan,
+    create_vlan,
+    create_interface_vlan,
+    configuring_interface_vlan,
+    remove_interface_vlan,
+    with_eapi,
+)
 from tests.util.protocol_util import ProtocolTest, SshTester, with_protocol
 
 
 class TestAristaShowInterface(ProtocolTest):
-    tester_class = SshTester
+    _tester = SshTester
     test_switch = "arista"
 
     @with_protocol
@@ -40,15 +47,21 @@ class TestAristaShowInterface(ProtocolTest):
 
         t.write("show interfaces")
         t.readln("Ethernet1 is up, line protocol is up (connected)")
-        t.readln("  Hardware is Ethernet, address is 0000.0000.0000 (bia 0000.0000.0000)")
+        t.readln(
+            "  Hardware is Ethernet, address is 0000.0000.0000 (bia 0000.0000.0000)"
+        )
         t.readln("  Ethernet MTU 9214 bytes")
         t.readln("  Full-duplex, Unconfigured, auto negotiation: off, uni-link: n/a")
         t.readln("  Up 0 minutes, 0 seconds")
         t.readln("  Loopback Mode : None")
         t.readln("  0 link status changes since last clear")
-        t.readln("  Last clearing of \"show interface\" counters never")
-        t.readln("  0 minutes input rate 0 bps (- with framing overhead), 0 packets/sec")
-        t.readln("  0 minutes output rate 0 bps (- with framing overhead), 0 packets/sec")
+        t.readln('  Last clearing of "show interface" counters never')
+        t.readln(
+            "  0 minutes input rate 0 bps (- with framing overhead), 0 packets/sec"
+        )
+        t.readln(
+            "  0 minutes output rate 0 bps (- with framing overhead), 0 packets/sec"
+        )
         t.readln("     0 packets input, 0 bytes")
         t.readln("     Received 0 broadcasts, 0 multicast")
         t.readln("     0 runts, 0 giants")
@@ -60,15 +73,21 @@ class TestAristaShowInterface(ProtocolTest):
         t.readln("     0 late collision, 0 deferred, 0 output discards")
         t.readln("     0 PAUSE output")
         t.readln("Ethernet2 is up, line protocol is up (connected)")
-        t.readln("  Hardware is Ethernet, address is 0000.0000.0000 (bia 0000.0000.0000)")
+        t.readln(
+            "  Hardware is Ethernet, address is 0000.0000.0000 (bia 0000.0000.0000)"
+        )
         t.readln("  Ethernet MTU 9214 bytes")
         t.readln("  Full-duplex, Unconfigured, auto negotiation: off, uni-link: n/a")
         t.readln("  Up 0 minutes, 0 seconds")
         t.readln("  Loopback Mode : None")
         t.readln("  0 link status changes since last clear")
-        t.readln("  Last clearing of \"show interface\" counters never")
-        t.readln("  0 minutes input rate 0 bps (- with framing overhead), 0 packets/sec")
-        t.readln("  0 minutes output rate 0 bps (- with framing overhead), 0 packets/sec")
+        t.readln('  Last clearing of "show interface" counters never')
+        t.readln(
+            "  0 minutes input rate 0 bps (- with framing overhead), 0 packets/sec"
+        )
+        t.readln(
+            "  0 minutes output rate 0 bps (- with framing overhead), 0 packets/sec"
+        )
         t.readln("     0 packets input, 0 bytes")
         t.readln("     Received 0 broadcasts, 0 multicast")
         t.readln("     0 runts, 0 giants")
@@ -114,7 +133,7 @@ class TestAristaShowInterface(ProtocolTest):
                                 "inPktsRate": 0.0,
                                 "outBitsRate": 0.0,
                                 "updateInterval": 0.0,
-                                "outPktsRate": 0.0
+                                "outPktsRate": 0.0,
                             },
                             "mtu": 9214,
                             "hardware": "ethernet",
@@ -133,7 +152,7 @@ class TestAristaShowInterface(ProtocolTest):
                                     "deferredTransmissions": 0,
                                     "txPause": 0,
                                     "collisions": 0,
-                                    "lateCollisions": 0
+                                    "lateCollisions": 0,
                                 },
                                 "inOctets": 0,
                                 "outDiscards": 0,
@@ -146,16 +165,16 @@ class TestAristaShowInterface(ProtocolTest):
                                     "fcsErrors": 0,
                                     "alignmentErrors": 0,
                                     "giantFrames": 0,
-                                    "symbolErrors": 0
+                                    "symbolErrors": 0,
                                 },
                                 "linkStatusChanges": 5,
                                 "outMulticastPkts": 0,
                                 "totalInErrors": 0,
-                                "inDiscards": 0
+                                "inDiscards": 0,
                             },
                             "interfaceAddress": [],
                             "physicalAddress": "00:00:00:00:00:00",
-                            "description": ""
+                            "description": "",
                         },
                         "Ethernet2": {
                             "lastStatusChangeTimestamp": 0.0,
@@ -169,7 +188,7 @@ class TestAristaShowInterface(ProtocolTest):
                                 "inPktsRate": 0.0,
                                 "outBitsRate": 0.0,
                                 "updateInterval": 0.0,
-                                "outPktsRate": 0.0
+                                "outPktsRate": 0.0,
                             },
                             "mtu": 9214,
                             "hardware": "ethernet",
@@ -188,7 +207,7 @@ class TestAristaShowInterface(ProtocolTest):
                                     "deferredTransmissions": 0,
                                     "txPause": 0,
                                     "collisions": 0,
-                                    "lateCollisions": 0
+                                    "lateCollisions": 0,
                                 },
                                 "inOctets": 0,
                                 "outDiscards": 0,
@@ -201,16 +220,16 @@ class TestAristaShowInterface(ProtocolTest):
                                     "fcsErrors": 0,
                                     "alignmentErrors": 0,
                                     "giantFrames": 0,
-                                    "symbolErrors": 0
+                                    "symbolErrors": 0,
                                 },
                                 "linkStatusChanges": 5,
                                 "outMulticastPkts": 0,
                                 "totalInErrors": 0,
-                                "inDiscards": 0
+                                "inDiscards": 0,
                             },
                             "interfaceAddress": [],
                             "physicalAddress": "00:00:00:00:00:00",
-                            "description": ""
+                            "description": "",
                         },
                         "Vlan299": {
                             "bandwidth": 0,
@@ -222,18 +241,12 @@ class TestAristaShowInterface(ProtocolTest):
                                 {
                                     "broadcastAddress": "255.255.255.255",
                                     "dhcp": False,
-                                    "primaryIp": {
-                                        "address": "1.1.1.2",
-                                        "maskLen": 24
-                                    },
+                                    "primaryIp": {"address": "1.1.1.2", "maskLen": 24},
                                     "secondaryIps": {},
                                     "secondaryIpsOrderedList": [],
-                                    "virtualIp": {
-                                        "address": "0.0.0.0",
-                                        "maskLen": 0
-                                    },
+                                    "virtualIp": {"address": "0.0.0.0", "maskLen": 0},
                                     "virtualSecondaryIps": {},
-                                    "virtualSecondaryIpsOrderedList": []
+                                    "virtualSecondaryIpsOrderedList": [],
                                 }
                             ],
                             "interfaceStatus": "connected",
@@ -241,7 +254,7 @@ class TestAristaShowInterface(ProtocolTest):
                             "lineProtocolStatus": "up",
                             "mtu": 1500,
                             "name": "Vlan299",
-                            "physicalAddress": "00:00:00:00:00:00"
+                            "physicalAddress": "00:00:00:00:00:00",
                         },
                         "Vlan777": {
                             "bandwidth": 0,
@@ -253,18 +266,12 @@ class TestAristaShowInterface(ProtocolTest):
                                 {
                                     "broadcastAddress": "255.255.255.255",
                                     "dhcp": False,
-                                    "primaryIp": {
-                                        "address": "7.7.7.7",
-                                        "maskLen": 24
-                                    },
+                                    "primaryIp": {"address": "7.7.7.7", "maskLen": 24},
                                     "secondaryIps": {},
                                     "secondaryIpsOrderedList": [],
-                                    "virtualIp": {
-                                        "address": "0.0.0.0",
-                                        "maskLen": 0
-                                    },
+                                    "virtualIp": {"address": "0.0.0.0", "maskLen": 0},
                                     "virtualSecondaryIps": {},
-                                    "virtualSecondaryIpsOrderedList": []
+                                    "virtualSecondaryIpsOrderedList": [],
                                 }
                             ],
                             "interfaceStatus": "connected",
@@ -272,13 +279,17 @@ class TestAristaShowInterface(ProtocolTest):
                             "lineProtocolStatus": "up",
                             "mtu": 1500,
                             "name": "Vlan777",
-                            "physicalAddress": "00:00:00:00:00:00"
-                        }
-                    }
-                }
+                            "physicalAddress": "00:00:00:00:00:00",
+                        },
+                    },
+                },
             }
         ]
-        assert_that(result, is_(expected), "actual={}\nexpected={}".format(json.dumps(result), json.dumps(expected)))
+        assert_that(
+            result,
+            is_(expected),
+            "actual={}\nexpected={}".format(json.dumps(result), json.dumps(expected)),
+        )
 
         remove_interface_vlan(t, "299")
         remove_vlan(t, "299")
@@ -296,10 +307,13 @@ class TestAristaShowInterface(ProtocolTest):
         with self.assertRaises(CommandError) as expect:
             api.enable("show interfaces Et3", strict=True)
 
-        assert_that(str(expect.exception), is_(
-            "Error [1002]: CLI command 2 of 2 'show interfaces Et3' failed: invalid command "
-            "[Invalid input]"
-        ))
+        assert_that(
+            str(expect.exception),
+            is_(
+                "Error [1002]: CLI command 2 of 2 'show interfaces Et3' failed: invalid command "
+                "[Invalid input]"
+            ),
+        )
 
     @with_protocol
     @with_eapi
@@ -311,7 +325,10 @@ class TestAristaShowInterface(ProtocolTest):
         with self.assertRaises(CommandError) as expect:
             api.enable("show interfaces Et3", strict=True)
 
-        assert_that(str(expect.exception), is_(
-            "Error [1002]: CLI command 2 of 2 'show interfaces Et3' failed: invalid command "
-            "[Invalid input]"
-        ))
+        assert_that(
+            str(expect.exception),
+            is_(
+                "Error [1002]: CLI command 2 of 2 'show interfaces Et3' failed: invalid command "
+                "[Invalid input]"
+            ),
+        )

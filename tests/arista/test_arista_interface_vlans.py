@@ -14,13 +14,21 @@
 from hamcrest import assert_that, is_
 from pyeapi.eapilib import CommandError
 
-from tests.arista import enable, remove_vlan, create_vlan, create_interface_vlan, configuring_interface_vlan, \
-    remove_interface_vlan, with_eapi, assert_interface_configuration
+from tests.arista import (
+    enable,
+    remove_vlan,
+    create_vlan,
+    create_interface_vlan,
+    configuring_interface_vlan,
+    remove_interface_vlan,
+    with_eapi,
+    assert_interface_configuration,
+)
 from tests.util.protocol_util import ProtocolTest, SshTester, with_protocol
 
 
 class TestAristaInterfaceVlans(ProtocolTest):
-    tester_class = SshTester
+    _tester = SshTester
     test_switch = "arista"
 
     @with_protocol
@@ -30,33 +38,33 @@ class TestAristaInterfaceVlans(ProtocolTest):
 
         create_vlan(t, "299")
         create_interface_vlan(t, "299")
-        assert_interface_configuration(t, "Vlan299", [
-            "interface Vlan299"
-        ])
+        assert_interface_configuration(t, "Vlan299", ["interface Vlan299"])
 
         configuring_interface_vlan(t, "299", do="ip address 1.1.1.2/27")
 
-        assert_interface_configuration(t, "Vlan299", [
-            "interface Vlan299",
-            "   ip address 1.1.1.2/27"
-        ])
+        assert_interface_configuration(
+            t, "Vlan299", ["interface Vlan299", "   ip address 1.1.1.2/27"]
+        )
 
         configuring_interface_vlan(t, "299", do="ip address 1.1.1.3 255.255.255.0")
 
-        assert_interface_configuration(t, "Vlan299", [
-            "interface Vlan299",
-            "   ip address 1.1.1.3/24"
-        ])
+        assert_interface_configuration(
+            t, "Vlan299", ["interface Vlan299", "   ip address 1.1.1.3/24"]
+        )
 
         configuring_interface_vlan(t, "299", do="ip address 1.1.1.4/27 secondary")
         configuring_interface_vlan(t, "299", do="ip address 1.1.1.5/27 secondary")
 
-        assert_interface_configuration(t, "Vlan299", [
-            "interface Vlan299",
-            "   ip address 1.1.1.3/24",
-            "   ip address 1.1.1.4/27 secondary",
-            "   ip address 1.1.1.5/27 secondary"
-        ])
+        assert_interface_configuration(
+            t,
+            "Vlan299",
+            [
+                "interface Vlan299",
+                "   ip address 1.1.1.3/24",
+                "   ip address 1.1.1.4/27 secondary",
+                "   ip address 1.1.1.5/27 secondary",
+            ],
+        )
 
         t.write("show interfaces vlan 0299")
         t.readln("Vlan299 is up, line protocol is up (connected)")
@@ -71,72 +79,69 @@ class TestAristaInterfaceVlans(ProtocolTest):
 
         result = api.enable("show interfaces VLAN0299")
 
-        assert_that(result, is_([
-            {
-                "command": "show interfaces VLAN0299",
-                "encoding": "json",
-                "result": {
-                    "sourceDetail": "",
-                    "interfaces": {
-                        "Vlan299": {
-                            "bandwidth": 0,
-                            "burnedInAddress": "00:00:00:00:00:00",
-                            "description": "",
-                            "forwardingModel": "routed",
-                            "hardware": "vlan",
-                            "interfaceAddress": [
-                                {
-                                    "broadcastAddress": "255.255.255.255",
-                                    "dhcp": False,
-                                    "primaryIp": {
-                                        "address": "1.1.1.3",
-                                        "maskLen": 24
-                                    },
-                                    "secondaryIps": {
-                                        "1.1.1.4": {
-                                            "address": "1.1.1.4",
-                                            "maskLen": 27
-                                        },
-                                        "1.1.1.5": {
-                                            "address": "1.1.1.5",
-                                            "maskLen": 27
-                                        }
-                                    },
-                                    "secondaryIpsOrderedList": [
+        assert_that(
+            result,
+            is_(
+                [
+                    {
+                        "command": "show interfaces VLAN0299",
+                        "encoding": "json",
+                        "result": {
+                            "sourceDetail": "",
+                            "interfaces": {
+                                "Vlan299": {
+                                    "bandwidth": 0,
+                                    "burnedInAddress": "00:00:00:00:00:00",
+                                    "description": "",
+                                    "forwardingModel": "routed",
+                                    "hardware": "vlan",
+                                    "interfaceAddress": [
                                         {
-                                            "address": "1.1.1.4",
-                                            "maskLen": 27
-                                        },
-                                        {
-                                            "address": "1.1.1.5",
-                                            "maskLen": 27
+                                            "broadcastAddress": "255.255.255.255",
+                                            "dhcp": False,
+                                            "primaryIp": {
+                                                "address": "1.1.1.3",
+                                                "maskLen": 24,
+                                            },
+                                            "secondaryIps": {
+                                                "1.1.1.4": {
+                                                    "address": "1.1.1.4",
+                                                    "maskLen": 27,
+                                                },
+                                                "1.1.1.5": {
+                                                    "address": "1.1.1.5",
+                                                    "maskLen": 27,
+                                                },
+                                            },
+                                            "secondaryIpsOrderedList": [
+                                                {"address": "1.1.1.4", "maskLen": 27},
+                                                {"address": "1.1.1.5", "maskLen": 27},
+                                            ],
+                                            "virtualIp": {
+                                                "address": "0.0.0.0",
+                                                "maskLen": 0,
+                                            },
+                                            "virtualSecondaryIps": {},
+                                            "virtualSecondaryIpsOrderedList": [],
                                         }
                                     ],
-                                    "virtualIp": {
-                                        "address": "0.0.0.0",
-                                        "maskLen": 0
-                                    },
-                                    "virtualSecondaryIps": {},
-                                    "virtualSecondaryIpsOrderedList": []
+                                    "interfaceStatus": "connected",
+                                    "lastStatusChangeTimestamp": 0.0,
+                                    "lineProtocolStatus": "up",
+                                    "mtu": 1500,
+                                    "name": "Vlan299",
+                                    "physicalAddress": "00:00:00:00:00:00",
                                 }
-                            ],
-                            "interfaceStatus": "connected",
-                            "lastStatusChangeTimestamp": 0.0,
-                            "lineProtocolStatus": "up",
-                            "mtu": 1500,
-                            "name": "Vlan299",
-                            "physicalAddress": "00:00:00:00:00:00"
-                        }
+                            },
+                        },
                     }
-                }
-            }
-        ]))
+                ]
+            ),
+        )
 
         configuring_interface_vlan(t, "299", do="no ip address")
 
-        assert_interface_configuration(t, "Vlan299", [
-            "interface Vlan299"
-        ])
+        assert_interface_configuration(t, "Vlan299", ["interface Vlan299"])
 
         remove_interface_vlan(t, "299")
         remove_vlan(t, "299")
@@ -158,38 +163,45 @@ class TestAristaInterfaceVlans(ProtocolTest):
 
         result = api.enable("show interfaces Vlan299")
 
-        assert_that(result, is_([
-            {
-                "command": "show interfaces Vlan299",
-                "encoding": "json",
-                "result": {
-                    "sourceDetail": "",
-                    "interfaces": {
-                        "Vlan299": {
-                            "lastStatusChangeTimestamp": 0.0,
-                            "name": "Vlan299",
-                            "interfaceStatus": "connected",
-                            "burnedInAddress": "00:00:00:00:00:00",
-                            "mtu": 1500,
-                            "hardware": "vlan",
-                            "bandwidth": 0,
-                            "forwardingModel": "routed",
-                            "lineProtocolStatus": "up",
-                            "interfaceAddress": [],
-                            "physicalAddress": "00:00:00:00:00:00",
-                            "description": ""
-                        }
+        assert_that(
+            result,
+            is_(
+                [
+                    {
+                        "command": "show interfaces Vlan299",
+                        "encoding": "json",
+                        "result": {
+                            "sourceDetail": "",
+                            "interfaces": {
+                                "Vlan299": {
+                                    "lastStatusChangeTimestamp": 0.0,
+                                    "name": "Vlan299",
+                                    "interfaceStatus": "connected",
+                                    "burnedInAddress": "00:00:00:00:00:00",
+                                    "mtu": 1500,
+                                    "hardware": "vlan",
+                                    "bandwidth": 0,
+                                    "forwardingModel": "routed",
+                                    "lineProtocolStatus": "up",
+                                    "interfaceAddress": [],
+                                    "physicalAddress": "00:00:00:00:00:00",
+                                    "description": "",
+                                }
+                            },
+                        },
                     }
-                }
-            }
-        ]))
+                ]
+            ),
+        )
 
         remove_interface_vlan(t, "299")
         remove_vlan(t, "299")
 
     @with_protocol
     @with_eapi
-    def test_interface_vlan_with_removed_ip_has_an_empty_interface_address(self, t, api):
+    def test_interface_vlan_with_removed_ip_has_an_empty_interface_address(
+        self, t, api
+    ):
         enable(t)
 
         create_vlan(t, "299")
@@ -206,48 +218,53 @@ class TestAristaInterfaceVlans(ProtocolTest):
         t.read("my_arista#")
 
         result = api.enable("show interfaces Vlan299")
-        assert_that(result, is_([
-            {
-                "command": "show interfaces Vlan299",
-                "encoding": "json",
-                "result": {
-                    "sourceDetail": "",
-                    "interfaces": {
-                        "Vlan299": {
-                            "lastStatusChangeTimestamp": 0.0,
-                            "name": "Vlan299",
-                            "interfaceStatus": "connected",
-                            "burnedInAddress": "00:00:00:00:00:00",
-                            "mtu": 1500,
-                            "hardware": "vlan",
-                            "bandwidth": 0,
-                            "forwardingModel": "routed",
-                            "lineProtocolStatus": "up",
-                            "interfaceAddress": [
-                                {
-                                    "secondaryIpsOrderedList": [],
-                                    "broadcastAddress": "255.255.255.255",
-                                    "virtualSecondaryIps": {},
-                                    "dhcp": False,
-                                    "secondaryIps": {},
-                                    "primaryIp": {
-                                        "maskLen": 0,
-                                        "address": "0.0.0.0"
-                                    },
-                                    "virtualSecondaryIpsOrderedList": [],
-                                    "virtualIp": {
-                                        "maskLen": 0,
-                                        "address": "0.0.0.0"
-                                    }
+        assert_that(
+            result,
+            is_(
+                [
+                    {
+                        "command": "show interfaces Vlan299",
+                        "encoding": "json",
+                        "result": {
+                            "sourceDetail": "",
+                            "interfaces": {
+                                "Vlan299": {
+                                    "lastStatusChangeTimestamp": 0.0,
+                                    "name": "Vlan299",
+                                    "interfaceStatus": "connected",
+                                    "burnedInAddress": "00:00:00:00:00:00",
+                                    "mtu": 1500,
+                                    "hardware": "vlan",
+                                    "bandwidth": 0,
+                                    "forwardingModel": "routed",
+                                    "lineProtocolStatus": "up",
+                                    "interfaceAddress": [
+                                        {
+                                            "secondaryIpsOrderedList": [],
+                                            "broadcastAddress": "255.255.255.255",
+                                            "virtualSecondaryIps": {},
+                                            "dhcp": False,
+                                            "secondaryIps": {},
+                                            "primaryIp": {
+                                                "maskLen": 0,
+                                                "address": "0.0.0.0",
+                                            },
+                                            "virtualSecondaryIpsOrderedList": [],
+                                            "virtualIp": {
+                                                "maskLen": 0,
+                                                "address": "0.0.0.0",
+                                            },
+                                        }
+                                    ],
+                                    "physicalAddress": "00:00:00:00:00:00",
+                                    "description": "",
                                 }
-                            ],
-                            "physicalAddress": "00:00:00:00:00:00",
-                            "description": ""
-                        }
+                            },
+                        },
                     }
-                }
-            }
-        ]))
+                ]
+            ),
+        )
 
         remove_interface_vlan(t, "299")
         remove_vlan(t, "299")
@@ -352,7 +369,9 @@ class TestAristaInterfaceVlans(ProtocolTest):
         t.read("my_arista(config-if-Vl2000)#")
 
         t.write("ip address 2.2.2.75/25")
-        t.readln("% Subnet 2.2.2.0 overlaps with existing subnet 2.2.2.0 of interface Vlan1000")
+        t.readln(
+            "% Subnet 2.2.2.0 overlaps with existing subnet 2.2.2.0 of interface Vlan1000"
+        )
         t.read("my_arista(config-if-Vl2000)#")
 
         t.write("exit")
@@ -375,8 +394,13 @@ class TestAristaInterfaceVlans(ProtocolTest):
         with self.assertRaises(CommandError) as expectation:
             api.enable(["show interfaces vlan18"])
 
-        assert_that(str(expectation.exception), is_("Error [1002]: CLI command 2 of 2 'show interfaces vlan18' failed: "
-                                                    "invalid command [Interface does not exist]"))
+        assert_that(
+            str(expectation.exception),
+            is_(
+                "Error [1002]: CLI command 2 of 2 'show interfaces vlan18' failed: "
+                "invalid command [Interface does not exist]"
+            ),
+        )
 
     @with_protocol
     def test_show_unknown_interface_errors(self, t):

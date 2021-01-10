@@ -12,21 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""
+WARNING(urban): Used by tox -> python setup.py nosetests
+"""
+
 import re
+
 from hamcrest.library.text.substringmatcher import SubstringMatcher
+
 from tests.util.global_reactor import ThreadedReactor
 
 
 def setup():
-    ThreadedReactor.start_reactor()
+    ThreadedReactor.get_instance(is_global=True).start()
 
 
 def tearDown():
-    ThreadedReactor.stop_reactor()
+    ThreadedReactor.get_instance().stop()
 
 
 class RegexStringContains(SubstringMatcher):
-
     def __init__(self, regex_substring):
         super(RegexStringContains, self).__init__(regex_substring)
 
@@ -34,7 +39,7 @@ class RegexStringContains(SubstringMatcher):
         return re.search(self.substring, item) is not None
 
     def relationship(self):
-        return 'containing regex'
+        return "containing regex"
 
 
 def contains_regex(substring):

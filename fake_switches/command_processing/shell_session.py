@@ -14,6 +14,14 @@
 
 
 class ShellSession(object):
+    """
+    A ShellSession object is responsible for:
+
+    - Invoking the command processor
+    - Handling the TerminalExitSignal
+    - Handling "unknown commands" which by default does nothing
+    """
+
     def __init__(self, command_processor):
         self.command_processor = command_processor
 

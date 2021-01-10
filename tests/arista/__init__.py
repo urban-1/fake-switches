@@ -18,10 +18,25 @@ import pyeapi
 
 def with_eapi(test):
     @wraps(test)
-    def wrapper(self, protocol):
-        api = pyeapi.connect(transport="http", host=protocol.host, port=protocol.conf["http"],
-                             username=protocol.username, password=protocol.password, return_node=True)
-        test(self, protocol, api)
+    def wrapper(self, protocol=None):
+        # Get the booter that started this switch
+        core_switch = self.booter.get_switch(self.test_switch)
+        # Get the http port out of the core_switch
+        port = core_switch._test_ports["http"]
+        creds = core_switch._test_creds["http"]
+        username, password = next(iter(creds.items()))
+        api = pyeapi.connect(
+            transport="http",
+            host="127.0.0.1",
+            port=port,
+            username=username,
+            password=password,
+            return_node=True,
+        )
+        if protocol:
+            test(self, protocol, api)
+        else:
+            test(self, api)
 
     return wrapper
 
@@ -69,6 +84,7 @@ def configuring_interface_vlan(t, vlan, do):
     t.read("my_arista(config)#")
     t.write("exit")
     t.read("my_arista#")
+
 
 def configuring_interface(t, interface, do):
     t.write("configure terminal")

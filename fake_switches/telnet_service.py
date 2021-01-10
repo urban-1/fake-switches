@@ -22,6 +22,7 @@ from fake_switches.terminal.telnet import SwitchTelnetShell
 
 warnings.warn("Please use transports.telnet_service", DeprecationWarning)
 
+
 class SwitchTelnetFactory(Factory):
     def __init__(self, switch_core):
         self.switch_core = switch_core
@@ -33,4 +34,6 @@ class SwitchTelnetFactory(Factory):
 class SwitchTelnetService(transports.SwitchTelnetService):
     def __init__(self, ip, telnet_port=23, switch_core=None, **_):
         warnings.warn("Please use transports.telnet_service", DeprecationWarning)
-        super(SwitchTelnetService, self).__init__(ip=ip, port=telnet_port, switch_core=switch_core)
+        super(SwitchTelnetService, self).__init__(
+            ip=ip, port=telnet_port, switch_core=switch_core
+        )

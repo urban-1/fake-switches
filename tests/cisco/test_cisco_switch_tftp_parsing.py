@@ -1,13 +1,14 @@
 import unittest
 
 import mock
-from hamcrest import assert_that, equal_to
-
 from fake_switches.cisco.command_processor.config import ConfigCommandProcessor
-from fake_switches.cisco.command_processor.config_interface import ConfigInterfaceCommandProcessor
+from fake_switches.cisco.command_processor.config_interface import (
+    ConfigInterfaceCommandProcessor,
+)
 from fake_switches.cisco.command_processor.config_vlan import ConfigVlanCommandProcessor
 from fake_switches.command_processing.switch_tftp_parser import SwitchTftpParser
 from fake_switches.switch_configuration import SwitchConfiguration, Port
+from hamcrest import assert_that, equal_to
 
 
 class TestCiscoSwitchTftpParsing(unittest.TestCase):
@@ -23,15 +24,15 @@ vlan 2000
 name VLAN_2_0_0_0
 !
 """
-        config = SwitchConfiguration("127.0.0.1", name="my_switch", ports=[
-            Port("GigabitEthernet0/1")
-        ])
+        config = SwitchConfiguration(
+            "127.0.0.1", name="my_switch", ports=[Port("GigabitEthernet0/1")]
+        )
 
         parser = SwitchTftpParser(config)
         config_processor = ConfigCommandProcessor(
             config_vlan=ConfigVlanCommandProcessor(),
             config_vrf=None,
-            config_interface=None
+            config_interface=None,
         )
         parser.parse("hostname", "filename", config_processor)
 
@@ -71,15 +72,15 @@ no keepalive
 !
 """
 
-        config = SwitchConfiguration("127.0.0.1", name="my_switch", ports=[
-            Port("GigabitEthernet0/1")
-        ])
+        config = SwitchConfiguration(
+            "127.0.0.1", name="my_switch", ports=[Port("GigabitEthernet0/1")]
+        )
 
         parser = SwitchTftpParser(config)
         config_processor = ConfigCommandProcessor(
             config_vlan=ConfigVlanCommandProcessor(),
             config_vrf=None,
-            config_interface=ConfigInterfaceCommandProcessor()
+            config_interface=ConfigInterfaceCommandProcessor(),
         )
         parser.parse("hostname", "filename", config_processor)
 

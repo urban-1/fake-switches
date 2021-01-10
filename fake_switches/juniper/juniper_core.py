@@ -15,14 +15,30 @@
 import logging
 import textwrap
 
+from lxml import etree
+
 from fake_switches import switch_core
-from fake_switches.juniper.juniper_netconf_datastore import JuniperNetconfDatastore, NS_JUNOS
-from fake_switches.netconf import OperationNotSupported, RUNNING, CANDIDATE, Response, xml_equals, NetconfError
-from fake_switches.netconf.capabilities import Candidate1_0, ConfirmedCommit1_0, Validate1_0, Url1_0, \
-    Capability
+from fake_switches.juniper.juniper_netconf_datastore import (
+    JuniperNetconfDatastore,
+    NS_JUNOS,
+)
+from fake_switches.netconf import (
+    OperationNotSupported,
+    RUNNING,
+    CANDIDATE,
+    Response,
+    xml_equals,
+    NetconfError,
+)
+from fake_switches.netconf.capabilities import (
+    Candidate1_0,
+    ConfirmedCommit1_0,
+    Validate1_0,
+    Url1_0,
+    Capability,
+)
 from fake_switches.netconf.netconf_protocol import NetconfProtocol
 from fake_switches.switch_configuration import Port, AggregatedPort
-from lxml import etree
 
 
 class BaseJuniperSwitchCore(switch_core.SwitchCore):
@@ -46,7 +62,9 @@ class BaseJuniperSwitchCore(switch_core.SwitchCore):
             capabilities=self.capabilities(),
             additionnal_namespaces={"junos": NS_JUNOS},
             logger=logging.getLogger(
-                "fake_switches.juniper.%s.%s.netconf" % (self.switch_configuration.name, self.last_connection_id))
+                "fake_switches.juniper.%s.%s.netconf"
+                % (self.switch_configuration.name, self.last_connection_id)
+            ),
         )
 
     def capabilities(self):
@@ -56,18 +74,21 @@ class BaseJuniperSwitchCore(switch_core.SwitchCore):
             Validate1_0,
             Url1_0,
             NetconfJunos1_0,
-            DmiSystem1_0
+            DmiSystem1_0,
         ]
 
     @staticmethod
     def get_default_ports():
-        return [Port("ge-0/0/{}".format(i)) for i in range(1, 5)] + \
-               [AggregatedPort("ae{}".format(i)) for i in range(1, 24)]
+        return [Port("ge-0/0/{}".format(i)) for i in range(1, 5)] + [
+            AggregatedPort("ae{}".format(i)) for i in range(1, 24)
+        ]
 
 
 class JuniperSwitchCore(BaseJuniperSwitchCore):
     def __init__(self, switch_configuration):
-        super(JuniperSwitchCore, self).__init__(switch_configuration, datastore_class=JuniperNetconfDatastore)
+        super(JuniperSwitchCore, self).__init__(
+            switch_configuration, datastore_class=JuniperNetconfDatastore
+        )
 
 
 class NetconfJunos1_0(Capability):
@@ -87,7 +108,10 @@ class NetconfJunos1_0(Capability):
             <configuration-information>
                 <configuration-output>{0}</configuration-output>
             </configuration-information>
-            """).format("There were some changes" if not xml_equals(running, candidate) else "")
+            """
+        ).format(
+            "There were some changes" if not xml_equals(running, candidate) else ""
+        )
         data = etree.fromstring(data_string, parser=etree.XMLParser(recover=True))
 
         return Response(data)

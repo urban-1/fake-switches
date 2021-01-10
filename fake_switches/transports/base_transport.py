@@ -1,4 +1,3 @@
-
 class BaseTransport(object):
     def __init__(self, ip=None, port=None, switch_core=None, users=None):
         self.ip = ip

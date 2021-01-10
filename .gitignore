@@ -10,3 +10,5 @@ ChangeLog
 .eggs/
 .venv
 dist/
+src/
+docker-compose

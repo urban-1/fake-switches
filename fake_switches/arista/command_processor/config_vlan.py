@@ -15,16 +15,21 @@ from fake_switches.arista.command_processor import AristaBaseCommandProcessor
 
 
 class ConfigVlanCommandProcessor(AristaBaseCommandProcessor):
-    def init(self, switch_configuration, terminal_controller, logger, piping_processor, *args):
-        super(ConfigVlanCommandProcessor, self).init(switch_configuration, terminal_controller, logger,
-                                                     piping_processor)
+    def init(
+        self, switch_configuration, terminal_controller, logger, piping_processor, *args
+    ):
+        super(ConfigVlanCommandProcessor, self).init(
+            switch_configuration, terminal_controller, logger, piping_processor
+        )
         self.vlan = args[0]
 
     def get_prompt(self):
-        return self.switch_configuration.name + "(config-vlan-{})#".format(self.vlan.number)
+        return self.switch_configuration.name + "(config-vlan-{})#".format(
+            self.vlan.number
+        )
 
     def do_name(self, *args):
-        self.vlan.name = (args[0][:32])
+        self.vlan.name = args[0][:32]
 
     def do_exit(self):
         self.is_done = True
